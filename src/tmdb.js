@@ -1,0 +1,7 @@
+const { tmdbToken, userAgent } = require("./config");
+const BASE = "https://api.themoviedb.org/3";
+async function api(path, params = {}) { if (!tmdbToken) throw new Error("TMDB_TOKEN is not configured"); const url = new URL(BASE + path); for (const [k,v] of Object.entries(params)) if (v !== undefined && v !== null && v !== "") url.searchParams.set(k,String(v)); const r=await fetch(url,{headers:{Authorization:`Bearer ${tmdbToken}`,Accept:"application/json","User-Agent":userAgent}}); if(!r.ok) throw new Error(`TMDB ${r.status}: ${await r.text()}`); return r.json(); }
+async function discover(from,to,page){return api("/discover/movie",{region:"GR","release_date.gte":from,"release_date.lte":to,with_release_type:"2|3",sort_by:"release_date.desc",include_adult:false,include_video:false,page});}
+async function externalIds(id){return api(`/movie/${id}/external_ids`);} async function releaseDates(id){return api(`/movie/${id}/release_dates`);} async function details(id){return api(`/movie/${id}`,{language:"el-GR"});}
+function greekTheatricalDates(payload){const gr=(payload.results||[]).find(x=>x.iso_3166_1==="GR"); if(!gr)return[]; return (gr.release_dates||[]).filter(x=>x.type===2||x.type===3).map(x=>({date:String(x.release_date||"").slice(0,10),type:x.type,note:x.note||""})).filter(x=>/^\d{4}-\d{2}-\d{2}$/.test(x.date));}
+module.exports={discover,externalIds,releaseDates,details,greekTheatricalDates};
