@@ -1,4 +1,15 @@
 {
-  "include": [],
+  "include": [
+    {
+      "id": "tt33764258",
+      "type": "movie",
+      "name": "The Odyssey",
+      "originalName": "The Odyssey",
+      "greekTheatricalDate": "2026-07-16",
+      "releaseType": 3,
+      "releaseNote": "Greece theatrical release verified from multiple external release sources",
+      "year": 2026
+    }
+  ],
   "exclude": []
 }
