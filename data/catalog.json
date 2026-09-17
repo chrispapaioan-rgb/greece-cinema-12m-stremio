@@ -1,6 +1,3339 @@
 {
-  "generatedAt": null,
-  "window": null,
-  "count": 0,
-  "items": []
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-17T11:51:32.984Z",
+  "window": {
+    "from": "2025-09-17",
+    "to": "2026-09-17"
+  },
+  "count": 416,
+  "items": [
+    {
+      "id": "tt31349844",
+      "type": "movie",
+      "name": "3 Ώρες Διορία",
+      "greekTheatricalDate": "2026-09-10",
+      "poster": "https://image.tmdb.org/t/p/w500/yBKMAIj7clP42UkFejhGDBBoTpb.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0039305",
+      "type": "movie",
+      "name": "Ανθρώπινη κόλαση",
+      "greekTheatricalDate": "2026-09-10",
+      "poster": "https://image.tmdb.org/t/p/w500/kL1TxvXABa4ibbuctSZsUjDZX74.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt38790322",
+      "type": "movie",
+      "name": "Κόκορας",
+      "greekTheatricalDate": "2026-09-10",
+      "poster": "https://image.tmdb.org/t/p/w500/422j83E8dUv9h3hXgWEpA4r9d4s.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt32588798",
+      "type": "movie",
+      "name": "Μαγικά Φίλτρα 2",
+      "greekTheatricalDate": "2026-09-10",
+      "poster": "https://image.tmdb.org/t/p/w500/ogwQOLbCfncjvBhFb5l0OmQH8KC.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt34379051",
+      "type": "movie",
+      "name": "Με Κάθε Κόστος",
+      "greekTheatricalDate": "2026-09-10",
+      "poster": "https://image.tmdb.org/t/p/w500/f4hdIed8vh10O8TkQ1CkHS8MQ3G.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt2782754",
+      "type": "movie",
+      "name": "Ο Αλιέντε στον Λαβύρινθό του",
+      "greekTheatricalDate": "2026-09-10",
+      "poster": "https://image.tmdb.org/t/p/w500/7lUcrMqfoWuXSFDirVeRh5QNvio.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt34794183",
+      "type": "movie",
+      "name": "Φάκελος 137",
+      "greekTheatricalDate": "2026-09-10",
+      "poster": "https://image.tmdb.org/t/p/w500/4QL4LcsYX8mdNktst0CnyHQDRLg.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt41593328",
+      "type": "movie",
+      "name": "El Partido",
+      "greekTheatricalDate": "2026-09-10",
+      "poster": "https://image.tmdb.org/t/p/w500/bHiBIZqhGCKe38rzb9fsa0MmXfG.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt36152310",
+      "type": "movie",
+      "name": "Oasis: Don't Look Back in Anger",
+      "greekTheatricalDate": "2026-09-10",
+      "poster": "https://image.tmdb.org/t/p/w500/5XoHhKZ1IROW6f5UlRpADHnTL2l.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt27369017",
+      "type": "movie",
+      "name": "호프",
+      "greekTheatricalDate": "2026-09-10",
+      "poster": "https://image.tmdb.org/t/p/w500/1n37BJchWHLiSYQkuFxe5KjB951.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt43677086",
+      "type": "movie",
+      "name": "Imago",
+      "greekTheatricalDate": "2026-09-07",
+      "poster": "https://image.tmdb.org/t/p/w500/dIpUn5ZV3SWPn0w0BOsiQbBXKrU.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt43686954",
+      "type": "movie",
+      "name": "Μια Κρυψώνα",
+      "greekTheatricalDate": "2026-09-06",
+      "poster": "https://image.tmdb.org/t/p/w500/j0jrjxgZFiRYNgu16zItCB3ntHS.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt43687023",
+      "type": "movie",
+      "name": "Holterline",
+      "greekTheatricalDate": "2026-09-06",
+      "poster": "https://image.tmdb.org/t/p/w500/k178UgKDzM2SStHvGENVsDz3EMf.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt34905624",
+      "type": "movie",
+      "name": "Έτσι είναι η Ζωή",
+      "greekTheatricalDate": "2026-09-03",
+      "poster": "https://image.tmdb.org/t/p/w500/qvaD0vZ78w3hFuEBGyhpEkmHUOS.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0059348",
+      "type": "movie",
+      "name": "Ο Δειλός",
+      "greekTheatricalDate": "2026-09-03",
+      "poster": "https://image.tmdb.org/t/p/w500/nJFvRbIQ4xx5AQGvsJBnimNtf6G.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt37304295",
+      "type": "movie",
+      "name": "Πατρίδα",
+      "greekTheatricalDate": "2026-09-03",
+      "poster": "https://image.tmdb.org/t/p/w500/oNejN1l69nBF8LdQwy5FkAQZT44.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt30887701",
+      "type": "movie",
+      "name": "Πινόκιο: Ξεκούρδιστος",
+      "greekTheatricalDate": "2026-09-03",
+      "poster": "https://image.tmdb.org/t/p/w500/eUJXk3bTvLBi5Zcb0BCedZU7lVL.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt31192372",
+      "type": "movie",
+      "name": "Πτώση 2",
+      "greekTheatricalDate": "2026-09-03",
+      "poster": "https://image.tmdb.org/t/p/w500/fgSm5ylwiXbIHn8UbUXDjk9RRu4.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0040506",
+      "type": "movie",
+      "name": "Στη βοή της καταιγίδος",
+      "greekTheatricalDate": "2026-09-03",
+      "poster": "https://image.tmdb.org/t/p/w500/rySfmQQZhS7RswOiJcJrww6FcHy.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0096894",
+      "type": "movie",
+      "name": "Bashu, ο Μικρός Ξένος",
+      "greekTheatricalDate": "2026-09-03",
+      "poster": "https://image.tmdb.org/t/p/w500/63ta6SW20iJNstuKoAd7EbJ1mdr.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt29356163",
+      "type": "movie",
+      "name": "Paw Patrol: Κουτάβια και Δεινόσαυροι",
+      "greekTheatricalDate": "2026-09-03",
+      "poster": "https://image.tmdb.org/t/p/w500/qnin56Syy5rbG7KCaxWY7SPuy6p.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt33305867",
+      "type": "movie",
+      "name": "Spa Weekend, 48 ώρες χάος",
+      "greekTheatricalDate": "2026-09-03",
+      "poster": "https://image.tmdb.org/t/p/w500/i3I19SbOyz6AIl0cSYdyVJRucMr.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt27564844",
+      "type": "movie",
+      "name": "Iron Lung",
+      "greekTheatricalDate": "2026-08-31",
+      "poster": "https://image.tmdb.org/t/p/w500/sIwakdbMGS1krtgendTWpxTY9Hw.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0022879",
+      "type": "movie",
+      "name": "Αποχαιρετισμός στα Όπλα",
+      "greekTheatricalDate": "2026-08-27",
+      "poster": "https://image.tmdb.org/t/p/w500/eNmPByGZJqlp60nCZRhsAlVAb3F.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt34762801",
+      "type": "movie",
+      "name": "Γράμματα Αγάπης",
+      "greekTheatricalDate": "2026-08-27",
+      "poster": "https://image.tmdb.org/t/p/w500/nedWOSKUvZf2J0oLjYCk44rob2l.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0117589",
+      "type": "movie",
+      "name": "Μυστικά και Ψέματα",
+      "greekTheatricalDate": "2026-08-27",
+      "poster": "https://image.tmdb.org/t/p/w500/zQBuRQ3hrLhkEsXcxteUxuxLrvs.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt21285562",
+      "type": "movie",
+      "name": "Ο Αστερισμός του Σκύλου",
+      "greekTheatricalDate": "2026-08-27",
+      "poster": "https://image.tmdb.org/t/p/w500/A7i16oDi03qrKep5pBfuTWNUTb.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0093342",
+      "type": "movie",
+      "name": "Πού είναι το σπίτι του φίλου μου;",
+      "greekTheatricalDate": "2026-08-27",
+      "poster": "https://image.tmdb.org/t/p/w500/lrrtMVv2X8PNO7UA0Ce0gTtfuC8.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt35298123",
+      "type": "movie",
+      "name": "Σεξ και Αίμα στο Καμπ Μιάσμα",
+      "greekTheatricalDate": "2026-08-27",
+      "poster": "https://image.tmdb.org/t/p/w500/nLsFnXifieSTqSeWxjXSS8RvaUZ.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0092005",
+      "type": "movie",
+      "name": "Στάσου Πλάι Μου",
+      "greekTheatricalDate": "2026-08-27",
+      "poster": "https://image.tmdb.org/t/p/w500/vz0w9BSehcqjDcJOjRaCk7fgJe7.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt32338669",
+      "type": "movie",
+      "name": "Ανταρσία",
+      "greekTheatricalDate": "2026-08-20",
+      "poster": "https://image.tmdb.org/t/p/w500/pu2VxGlpGwffOx292w18b1tv96j.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt37853455",
+      "type": "movie",
+      "name": "Για μια Νύχτα Μόνο",
+      "greekTheatricalDate": "2026-08-20",
+      "poster": "https://image.tmdb.org/t/p/w500/46q8z1TbbVcF8uhRHsvt5s0h2SH.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt32759477",
+      "type": "movie",
+      "name": "Η πιο πλούσια γυναίκα στον κόσμο",
+      "greekTheatricalDate": "2026-08-20",
+      "poster": "https://image.tmdb.org/t/p/w500/95a1udNepqKENUWKdyJeyOM3XLA.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0010323",
+      "type": "movie",
+      "name": "Το Εργαστήριο του Δρ. Καλιγκάρι",
+      "greekTheatricalDate": "2026-08-20",
+      "poster": "https://image.tmdb.org/t/p/w500/myK9DeIsXWGKgUTZyGXg2IfFk0W.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt37969901",
+      "type": "movie",
+      "name": "Τορέντε για Πρόεδρος",
+      "greekTheatricalDate": "2026-08-20",
+      "poster": "https://image.tmdb.org/t/p/w500/yrDKwAdZRJjoQ9RZwzRGPpMC7U1.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt35410859",
+      "type": "movie",
+      "name": "Φιόρδ",
+      "greekTheatricalDate": "2026-08-20",
+      "poster": "https://image.tmdb.org/t/p/w500/3PPPIeSdeivjUn3O9RahGiaJ9b8.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt32393988",
+      "type": "movie",
+      "name": "Insidious: Έξω από το Απώτερο",
+      "greekTheatricalDate": "2026-08-20",
+      "poster": "https://image.tmdb.org/t/p/w500/4tTrW9dXCByS5wt2pXVWb58zNjz.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt32890033",
+      "type": "movie",
+      "name": "Minions & Τέρατα",
+      "greekTheatricalDate": "2026-08-20",
+      "poster": "https://image.tmdb.org/t/p/w500/4LwvU9SZc8QQzW1X1FAPhNbXnEU.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0117951",
+      "type": "movie",
+      "name": "Trainspotting",
+      "greekTheatricalDate": "2026-08-20",
+      "poster": "https://image.tmdb.org/t/p/w500/1jUC02qsqS2NxBMFarbIhcQtazV.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0066601",
+      "type": "movie",
+      "name": "Ζαμπρίσκι Πόιντ",
+      "greekTheatricalDate": "2026-08-13",
+      "poster": "https://image.tmdb.org/t/p/w500/uelo2oMg4fM51LAm4eEArEwOHXZ.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt32298494",
+      "type": "movie",
+      "name": "Η Φήμη",
+      "greekTheatricalDate": "2026-08-13",
+      "poster": "https://image.tmdb.org/t/p/w500/bcyXE0p4XmZUlcxvTDbvdG9lgsN.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0044487",
+      "type": "movie",
+      "name": "Η Χρυσή Άμαξα",
+      "greekTheatricalDate": "2026-08-13",
+      "poster": "https://image.tmdb.org/t/p/w500/6x1JnbgsUarHnLRmqnprhzQwWlR.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt31229255",
+      "type": "movie",
+      "name": "Μεξικό 86",
+      "greekTheatricalDate": "2026-08-13",
+      "poster": "https://image.tmdb.org/t/p/w500/okWSsqAPsrIAwKa9CivsBiU84ZI.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0077775",
+      "type": "movie",
+      "name": "Ο Θεός Ελέφαντας",
+      "greekTheatricalDate": "2026-08-13",
+      "poster": "https://image.tmdb.org/t/p/w500/osdTflcvp6V4VR5BIzVVnUAHyRy.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0054743",
+      "type": "movie",
+      "name": "Οι Ψίθυροι",
+      "greekTheatricalDate": "2026-08-13",
+      "poster": "https://image.tmdb.org/t/p/w500/goyEWixvULM2IRN4KsKibyrJE4J.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt37096260",
+      "type": "movie",
+      "name": "Όσα Δεν Λέγονται",
+      "greekTheatricalDate": "2026-08-13",
+      "poster": "https://image.tmdb.org/t/p/w500/1o0FTRrtcPFboam4pZRbkwPnDTX.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt22772712",
+      "type": "movie",
+      "name": "Φόνος στην πρεσβεία",
+      "greekTheatricalDate": "2026-08-13",
+      "poster": "https://image.tmdb.org/t/p/w500/3DBmBItPdy0A2ol59jgHhS54Lua.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt36893729",
+      "type": "movie",
+      "name": "Ice Cream Man",
+      "greekTheatricalDate": "2026-08-13",
+      "poster": "https://image.tmdb.org/t/p/w500/lNBxToxHWrzmkqeFnf1XADUTxQq.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt38607784",
+      "type": "movie",
+      "name": "Αυτό που ξέρουν οι γυναίκες",
+      "greekTheatricalDate": "2026-08-06",
+      "poster": "https://image.tmdb.org/t/p/w500/12HNBcAUI8IdRlXfOuhWGqrTqpx.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt1020773",
+      "type": "movie",
+      "name": "Γνήσιο Αντίγραφο",
+      "greekTheatricalDate": "2026-08-06",
+      "poster": "https://image.tmdb.org/t/p/w500/soBvtCR33Gv1j6gXwXOIc3JTlNc.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt32250381",
+      "type": "movie",
+      "name": "Ο κλειδαράς του ενός εκατομμυρίου",
+      "greekTheatricalDate": "2026-08-06",
+      "poster": "https://image.tmdb.org/t/p/w500/eDIazOrqDZJE2DAm1wwSwNGvtwb.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt35495035",
+      "type": "movie",
+      "name": "Ο Παραχαράκτης",
+      "greekTheatricalDate": "2026-08-06",
+      "poster": "https://image.tmdb.org/t/p/w500/8hBGDCNJmBljmKbmFvt6Nk3Feua.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt33253688",
+      "type": "movie",
+      "name": "Αχνή Θέα των Λόφων",
+      "greekTheatricalDate": "2026-07-30",
+      "poster": "https://image.tmdb.org/t/p/w500/9A9FOqFH4UX9EGPxg9SFxO9gnag.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt38814447",
+      "type": "movie",
+      "name": "Έγκλημα στον 3ο Όροφο",
+      "greekTheatricalDate": "2026-07-30",
+      "poster": "https://image.tmdb.org/t/p/w500/5FHAlQPHFyJEIN1UOxsADog1KUy.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0071585",
+      "type": "movie",
+      "name": "Η Γοητεία της Αμαρτίας",
+      "greekTheatricalDate": "2026-07-30",
+      "poster": "https://image.tmdb.org/t/p/w500/vLFdB2MsgAH7UCVb60EzLTjIoqN.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0154506",
+      "type": "movie",
+      "name": "Η Παρακολούθηση",
+      "greekTheatricalDate": "2026-07-30",
+      "poster": "https://image.tmdb.org/t/p/w500/3bX6VVSMf0dvzk5pMT4ALG5A92d.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0075314",
+      "type": "movie",
+      "name": "Ο Ταξιτζής",
+      "greekTheatricalDate": "2026-07-30",
+      "poster": "https://image.tmdb.org/t/p/w500/ekstpH614fwDX8DUln1a2Opz0N8.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0016847",
+      "type": "movie",
+      "name": "Φάουστ",
+      "greekTheatricalDate": "2026-07-30",
+      "poster": "https://image.tmdb.org/t/p/w500/rN703hMFxmkZfyEzsXvFtuFhkXE.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0103030",
+      "type": "movie",
+      "name": "Ψηλά Τακούνια",
+      "greekTheatricalDate": "2026-07-30",
+      "poster": "https://image.tmdb.org/t/p/w500/xUpMr3ma8XMpdDhM27s4EuFxdyC.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt22084616",
+      "type": "movie",
+      "name": "Spider-Man: Καινούργια Μέρα",
+      "greekTheatricalDate": "2026-07-29",
+      "poster": "https://image.tmdb.org/t/p/w500/bjiS5ipwxb9JFy3XRRN4OAilSeX.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt1931533",
+      "type": "movie",
+      "name": "Επτά Ψυχοπαθείς",
+      "greekTheatricalDate": "2026-07-23",
+      "poster": "https://image.tmdb.org/t/p/w500/4ukEYAxlSivFcDG6vLxJB6PjTjg.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt36629665",
+      "type": "movie",
+      "name": "Η Δική της Κόλαση",
+      "greekTheatricalDate": "2026-07-23",
+      "poster": "https://image.tmdb.org/t/p/w500/1gNVzTlpNLaX8sm9Wocl5rLgldU.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0074360",
+      "type": "movie",
+      "name": "Θρέψε κοράκια",
+      "greekTheatricalDate": "2026-07-23",
+      "poster": "https://image.tmdb.org/t/p/w500/hueMt6pkaV8nwVGwKP2uuiqF5DJ.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0043924",
+      "type": "movie",
+      "name": "Μια Θέση στον Ήλιο",
+      "greekTheatricalDate": "2026-07-23",
+      "poster": "https://image.tmdb.org/t/p/w500/3tKYbChwIRYCwFrMUDBkbZyDIoN.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0050825",
+      "type": "movie",
+      "name": "Σταυροί στο Μέτωπο",
+      "greekTheatricalDate": "2026-07-23",
+      "poster": "https://image.tmdb.org/t/p/w500/hGg1UCQSHlXfv2HI9bDHT2OQBam.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt36933402",
+      "type": "movie",
+      "name": "Συμπέθεροι από Σόι 2",
+      "greekTheatricalDate": "2026-07-23",
+      "poster": "https://image.tmdb.org/t/p/w500/3eZwrYd90t5kHLHfS0zxPWH1tWl.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0130827",
+      "type": "movie",
+      "name": "Τρέξε Λόλα, Τρέξε",
+      "greekTheatricalDate": "2026-07-23",
+      "poster": "https://image.tmdb.org/t/p/w500/v0giIi4bTILVhNhJajet3WWY3FA.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0300957",
+      "type": "movie",
+      "name": "Ας Περιμένουν οι Γυναίκες",
+      "greekTheatricalDate": "2026-07-16",
+      "poster": "https://image.tmdb.org/t/p/w500/5Sg230a9w9nOwwTbkRALAtAi0Z1.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0067309",
+      "type": "movie",
+      "name": "Η Εξαφάνιση",
+      "greekTheatricalDate": "2026-07-16",
+      "poster": "https://image.tmdb.org/t/p/w500/tVyINAsNGSgD1OIstqwCcs7wyGH.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0015136",
+      "type": "movie",
+      "name": "Μίκαελ",
+      "greekTheatricalDate": "2026-07-16",
+      "poster": "https://image.tmdb.org/t/p/w500/uE5CcZ7wJFLxxRSo2XKuhAYHy0R.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt33509147",
+      "type": "movie",
+      "name": "Ο Επιθεωρητής Μαιγκρέ & Η Ερωμένη του Πρέσβη",
+      "greekTheatricalDate": "2026-07-16",
+      "poster": "https://image.tmdb.org/t/p/w500/siGwXsTqwSBC9VcbDM4tdhb1qLo.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0249241",
+      "type": "movie",
+      "name": "Οι αρμονίες του Βέρκμαϊστερ",
+      "greekTheatricalDate": "2026-07-16",
+      "poster": "https://image.tmdb.org/t/p/w500/ix3pquGqTkCW86UbVTdRcrhGEFm.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0077928",
+      "type": "movie",
+      "name": "Το Εξπρές του Μεσονυχτίου",
+      "greekTheatricalDate": "2026-07-16",
+      "poster": "https://image.tmdb.org/t/p/w500/6GXioArQEdxcYqOcEfMdpyJPlwx.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt33764258",
+      "type": "movie",
+      "name": "The Odyssey",
+      "greekTheatricalDate": "2026-07-16",
+      "poster": "https://image.tmdb.org/t/p/w500/5rhTDKUhPYvpdQIijFIs5VoWsON.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt32247943",
+      "type": "movie",
+      "name": "Αντικατοπτρισμοί",
+      "greekTheatricalDate": "2026-07-09",
+      "poster": "https://image.tmdb.org/t/p/w500/eGIcN5rKzULEQAOQuNImOe2hK64.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt27419466",
+      "type": "movie",
+      "name": "Βαϊάνα",
+      "greekTheatricalDate": "2026-07-09",
+      "poster": "https://image.tmdb.org/t/p/w500/gaet1xQ2nxrG0V1Ep9T20ZMNEIC.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt32267691",
+      "type": "movie",
+      "name": "Η Μπαλάντα των Ονείρων",
+      "greekTheatricalDate": "2026-07-09",
+      "poster": "https://image.tmdb.org/t/p/w500/sGgX2K0SJqw90Ju8TONdhDVwlzT.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt35657504",
+      "type": "movie",
+      "name": "Το Δείπνο του Φράνκο",
+      "greekTheatricalDate": "2026-07-09",
+      "poster": "https://image.tmdb.org/t/p/w500/u8uNMBYtOltjapW228pZD8ILdNs.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0047296",
+      "type": "movie",
+      "name": "Το Λιμάνι της Αγωνίας",
+      "greekTheatricalDate": "2026-07-09",
+      "poster": "https://image.tmdb.org/t/p/w500/d4S8LpbCyFJsh1tGgwGQSJdGzKm.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt31170389",
+      "type": "movie",
+      "name": "Evil Dead Burn",
+      "greekTheatricalDate": "2026-07-09",
+      "poster": "https://image.tmdb.org/t/p/w500/uRxrNXQWkHoENm3nwVOZDYSCx2F.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt33296751",
+      "type": "movie",
+      "name": "Tuner",
+      "greekTheatricalDate": "2026-07-09",
+      "poster": "https://image.tmdb.org/t/p/w500/5OvA3i9wZs5jHu0DCrfmXlzAM67.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt29942156",
+      "type": "movie",
+      "name": "Η Ημιτελής Ιστορία της Σιμά",
+      "greekTheatricalDate": "2026-07-02",
+      "poster": "https://image.tmdb.org/t/p/w500/d3m9vbDkkimGHDnbY8xANyppxFQ.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt32792934",
+      "type": "movie",
+      "name": "Η Πανούκλα",
+      "greekTheatricalDate": "2026-07-02",
+      "poster": "https://image.tmdb.org/t/p/w500/b0RWuqzgvyfiIYU4QfgJHhmxZF4.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt14173636",
+      "type": "movie",
+      "name": "Η Πρόσκληση",
+      "greekTheatricalDate": "2026-07-02",
+      "poster": "https://image.tmdb.org/t/p/w500/b7Dr8Chzse8VagexAporUu2RtLx.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0091474",
+      "type": "movie",
+      "name": "Ο Ανθρωποκυνηγός",
+      "greekTheatricalDate": "2026-07-02",
+      "poster": "https://image.tmdb.org/t/p/w500/6rb24x39vV8n5301IelC8rCPJTH.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt32273171",
+      "type": "movie",
+      "name": "Ο Θάνατος του Robin Hood",
+      "greekTheatricalDate": "2026-07-02",
+      "poster": "https://image.tmdb.org/t/p/w500/13MmRwmG5NmaMfU8qNrtgGXisiD.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt35500283",
+      "type": "movie",
+      "name": "Όσα ξέρει η Μαριέλ",
+      "greekTheatricalDate": "2026-07-02",
+      "poster": "https://image.tmdb.org/t/p/w500/70dTYnks9hqZlNKrMPKuzgb3qwF.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt33269988",
+      "type": "movie",
+      "name": "Το Πάρτυ Γενεθλίων",
+      "greekTheatricalDate": "2026-07-02",
+      "poster": "https://image.tmdb.org/t/p/w500/sXN4IvB4hM2AYYx9BhdzhokrjvH.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt32321803",
+      "type": "movie",
+      "name": "Το Τελευταίο Ρίσκο",
+      "greekTheatricalDate": "2026-07-02",
+      "poster": "https://image.tmdb.org/t/p/w500/zlkeH0s7dDxcnuPcHBqAyXFUxqN.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0042208",
+      "type": "movie",
+      "name": "Η Ζούγκλα της Ασφάλτου",
+      "greekTheatricalDate": "2026-06-25",
+      "poster": "https://image.tmdb.org/t/p/w500/8xsUnT0P2fJWQv9jGDhs3i9Zx2l.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt38775641",
+      "type": "movie",
+      "name": "Η Μεγάλη Σφαγή των Β' ΚΑΠΗ Αλίμου",
+      "greekTheatricalDate": "2026-06-25",
+      "poster": "https://image.tmdb.org/t/p/w500/A6iT3ftyPQBQd1M7g2dExXoHIoJ.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt30498204",
+      "type": "movie",
+      "name": "Νόβακ",
+      "greekTheatricalDate": "2026-06-25",
+      "poster": "https://image.tmdb.org/t/p/w500/yERDLjzJN7JnNafzVJiOEMEPuBo.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt32538648",
+      "type": "movie",
+      "name": "Ρομερία",
+      "greekTheatricalDate": "2026-06-25",
+      "poster": "https://image.tmdb.org/t/p/w500/6Wo9z9dvy0ns1Q84OLEHXemRpeh.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0065889",
+      "type": "movie",
+      "name": "Υπεράνω Πάσης Υποψίας",
+      "greekTheatricalDate": "2026-06-25",
+      "poster": "https://image.tmdb.org/t/p/w500/vPTZwlq1IC4o1DCsEZEl2uGljzm.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt31189814",
+      "type": "movie",
+      "name": "Fuze",
+      "greekTheatricalDate": "2026-06-25",
+      "poster": "https://image.tmdb.org/t/p/w500/oMFdQE5hMJ9JjhNORegwTo0GKmh.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt8814476",
+      "type": "movie",
+      "name": "Supergirl",
+      "greekTheatricalDate": "2026-06-25",
+      "poster": "https://image.tmdb.org/t/p/w500/uhzRnTW4DM13UQBvZP3eVNzQTuz.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt37287335",
+      "type": "movie",
+      "name": "Εμμονή",
+      "greekTheatricalDate": "2026-06-18",
+      "poster": "https://image.tmdb.org/t/p/w500/bRwnj8WEKBCvmfeUNOukJPwB43K.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt29355505",
+      "type": "movie",
+      "name": "Η Ιστορία των Παιχνιδιών 5",
+      "greekTheatricalDate": "2026-06-18",
+      "poster": "https://image.tmdb.org/t/p/w500/sfQtVlIHljToOwYjhe21KPGzZWK.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0038057",
+      "type": "movie",
+      "name": "Η Σκύλα",
+      "greekTheatricalDate": "2026-06-18",
+      "poster": "https://image.tmdb.org/t/p/w500/eGEDor1BWSQGaLtOntPHUSqNzRC.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt4357198",
+      "type": "movie",
+      "name": "Θανάσιμα Πλούσιος",
+      "greekTheatricalDate": "2026-06-18",
+      "poster": "https://image.tmdb.org/t/p/w500/vxMeKC7o5Gi8IHMi6lUgsdprTqv.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt26545639",
+      "type": "movie",
+      "name": "Το Άρωμα των Αναμνήσεων",
+      "greekTheatricalDate": "2026-06-18",
+      "poster": "https://image.tmdb.org/t/p/w500/m6FuF7ryH01qo5XYugxBgW55Y7x.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt39143902",
+      "type": "movie",
+      "name": "Leviticus",
+      "greekTheatricalDate": "2026-06-18",
+      "poster": "https://image.tmdb.org/t/p/w500/gnAsZvBygplNpp8PtjoTEYv3VPB.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt38707283",
+      "type": "movie",
+      "name": "Ár gCluiche Féin",
+      "greekTheatricalDate": "2026-06-17",
+      "poster": "https://image.tmdb.org/t/p/w500/sby0EjM4lpdohjCCz7e66sZ6gsk.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt38721761",
+      "type": "movie",
+      "name": "Sleeppers",
+      "greekTheatricalDate": "2026-06-13",
+      "poster": "https://image.tmdb.org/t/p/w500/rjoglqCimaCaFgPrr1J6btTrF5y.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0060176",
+      "type": "movie",
+      "name": "Μπλόου απ",
+      "greekTheatricalDate": "2026-06-11",
+      "poster": "https://image.tmdb.org/t/p/w500/jVDVpydUw8Z50naUDAG4NbRCrSa.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0098724",
+      "type": "movie",
+      "name": "Σεξ, Ψέματα και Βιντεοταινίες",
+      "greekTheatricalDate": "2026-06-11",
+      "poster": "https://image.tmdb.org/t/p/w500/dE0u4uB5UPfVIdz258Ye2XEPuuh.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt33382323",
+      "type": "movie",
+      "name": "Το Ιερό Αγόρι",
+      "greekTheatricalDate": "2026-06-11",
+      "poster": "https://image.tmdb.org/t/p/w500/2jpKQ6xhcxaNXOUDeQpyHNUcWr1.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt36243564",
+      "type": "movie",
+      "name": "L'Étranger",
+      "greekTheatricalDate": "2026-06-11",
+      "poster": "https://image.tmdb.org/t/p/w500/c7p06jlv8Lp2B5HjUhmFRTRaqJS.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt15047880",
+      "type": "movie",
+      "name": "Ημέρα Αποκάλυψης",
+      "greekTheatricalDate": "2026-06-10",
+      "poster": "https://image.tmdb.org/t/p/w500/AnJ8IQJI23hNpYXVNaythu061Ru.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0117883",
+      "type": "movie",
+      "name": "Διδακτορική Διατριβή",
+      "greekTheatricalDate": "2026-06-04",
+      "poster": "https://image.tmdb.org/t/p/w500/lzD8bdIptcgsAUaTgAdvD1e9NDu.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt27765947",
+      "type": "movie",
+      "name": "Η Ετυμηγορία",
+      "greekTheatricalDate": "2026-06-04",
+      "poster": "https://image.tmdb.org/t/p/w500/2stH8IyTpQT6LuLFlEGz2GB8dpt.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt6150344",
+      "type": "movie",
+      "name": "Η Ζόι και τα Ζωάκια της",
+      "greekTheatricalDate": "2026-06-04",
+      "poster": "https://image.tmdb.org/t/p/w500/8tMZOnlFUa6zxlEF84QfghXnjuD.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt15181326",
+      "type": "movie",
+      "name": "Η Ομηρία",
+      "greekTheatricalDate": "2026-06-04",
+      "poster": "https://image.tmdb.org/t/p/w500/dgSoeebklY0IGKWbp36r9FwRXlv.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt36347581",
+      "type": "movie",
+      "name": "Μικρές Ανάσες",
+      "greekTheatricalDate": "2026-06-04",
+      "poster": "https://image.tmdb.org/t/p/w500/cKUUkcBNZ2uQaROoGVp4pErR2M4.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0427340",
+      "type": "movie",
+      "name": "Οι Κυρίαρχοι του Σύμπαντος",
+      "greekTheatricalDate": "2026-06-04",
+      "poster": "https://image.tmdb.org/t/p/w500/oRuyGUHdoaQxWP3SDfafGkStxTC.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt28088049",
+      "type": "movie",
+      "name": "Πικρές γιορτές",
+      "greekTheatricalDate": "2026-06-04",
+      "poster": "https://image.tmdb.org/t/p/w500/kiPGcHX0YT49nrab76G0bqw3gHW.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt32093575",
+      "type": "movie",
+      "name": "Scary Movie",
+      "greekTheatricalDate": "2026-06-03",
+      "poster": "https://image.tmdb.org/t/p/w500/znHT8peERZRWG1ME3r0Db0EV8k8.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt36544524",
+      "type": "movie",
+      "name": "Ένας Ποιητής",
+      "greekTheatricalDate": "2026-05-28",
+      "poster": "https://image.tmdb.org/t/p/w500/o0MRVa3XMUUIxiSCZYaJ1jGXdk.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt27817389",
+      "type": "movie",
+      "name": "Ο Τελευταίος Βίκινγκ",
+      "greekTheatricalDate": "2026-05-28",
+      "poster": "https://image.tmdb.org/t/p/w500/cgvGExc0kfHRUffTKBSQHPKchrq.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt34966562",
+      "type": "movie",
+      "name": "Οι Κρίστοφερ",
+      "greekTheatricalDate": "2026-05-28",
+      "poster": "https://image.tmdb.org/t/p/w500/s6oUrGMNl8hVh7fn0O8oF2rHwrM.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt26657236",
+      "type": "movie",
+      "name": "Backrooms",
+      "greekTheatricalDate": "2026-05-28",
+      "poster": "https://image.tmdb.org/t/p/w500/rhGx6E3qRNMgj3i5su2oukNHwIQ.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt7708226",
+      "type": "movie",
+      "name": "Beast",
+      "greekTheatricalDate": "2026-05-28",
+      "poster": "https://image.tmdb.org/t/p/w500/7NrvUI3vnW8H3rD7ExKcTL7KRcQ.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt34996428",
+      "type": "movie",
+      "name": "Homo Sapiens?",
+      "greekTheatricalDate": "2026-05-28",
+      "poster": "https://image.tmdb.org/t/p/w500/21WlZtv1GZgiD2qAVHOkg63LRmU.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt42204634",
+      "type": "movie",
+      "name": "2026 TXT MOA CON in Japan: Live Viewing",
+      "greekTheatricalDate": "2026-05-24",
+      "poster": "https://image.tmdb.org/t/p/w500/fOCgk2WYU09UOtY2KuzTe84P4ey.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt34564853",
+      "type": "movie",
+      "name": "απαρατάτεμε",
+      "greekTheatricalDate": "2026-05-24",
+      "poster": "https://image.tmdb.org/t/p/w500/wYMlAHD9bWf7ipoBg6egMiEIozM.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt11841360",
+      "type": "movie",
+      "name": "Η Ζωή Μετά",
+      "greekTheatricalDate": "2026-05-23",
+      "poster": "https://image.tmdb.org/t/p/w500/mOa2LGO12Zqcpq7lAHWOyvnWYfK.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt21321548",
+      "type": "movie",
+      "name": "Πληγή",
+      "greekTheatricalDate": "2026-05-23",
+      "poster": "https://image.tmdb.org/t/p/w500/xppJzVa2J9X6HwUtWJgcCIUcARs.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt35981989",
+      "type": "movie",
+      "name": "Στη χώρα των τραυμάτων",
+      "greekTheatricalDate": "2026-05-23",
+      "poster": "https://image.tmdb.org/t/p/w500/bVxRvQ7VpRn1WCSD03k66es1P8N.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt33400312",
+      "type": "movie",
+      "name": "Αρκουδότρυπα",
+      "greekTheatricalDate": "2026-05-21",
+      "poster": "https://image.tmdb.org/t/p/w500/mjPIT3q6Av9WdKmLuyaDdYugy6d.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt35451642",
+      "type": "movie",
+      "name": "Η έμπιστη",
+      "greekTheatricalDate": "2026-05-21",
+      "poster": "https://image.tmdb.org/t/p/w500/stK2pVqNf0wTnxyrb6C1yPsisXx.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0040525",
+      "type": "movie",
+      "name": "Η Κυρία απ` τη Σαγκάη",
+      "greekTheatricalDate": "2026-05-21",
+      "poster": "https://image.tmdb.org/t/p/w500/whqdqWavNMSoeXTx1X3DauO1LG6.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt33763941",
+      "type": "movie",
+      "name": "Ο Επιβάτης",
+      "greekTheatricalDate": "2026-05-21",
+      "poster": "https://image.tmdb.org/t/p/w500/svrAzMTif4OmIjGJzC0W92d5O1o.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt12824390",
+      "type": "movie",
+      "name": "Ο Ψαρομουρμούρας",
+      "greekTheatricalDate": "2026-05-21",
+      "poster": "https://image.tmdb.org/t/p/w500/fcDXgGL14qL46It1XOozEjX5Jws.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt29028515",
+      "type": "movie",
+      "name": "Τελειωμένος",
+      "greekTheatricalDate": "2026-05-21",
+      "poster": "https://image.tmdb.org/t/p/w500/lKK9ImwpoTCwDZKgYpjIIJCnlf0.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt30825738",
+      "type": "movie",
+      "name": "Star Wars: The Mandalorian and Grogu",
+      "greekTheatricalDate": "2026-05-21",
+      "poster": "https://image.tmdb.org/t/p/w500/uwMKWjcNID0D9jjplsjkQS2OrB4.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt29291318",
+      "type": "movie",
+      "name": "Αυτόματος Τηλεφωνητής",
+      "greekTheatricalDate": "2026-05-14",
+      "poster": "https://image.tmdb.org/t/p/w500/bQDjUA3Yol0Rwux2BCAyt4YYfyg.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt37424336",
+      "type": "movie",
+      "name": "Για Σένα",
+      "greekTheatricalDate": "2026-05-14",
+      "poster": "https://image.tmdb.org/t/p/w500/mWuuunAQuSAlUTbPBJrycYAFS5A.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt27681354",
+      "type": "movie",
+      "name": "Γκρίζα Ζώνη",
+      "greekTheatricalDate": "2026-05-14",
+      "poster": "https://image.tmdb.org/t/p/w500/dQgIcW6Th08kMRf2HBoYWoFE6OD.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0074119",
+      "type": "movie",
+      "name": "Όλοι οι Άνθρωποι του Προέδρου",
+      "greekTheatricalDate": "2026-05-14",
+      "poster": "https://image.tmdb.org/t/p/w500/pCe6lfLxt1B58zPD4lgQrlnDS2j.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt13518550",
+      "type": "movie",
+      "name": "Το Τραγούδι της Μικρής Φάλαινας (The Last Whale Singer) (2025)",
+      "greekTheatricalDate": "2026-05-14",
+      "poster": "https://image.tmdb.org/t/p/w500/yIDPrKCgiG49cULhITKxeZywISe.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt29271671",
+      "type": "movie",
+      "name": "Το Τροχόσπιτο",
+      "greekTheatricalDate": "2026-05-14",
+      "poster": "https://image.tmdb.org/t/p/w500/6Iz6olUSIxOdDGPriri3MYVueHb.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt36163614",
+      "type": "movie",
+      "name": "Iron Maiden: Burning Ambition",
+      "greekTheatricalDate": "2026-05-14",
+      "poster": "https://image.tmdb.org/t/p/w500/yZqhFJDenLfgF1VygOOCNmAdS1P.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt23745668",
+      "type": "movie",
+      "name": "Jimpa",
+      "greekTheatricalDate": "2026-05-14",
+      "poster": "https://image.tmdb.org/t/p/w500/giSERsYBGUcfj9ctB0h9d5ympo8.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt17490712",
+      "type": "movie",
+      "name": "Mortal Kombat II",
+      "greekTheatricalDate": "2026-05-14",
+      "poster": "https://image.tmdb.org/t/p/w500/hwRdDFIhaEmpRgoki805YvyyjZf.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0386651",
+      "type": "movie",
+      "name": "可可西里",
+      "greekTheatricalDate": "2026-05-14",
+      "poster": "https://image.tmdb.org/t/p/w500/cPwpHuwvKthGXD0VXwCnPdUfpZn.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt42194091",
+      "type": "movie",
+      "name": "Η Τελευταία Καλή Ανάμνηση της Μητέρας μου",
+      "greekTheatricalDate": "2026-05-11",
+      "poster": "https://image.tmdb.org/t/p/w500/1VG9yFRkdlBSfCTEcBhWmHtLSzG.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt35453969",
+      "type": "movie",
+      "name": "Θα Φύγω μια Μέρα",
+      "greekTheatricalDate": "2026-05-07",
+      "poster": "https://image.tmdb.org/t/p/w500/txzzgq2Rviv2Ljxnbh9Fy6gfDId.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt32565993",
+      "type": "movie",
+      "name": "Οι Μαλλιαροί Ντετέκτιβ",
+      "greekTheatricalDate": "2026-05-07",
+      "poster": "https://image.tmdb.org/t/p/w500/iKy5460GdsoknM8ppmGlJbKxAKa.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt38650409",
+      "type": "movie",
+      "name": "Τα Δάκρυα της Γαλάζιας Θάλασσας",
+      "greekTheatricalDate": "2026-05-07",
+      "poster": "https://image.tmdb.org/t/p/w500/oblkRIWuKTF46CsnLhBiE7Otn3z.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt39018643",
+      "type": "movie",
+      "name": "Billie Eilish - Hit Me Hard and Soft: The Tour (Live in 3D)",
+      "greekTheatricalDate": "2026-05-07",
+      "poster": "https://image.tmdb.org/t/p/w500/zfFvltKHntGBupFuubx3r61v48e.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt35672862",
+      "type": "movie",
+      "name": "Hokum",
+      "greekTheatricalDate": "2026-05-07",
+      "poster": "https://image.tmdb.org/t/p/w500/x6rHcQFiYcczLQPrmxXPAicm54E.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt1440266",
+      "type": "movie",
+      "name": "Pina",
+      "greekTheatricalDate": "2026-05-07",
+      "poster": "https://image.tmdb.org/t/p/w500/mKKtIJYtaGwcgpMfnVR2byYhfz9.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt33612209",
+      "type": "movie",
+      "name": "Ο Διάβολος Φοράει Prada 2",
+      "greekTheatricalDate": "2026-04-30",
+      "poster": "https://image.tmdb.org/t/p/w500/xTI42pmsP5EDnvsNJPEDubwWBQO.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt29253299",
+      "type": "movie",
+      "name": "Ομάχα",
+      "greekTheatricalDate": "2026-04-30",
+      "poster": "https://image.tmdb.org/t/p/w500/s1SNVyTWWmvpWK439bOrRF9xywS.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt33334564",
+      "type": "movie",
+      "name": "Τρίχες Κατσαρές",
+      "greekTheatricalDate": "2026-04-30",
+      "poster": "https://image.tmdb.org/t/p/w500/lw2kGvFBd9kJDjgWQhFSiSDPZHN.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt32639175",
+      "type": "movie",
+      "name": "Dolly",
+      "greekTheatricalDate": "2026-04-30",
+      "poster": "https://image.tmdb.org/t/p/w500/oJJquv1sg5XMTIyNHxEm0KLo696.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt42195762",
+      "type": "movie",
+      "name": "Cherry on the Cake",
+      "greekTheatricalDate": "2026-04-27",
+      "poster": "https://image.tmdb.org/t/p/w500/5YsaNBDX0lcJd8O9Y1zHxNAdhc2.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt42186133",
+      "type": "movie",
+      "name": "Chimères Patagones",
+      "greekTheatricalDate": "2026-04-27",
+      "poster": "https://image.tmdb.org/t/p/w500/wm6buUZHTCzfO959cdvZFBFW0B.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt39821252",
+      "type": "movie",
+      "name": "The Queen Swing",
+      "greekTheatricalDate": "2026-04-27",
+      "poster": "https://image.tmdb.org/t/p/w500/5FfXL1typLPJFJo9BmLHF4lqopx.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt42195065",
+      "type": "movie",
+      "name": "Why I Fly",
+      "greekTheatricalDate": "2026-04-27",
+      "poster": "https://images.metahub.space/poster/medium/tt42195065/img",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt41875891",
+      "type": "movie",
+      "name": "Carving Lines",
+      "greekTheatricalDate": "2026-04-26",
+      "poster": "https://images.metahub.space/poster/medium/tt41875891/img",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt41876031",
+      "type": "movie",
+      "name": "Emil & Karl – Little Wheels, Big Mountains",
+      "greekTheatricalDate": "2026-04-26",
+      "poster": "https://images.metahub.space/poster/medium/tt41876031/img",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt39316536",
+      "type": "movie",
+      "name": "Ephemeral",
+      "greekTheatricalDate": "2026-04-26",
+      "poster": "https://image.tmdb.org/t/p/w500/q49QeIWK1aAuvs8ciV44bCYJH7R.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt41876060",
+      "type": "movie",
+      "name": "Gabon Uncharted",
+      "greekTheatricalDate": "2026-04-26",
+      "poster": "https://image.tmdb.org/t/p/w500/8NjqhilRxKVSZhy0hOnnJiRL1vV.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt33797166",
+      "type": "movie",
+      "name": "Αΐντα",
+      "greekTheatricalDate": "2026-04-23",
+      "poster": "https://image.tmdb.org/t/p/w500/h4QnoqmMPS50U7m1XByw29CJ1ws.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt34768402",
+      "type": "movie",
+      "name": "Γυναίκες έξω",
+      "greekTheatricalDate": "2026-04-23",
+      "poster": "https://image.tmdb.org/t/p/w500/gxSkBOfTEOX2f6KhqMFSXf24nMo.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt36491632",
+      "type": "movie",
+      "name": "Ένα Τελευταίο για τον Δρόμο",
+      "greekTheatricalDate": "2026-04-23",
+      "poster": "https://image.tmdb.org/t/p/w500/b0oS5FReEJ3rhGzGKY16Qz0Q7w1.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt23767810",
+      "type": "movie",
+      "name": "Η Οικογένεια Ντινοσάουρους",
+      "greekTheatricalDate": "2026-04-23",
+      "poster": "https://image.tmdb.org/t/p/w500/f76vYR6zSfYw3GlHfNbGoAk3scl.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt31195136",
+      "type": "movie",
+      "name": "Ο Σερίφης",
+      "greekTheatricalDate": "2026-04-23",
+      "poster": "https://image.tmdb.org/t/p/w500/t13MdGCKRZvkmrFW2A7Vih3QjwD.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt14822268",
+      "type": "movie",
+      "name": "Σπίτι Χωρίς Διεύθυνση",
+      "greekTheatricalDate": "2026-04-23",
+      "poster": "https://image.tmdb.org/t/p/w500/4s5KNHG6wVMZzS4QsjeXsDhrL9y.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt21272942",
+      "type": "movie",
+      "name": "I Was a Stranger",
+      "greekTheatricalDate": "2026-04-23",
+      "poster": "https://image.tmdb.org/t/p/w500/RBIrEveMOIy5Kxg2WzgMnCIhaN.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt31778018",
+      "type": "movie",
+      "name": "Sinatra! Eternity",
+      "greekTheatricalDate": "2026-04-23",
+      "poster": "https://image.tmdb.org/t/p/w500/kQ9QWGYC9zp5QGfNrWZO2oQgXPi.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt11378946",
+      "type": "movie",
+      "name": "Michael",
+      "greekTheatricalDate": "2026-04-22",
+      "poster": "https://image.tmdb.org/t/p/w500/dueFqKLvjftnELZaGYwY7xinfaI.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt38795533",
+      "type": "movie",
+      "name": "Η Θάλασσα το Χειμώνα",
+      "greekTheatricalDate": "2026-04-18",
+      "poster": "https://image.tmdb.org/t/p/w500/unEkbstrlWx9LKRUznRqaYiJNHT.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt35231039",
+      "type": "movie",
+      "name": "Εθνικός Θησαυρός",
+      "greekTheatricalDate": "2026-04-16",
+      "poster": "https://image.tmdb.org/t/p/w500/a15F5KJ4mleusJR1YKP4zUyZaxG.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt10400116",
+      "type": "movie",
+      "name": "Η Έλι και η Παρέα των Φαντασμάτων",
+      "greekTheatricalDate": "2026-04-16",
+      "poster": "https://image.tmdb.org/t/p/w500/xyNtoI1r9ydJRKFGS1SCbT9ying.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt32144178",
+      "type": "movie",
+      "name": "Ξεκινήματα",
+      "greekTheatricalDate": "2026-04-16",
+      "poster": "https://image.tmdb.org/t/p/w500/AmOrPbcDzcmUhohE7zqKAd14J0A.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt22530226",
+      "type": "movie",
+      "name": "Χρήσιμα Φαντάσματα",
+      "greekTheatricalDate": "2026-04-16",
+      "poster": "https://image.tmdb.org/t/p/w500/ysCOASLn8SaiFYWZYqNLTdO97NQ.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt32646557",
+      "type": "movie",
+      "name": "Enzo",
+      "greekTheatricalDate": "2026-04-16",
+      "poster": "https://image.tmdb.org/t/p/w500/cghjz7l78J8S3rr5EkzCrpr3bMS.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt27200708",
+      "type": "movie",
+      "name": "Mother Mary",
+      "greekTheatricalDate": "2026-04-16",
+      "poster": "https://image.tmdb.org/t/p/w500/uVcsN3yoHh7ZcJ6ecj1FJfv7dLa.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt32612507",
+      "type": "movie",
+      "name": "Η Μούμια",
+      "greekTheatricalDate": "2026-04-15",
+      "poster": "https://image.tmdb.org/t/p/w500/1q308iixueCU4pFtSYugNOevtNx.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt41120177",
+      "type": "movie",
+      "name": "SJOR | Rise of the North",
+      "greekTheatricalDate": "2026-04-14",
+      "poster": "https://image.tmdb.org/t/p/w500/7DpF47cP5FV1VyIQUdLfMGNGqq7.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt32306991",
+      "type": "movie",
+      "name": "Solo Mio",
+      "greekTheatricalDate": "2026-04-13",
+      "poster": "https://image.tmdb.org/t/p/w500/efSsZJaddeq0LOABZqpCXdMxv9P.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt36456563",
+      "type": "movie",
+      "name": "Μαγγελάνος",
+      "greekTheatricalDate": "2026-04-09",
+      "poster": "https://image.tmdb.org/t/p/w500/pmFeUueU7BWLVnHrYI1FD7VnxtH.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt36543850",
+      "type": "movie",
+      "name": "Ανάμεσα στις καλαμιές",
+      "greekTheatricalDate": "2026-04-02",
+      "poster": "https://image.tmdb.org/t/p/w500/kTRGVm6d5hUzhPO6qb0boddIBIY.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt13968662",
+      "type": "movie",
+      "name": "Ζωή σαν Σινεμά",
+      "greekTheatricalDate": "2026-04-02",
+      "poster": "https://image.tmdb.org/t/p/w500/mnYryuWqCGPBggGDNHeY6dI6AWQ.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt36268472",
+      "type": "movie",
+      "name": "Το Μυστικό του Δάσους",
+      "greekTheatricalDate": "2026-04-02",
+      "poster": "https://image.tmdb.org/t/p/w500/nYSBfKuTZVfw39oWdLoBZ4EXaPh.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt37678610",
+      "type": "movie",
+      "name": "Gorgonà",
+      "greekTheatricalDate": "2026-04-02",
+      "poster": "https://image.tmdb.org/t/p/w500/jfUEQa8ipwd1q0HIF2447987Z2O.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt33586629",
+      "type": "movie",
+      "name": "Primavera",
+      "greekTheatricalDate": "2026-04-02",
+      "poster": "https://image.tmdb.org/t/p/w500/lu2sF3dRYGgzhLvoc9yZNSKtlFO.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt35892608",
+      "type": "movie",
+      "name": "undertone",
+      "greekTheatricalDate": "2026-04-02",
+      "poster": "https://image.tmdb.org/t/p/w500/2PFgFMnrdCPXWiZl1PUvky7Mo9D.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt33071426",
+      "type": "movie",
+      "name": "The Drama",
+      "greekTheatricalDate": "2026-04-01",
+      "poster": "https://image.tmdb.org/t/p/w500/rnIOUhzwJDfgQakx8EjoNyItKgs.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt35101414",
+      "type": "movie",
+      "name": "Άπειρη Γη",
+      "greekTheatricalDate": "2026-03-26",
+      "poster": "https://image.tmdb.org/t/p/w500/mrTotxKBuNhFFPBMkI4iDHTM9IX.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt15678738",
+      "type": "movie",
+      "name": "Δαβίδ: Το Αγόρι που Έγινε Θρύλος",
+      "greekTheatricalDate": "2026-03-26",
+      "poster": "https://image.tmdb.org/t/p/w500/bESlrLOrsQ9gKzaGQGHXKOyIUtX.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt31514146",
+      "type": "movie",
+      "name": "Δυστυχώς Βρίζω",
+      "greekTheatricalDate": "2026-03-26",
+      "poster": "https://image.tmdb.org/t/p/w500/vUwyhNWBKkSwK8ELvEeBRwV724h.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt32398150",
+      "type": "movie",
+      "name": "Ο Άγνωστος της Μεγάλης Αψίδας",
+      "greekTheatricalDate": "2026-03-26",
+      "poster": "https://image.tmdb.org/t/p/w500/5D6E7CuuFyXOmqlGVlUKP6tpNP3.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt29344894",
+      "type": "movie",
+      "name": "Στη Σκιά της Πορτοκαλιάς",
+      "greekTheatricalDate": "2026-03-26",
+      "poster": "https://image.tmdb.org/t/p/w500/fqMHedzcFA9rOnlWPuazaKMzV0H.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt31065630",
+      "type": "movie",
+      "name": "Χωρίς Πατέρα",
+      "greekTheatricalDate": "2026-03-26",
+      "poster": "https://image.tmdb.org/t/p/w500/dfctdEbc5324nwkkUSdhFZJ83Yj.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt33738802",
+      "type": "movie",
+      "name": "Dieva suns",
+      "greekTheatricalDate": "2026-03-26",
+      "poster": "https://image.tmdb.org/t/p/w500/pBL4KrMAFk8iKo5T2yXvLMEe3ag.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt27052428",
+      "type": "movie",
+      "name": "Orwell: 2+2=5",
+      "greekTheatricalDate": "2026-03-26",
+      "poster": "https://image.tmdb.org/t/p/w500/qG1LjcK8ohi4mSJ9j8KHUs5svbe.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt36932214",
+      "type": "movie",
+      "name": "Γελοίοι Έρωτες",
+      "greekTheatricalDate": "2026-03-23",
+      "poster": "https://image.tmdb.org/t/p/w500/kqQjYb37Vzuhoz36fWiNkZlqtvx.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt39333397",
+      "type": "movie",
+      "name": "Ματωμένες Παρτιτούρες",
+      "greekTheatricalDate": "2026-03-23",
+      "poster": "https://image.tmdb.org/t/p/w500/n8J40hSYZFxtz6M9XaDEoOYMIKo.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt31023008",
+      "type": "movie",
+      "name": "ალდი",
+      "greekTheatricalDate": "2026-03-21",
+      "poster": "https://image.tmdb.org/t/p/w500/bi79DoE8zbefz71tVqVgsEChqi9.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt12042730",
+      "type": "movie",
+      "name": "Αποστολή Χαίρε Μαρία",
+      "greekTheatricalDate": "2026-03-19",
+      "poster": "https://image.tmdb.org/t/p/w500/yihdXomYb5kTeSivtFndMy5iDmf.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt37381479",
+      "type": "movie",
+      "name": "Βγαίνουν Μέσα απ'τη Μάργκο",
+      "greekTheatricalDate": "2026-03-19",
+      "poster": "https://image.tmdb.org/t/p/w500/d1CCFteMpLMisGn6qUGyFnnw9xC.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt33029380",
+      "type": "movie",
+      "name": "Μαρσουπιλαμί",
+      "greekTheatricalDate": "2026-03-19",
+      "poster": "https://image.tmdb.org/t/p/w500/kMhVs1XqmzXlD0mDQ4rTJh4Kvf1.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt34892420",
+      "type": "movie",
+      "name": "Ο Τελευταίος Νομάς",
+      "greekTheatricalDate": "2026-03-19",
+      "poster": "https://image.tmdb.org/t/p/w500/ySxABVpB1E9D54P8GecmmQ7Cfwa.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt17070412",
+      "type": "movie",
+      "name": "Φραντς Κάφκα",
+      "greekTheatricalDate": "2026-03-19",
+      "poster": "https://image.tmdb.org/t/p/w500/cCRBkb1U9eKz1DYa4UMGZBSkcjC.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt6930962",
+      "type": "movie",
+      "name": "Χόλι: Το Γενναίο Σκαντζοχοιράκι (Spiked) (2025)",
+      "greekTheatricalDate": "2026-03-19",
+      "poster": "https://image.tmdb.org/t/p/w500/2MqG0Ziw3YGOotPFaN8t1MsOhWV.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt14443682",
+      "type": "movie",
+      "name": "Χωρίς προηγούμενο ραντεβού",
+      "greekTheatricalDate": "2026-03-19",
+      "poster": "https://image.tmdb.org/t/p/w500/bAKm8tXvAMsHKrrGG4Nlexn5Ori.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt34688195",
+      "type": "movie",
+      "name": "Coutures",
+      "greekTheatricalDate": "2026-03-19",
+      "poster": "https://image.tmdb.org/t/p/w500/pie2ouNdXYKEMXtF2Kvj0H4LzOr.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt37202764",
+      "type": "movie",
+      "name": "Last Call",
+      "greekTheatricalDate": "2026-03-19",
+      "poster": "https://image.tmdb.org/t/p/w500/cLgbupB4xCyBnGeiDOfYXepM632.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt37721761",
+      "type": "movie",
+      "name": "Regan",
+      "greekTheatricalDate": "2026-03-19",
+      "poster": "https://image.tmdb.org/t/p/w500/sseIfixxzf4QhOntAm8ksvGndzg.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt36647890",
+      "type": "movie",
+      "name": "The Mortuary Assistant",
+      "greekTheatricalDate": "2026-03-19",
+      "poster": "https://image.tmdb.org/t/p/w500/7k7hY1HqUYryPdRio0fuDMaIq4N.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt34819091",
+      "type": "movie",
+      "name": "Η Διαθήκη της Αν Λι",
+      "greekTheatricalDate": "2026-03-12",
+      "poster": "https://image.tmdb.org/t/p/w500/hBGg3IGRM7LM6ydMmDrl8mEx33Y.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt29313285",
+      "type": "movie",
+      "name": "Η Μικρή Αμελί",
+      "greekTheatricalDate": "2026-03-12",
+      "poster": "https://image.tmdb.org/t/p/w500/qoqDvTUVPoZJWw24AjGDt3J4tZN.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt32386654",
+      "type": "movie",
+      "name": "Ο Μάγος του Κρεμλίνου",
+      "greekTheatricalDate": "2026-03-12",
+      "poster": "https://image.tmdb.org/t/p/w500/85EYON4oXVYTPdMuW5q5ELQLU88.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt32429174",
+      "type": "movie",
+      "name": "Οδός Μάλαγα",
+      "greekTheatricalDate": "2026-03-12",
+      "poster": "https://image.tmdb.org/t/p/w500/fWagBXNDk44UaupYtwQOAvDwGiT.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt27811248",
+      "type": "movie",
+      "name": "Οι Δοκιμάστριες",
+      "greekTheatricalDate": "2026-03-12",
+      "poster": "https://image.tmdb.org/t/p/w500/j1BMHOfmEARIPeJr32GAyROaFlj.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt29572786",
+      "type": "movie",
+      "name": "Σμαράγδα",
+      "greekTheatricalDate": "2026-03-12",
+      "poster": "https://image.tmdb.org/t/p/w500/yFzuzOwDbAIBAdkmhRoZsC7OZEe.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt1341338",
+      "type": "movie",
+      "name": "Good Luck, Have Fun, Don't Die",
+      "greekTheatricalDate": "2026-03-12",
+      "poster": "https://image.tmdb.org/t/p/w500/rWcfOdY7TU6lTdazWj0ebDZnAfO.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt32526396",
+      "type": "movie",
+      "name": "O Μυστικός Πράκτορας Μπέρνι: Αποστολή στον Άρη",
+      "greekTheatricalDate": "2026-03-12",
+      "poster": "https://image.tmdb.org/t/p/w500/13apZwm466RLbtlhZxEVd9e3GM1.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt39948195",
+      "type": "movie",
+      "name": "Innere Emigranten",
+      "greekTheatricalDate": "2026-03-09",
+      "poster": "https://image.tmdb.org/t/p/w500/vWMKrZHJkIVF8Rk8x10qGulcPgp.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt40421466",
+      "type": "movie",
+      "name": "Gaza Grad",
+      "greekTheatricalDate": "2026-03-06",
+      "poster": "https://image.tmdb.org/t/p/w500/9qfotvfeTqk2DbYlP2Vrm4qnyha.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt40450934",
+      "type": "movie",
+      "name": "Rebel",
+      "greekTheatricalDate": "2026-03-06",
+      "poster": "https://image.tmdb.org/t/p/w500/xFViJvVRJEunTTQgK81qyJShwri.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt30851137",
+      "type": "movie",
+      "name": "Η Νύφη!",
+      "greekTheatricalDate": "2026-03-05",
+      "poster": "https://image.tmdb.org/t/p/w500/lV8YHwGkYZsm6EfIqnhaSz2avKt.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt26443616",
+      "type": "movie",
+      "name": "Στον Κόσμο των Ζώων",
+      "greekTheatricalDate": "2026-03-05",
+      "poster": "https://image.tmdb.org/t/p/w500/xjtWQ2CL1mpmMNwuU5HeS4Iuwuu.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt40412189",
+      "type": "movie",
+      "name": "Φίλοι για Πάντα",
+      "greekTheatricalDate": "2026-03-05",
+      "poster": "https://image.tmdb.org/t/p/w500/2lNZYwLljw2WAoYGfK9zQ1cODoy.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0190583",
+      "type": "movie",
+      "name": "No Budget Story",
+      "greekTheatricalDate": "2026-03-05",
+      "poster": "https://image.tmdb.org/t/p/w500/6poE0wJisqRLbQMwi17tKm86d8g.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt37846758",
+      "type": "movie",
+      "name": "Το Οτιδήποτε",
+      "greekTheatricalDate": "2026-02-27",
+      "poster": "https://image.tmdb.org/t/p/w500/yV2mj1Y5rl0YdLIuzChlKkYvHup.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt28089990",
+      "type": "movie",
+      "name": "Μπιτσκόμπερ",
+      "greekTheatricalDate": "2026-02-26",
+      "poster": "https://image.tmdb.org/t/p/w500/Ah3eTDkuDE1rcg8bLtDtDgQ8ZkB.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt28083456",
+      "type": "movie",
+      "name": "Παίζει Ακόμα;",
+      "greekTheatricalDate": "2026-02-26",
+      "poster": "https://image.tmdb.org/t/p/w500/YD6QzcokTMe3EViM0hLbNCxf4y.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt37530747",
+      "type": "movie",
+      "name": "Πολύ κοριτσίστικο όνομα το Πάττυ",
+      "greekTheatricalDate": "2026-02-26",
+      "poster": "https://image.tmdb.org/t/p/w500/34c8bRIgbx9rRPv3hkr07e8Qt3X.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt34886821",
+      "type": "movie",
+      "name": "Το Μεγαλείο",
+      "greekTheatricalDate": "2026-02-26",
+      "poster": "https://image.tmdb.org/t/p/w500/lnPGzi7BNc17WtxXso16CjNjT5K.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt29612071",
+      "type": "movie",
+      "name": "Τσάρλι ο Σούπερ-Σκύλος",
+      "greekTheatricalDate": "2026-02-26",
+      "poster": "https://image.tmdb.org/t/p/w500/whvkL0wzxgKmVbaPontq9NlVd5z.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt35003538",
+      "type": "movie",
+      "name": "EPiC: Elvis Presley in Concert",
+      "greekTheatricalDate": "2026-02-26",
+      "poster": "https://image.tmdb.org/t/p/w500/2K2NH5dforjT9kLcUC0eeBpdZkC.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt27047903",
+      "type": "movie",
+      "name": "Scream 7",
+      "greekTheatricalDate": "2026-02-26",
+      "poster": "https://image.tmdb.org/t/p/w500/jjyuk0edLiW8vOSnlfwWCCLpbh5.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt14883538",
+      "type": "movie",
+      "name": "Άρκο",
+      "greekTheatricalDate": "2026-02-19",
+      "poster": "https://image.tmdb.org/t/p/w500/mWlvHFxTDhq9O5WSOHywa32QIez.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt8879928",
+      "type": "movie",
+      "name": "Θανάσιμη Απειλή",
+      "greekTheatricalDate": "2026-02-19",
+      "poster": "https://image.tmdb.org/t/p/w500/3HA2iiq982e01EKXJvPFyfMADVM.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt32635378",
+      "type": "movie",
+      "name": "Καρό Νίντζα 3",
+      "greekTheatricalDate": "2026-02-19",
+      "poster": "https://image.tmdb.org/t/p/w500/sGUesG39H2LWZ6lUTwZXOqUHsxI.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt32561004",
+      "type": "movie",
+      "name": "Λευκά Όρη",
+      "greekTheatricalDate": "2026-02-19",
+      "poster": "https://image.tmdb.org/t/p/w500/dEB7Jp5DEZQ4qGwwbyqjsNKFth2.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt31101921",
+      "type": "movie",
+      "name": "Ο Αιχμάλωτος",
+      "greekTheatricalDate": "2026-02-19",
+      "poster": "https://image.tmdb.org/t/p/w500/aI9XOKEXN6J3uwZ84wwBaKzqcMw.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt14142060",
+      "type": "movie",
+      "name": "Οικογένεια προς ενοικίαση",
+      "greekTheatricalDate": "2026-02-19",
+      "poster": "https://image.tmdb.org/t/p/w500/A5lswNlytTUrnMWsuD0NFfhZlf3.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0015768",
+      "type": "movie",
+      "name": "Τίμα τη γυναίκα σου",
+      "greekTheatricalDate": "2026-02-19",
+      "poster": "https://image.tmdb.org/t/p/w500/iRxogRnql0tmHRhuH8XsV1pOSFr.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt32321317",
+      "type": "movie",
+      "name": "Pillion",
+      "greekTheatricalDate": "2026-02-19",
+      "poster": "https://image.tmdb.org/t/p/w500/7Pd6ChSQjSXy4snJiorSdzg2cG3.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt29550683",
+      "type": "movie",
+      "name": "To Σφύριγμα του Θανάτου",
+      "greekTheatricalDate": "2026-02-19",
+      "poster": "https://image.tmdb.org/t/p/w500/vgonf5kGsiijUBjzxKTvechhT28.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt38778002",
+      "type": "movie",
+      "name": "Κραυγές",
+      "greekTheatricalDate": "2026-02-14",
+      "poster": "https://image.tmdb.org/t/p/w500/cDTzFMkoRCsB8wmIwLPRcRgvna7.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt32897959",
+      "type": "movie",
+      "name": "Ανεμοδαρμένα Ύψη",
+      "greekTheatricalDate": "2026-02-12",
+      "poster": "https://image.tmdb.org/t/p/w500/3YBce6dTh1D5oCMITXk2S5QhPt.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt37538491",
+      "type": "movie",
+      "name": "Δύο Εποχές, Δύο Ξένοι",
+      "greekTheatricalDate": "2026-02-12",
+      "poster": "https://image.tmdb.org/t/p/w500/peOymUmbUL3e3x3DJLDNpHbNFNW.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt32448239",
+      "type": "movie",
+      "name": "Ντράκουλας",
+      "greekTheatricalDate": "2026-02-12",
+      "poster": "https://image.tmdb.org/t/p/w500/jfkYBHNFncxVSY0ReUrE5YoIYYu.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt32430579",
+      "type": "movie",
+      "name": "Ο Δρόμος του Εγκλήματος",
+      "greekTheatricalDate": "2026-02-12",
+      "poster": "https://image.tmdb.org/t/p/w500/tVvpFIoteRHNnoZMhdnwIVwJpCA.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt27847051",
+      "type": "movie",
+      "name": "Ο Μυστικός Πράκτορας",
+      "greekTheatricalDate": "2026-02-12",
+      "poster": "https://image.tmdb.org/t/p/w500/rZqolYhxMEe6TZZTjSmFw9crDTD.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0405094",
+      "type": "movie",
+      "name": "Οι Ζωές των Άλλων",
+      "greekTheatricalDate": "2026-02-12",
+      "poster": "https://image.tmdb.org/t/p/w500/cVUDMnskSc01rdbyH0tLATTJUdP.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt32368068",
+      "type": "movie",
+      "name": "Το Τραγούδι του Δάσους",
+      "greekTheatricalDate": "2026-02-12",
+      "poster": "https://image.tmdb.org/t/p/w500/5rcsd0iGbsQ6DFTI3HclJPJzY9K.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt27613895",
+      "type": "movie",
+      "name": "GOAT: Ο Δρόμος Προς Την Κορυφή",
+      "greekTheatricalDate": "2026-02-12",
+      "poster": "https://image.tmdb.org/t/p/w500/wfuqMlaExcoYiUEvKfVpUTt1v4u.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt29567402",
+      "type": "movie",
+      "name": "Rabbit Trap",
+      "greekTheatricalDate": "2026-02-12",
+      "poster": "https://image.tmdb.org/t/p/w500/sKnwnnmBpjo9BEskHtja6ToXUV1.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt37180090",
+      "type": "movie",
+      "name": "The Greek Experiment",
+      "greekTheatricalDate": "2026-02-06",
+      "poster": "https://image.tmdb.org/t/p/w500/gnHk2w9pfJHqp10gyICwidtEV7g.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt27850528",
+      "type": "movie",
+      "name": "Διπλόδοκος, Το Δεινοσαυράκι",
+      "greekTheatricalDate": "2026-02-05",
+      "poster": "https://image.tmdb.org/t/p/w500/9mnMMiwv20EL5weJrLZCaF8cM2u.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt35521200",
+      "type": "movie",
+      "name": "Δύο Εισαγγελείς",
+      "greekTheatricalDate": "2026-02-05",
+      "poster": "https://image.tmdb.org/t/p/w500/wV8A0YX9bVJ7CGnUAqDJtyYv6C2.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt22868010",
+      "type": "movie",
+      "name": "Επιστροφή στο Silent Hill",
+      "greekTheatricalDate": "2026-02-05",
+      "poster": "https://image.tmdb.org/t/p/w500/mdw7bSnE11WpwWf3ViXtnavuqiT.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt34734841",
+      "type": "movie",
+      "name": "Κάποτε στη Γάζα",
+      "greekTheatricalDate": "2026-02-05",
+      "poster": "https://image.tmdb.org/t/p/w500/pUaPcVkkO3WZSbCusXhvu4u5bpT.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt28682323",
+      "type": "movie",
+      "name": "Κλείδωσες; Οι Άγνωστοι 3",
+      "greekTheatricalDate": "2026-02-05",
+      "poster": "https://image.tmdb.org/t/p/w500/dWi4D1rUX1Pg4MaafpwwssqJ9lv.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt28690468",
+      "type": "movie",
+      "name": "Ο Ήχος της Πτώσης",
+      "greekTheatricalDate": "2026-02-05",
+      "poster": "https://image.tmdb.org/t/p/w500/5hLiXAqZ3xTHExOIsxYANIswBjZ.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt39216314",
+      "type": "movie",
+      "name": "스트레이 키즈: 더 도미네이트 익스피리언스",
+      "greekTheatricalDate": "2026-02-05",
+      "poster": "https://image.tmdb.org/t/p/w500/8pi8IZ2lqJB0k0XKgh2b89OYqYd.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt39326023",
+      "type": "movie",
+      "name": "Άγιος Παΐσιος",
+      "greekTheatricalDate": "2026-01-29",
+      "poster": "https://image.tmdb.org/t/p/w500/r9a4t4hsIzxDyz4NZ1pWbK9uNfJ.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt8036976",
+      "type": "movie",
+      "name": "Βοήθεια!",
+      "greekTheatricalDate": "2026-01-29",
+      "poster": "https://image.tmdb.org/t/p/w500/zbJWVHOtj3ljBzWgL1P8pxP03Up.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt36055847",
+      "type": "movie",
+      "name": "Εκτός εαυτού",
+      "greekTheatricalDate": "2026-01-29",
+      "poster": "https://image.tmdb.org/t/p/w500/A2Qj28ZraYphpoqKko7KTDEiOwB.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt35995292",
+      "type": "movie",
+      "name": "ΟνειροΖωάκια Η ΤΑΙΝΙΑ",
+      "greekTheatricalDate": "2026-01-29",
+      "poster": "https://image.tmdb.org/t/p/w500/87pyUElIufI2mdlasATCq9Rz887.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt35504398",
+      "type": "movie",
+      "name": "Σας Πιστεύουμε",
+      "greekTheatricalDate": "2026-01-29",
+      "poster": "https://image.tmdb.org/t/p/w500/aBYQhsh65AZqEfPiDy3Z7AGbsw.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt32357218",
+      "type": "movie",
+      "name": "Το Καταφύγιο",
+      "greekTheatricalDate": "2026-01-29",
+      "poster": "https://image.tmdb.org/t/p/w500/cv7DeQQ7TOozPoTCBdNJIvWKhU1.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt24022322",
+      "type": "movie",
+      "name": "Yunan",
+      "greekTheatricalDate": "2026-01-29",
+      "poster": "https://image.tmdb.org/t/p/w500/qAk8iPjz9224qwfmi6roMhK9dER.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt14905854",
+      "type": "movie",
+      "name": "Άμνετ",
+      "greekTheatricalDate": "2026-01-22",
+      "poster": "https://image.tmdb.org/t/p/w500/vbeyOZm2bvBXcbgPD3v6o94epPX.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt36036792",
+      "type": "movie",
+      "name": "Επιστροφή στην Πατρίδα",
+      "greekTheatricalDate": "2026-01-22",
+      "poster": "https://image.tmdb.org/t/p/w500/yH6lWTOefO2HxCX2buaKnNCaQrJ.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt31050594",
+      "type": "movie",
+      "name": "Η Εσχάτη των Ποινών",
+      "greekTheatricalDate": "2026-01-22",
+      "poster": "https://image.tmdb.org/t/p/w500/pyok1kZJCfyuFapYXzHcy7BLlQa.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt37021896",
+      "type": "movie",
+      "name": "Κάρλα",
+      "greekTheatricalDate": "2026-01-22",
+      "poster": "https://image.tmdb.org/t/p/w500/dF199PpplhGi3cE2XZhoJFsj0yW.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt8159912",
+      "type": "movie",
+      "name": "Οι Δικοί Μου Άνθρωποι",
+      "greekTheatricalDate": "2026-01-22",
+      "poster": "https://image.tmdb.org/t/p/w500/3y6xA1NfQqpUz98OzNMmDJNbMJ7.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt35485979",
+      "type": "movie",
+      "name": "Οι Φύλακες του Χιονιού",
+      "greekTheatricalDate": "2026-01-22",
+      "poster": "https://image.tmdb.org/t/p/w500/dmZICQpB4Q1LWLjilfrnqe2owMq.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt32538158",
+      "type": "movie",
+      "name": "Φρου Φρου ο σκανδαλιάρης",
+      "greekTheatricalDate": "2026-01-22",
+      "poster": "https://image.tmdb.org/t/p/w500/ctRbBJ35laTEuLnEi6Qj3etxs65.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt31260224",
+      "type": "movie",
+      "name": "Hopper et le secret de la marmotte",
+      "greekTheatricalDate": "2026-01-22",
+      "poster": "https://image.tmdb.org/t/p/w500/cUCwWxHF1bRfqeY7beZfsvT7WBR.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt22325440",
+      "type": "movie",
+      "name": "Marwan: Tomorrow's Freedom",
+      "greekTheatricalDate": "2026-01-22",
+      "poster": "https://image.tmdb.org/t/p/w500/iaqkhxDTMHSvxMoNWvpNokMlLM9.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt32141377",
+      "type": "movie",
+      "name": "28 Χρόνια Μετά: Ο Ναός των Οστών",
+      "greekTheatricalDate": "2026-01-15",
+      "poster": "https://image.tmdb.org/t/p/w500/kK1BGkG3KAvWB0WMV1DfOx9yTMZ.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt39378634",
+      "type": "movie",
+      "name": "Η ύβρις της ανθρωπότητας",
+      "greekTheatricalDate": "2026-01-15",
+      "poster": "https://image.tmdb.org/t/p/w500/uagtUc4k61uJPWlZTEGVUNAhE8Y.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt32267711",
+      "type": "movie",
+      "name": "Ρούφους, ο θαλάσσιος δράκος που δεν ήξερε κολύμπι",
+      "greekTheatricalDate": "2026-01-15",
+      "poster": "https://image.tmdb.org/t/p/w500/cve6j7j8MxgYAol70JZW20zBgsz.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt35499025",
+      "type": "movie",
+      "name": "Τι σου λέει αυτή η Φύση",
+      "greekTheatricalDate": "2026-01-15",
+      "poster": "https://image.tmdb.org/t/p/w500/jnW2xfpB8BnHuHOiT7XA8EBSW9F.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt35492581",
+      "type": "movie",
+      "name": "Kontinental '25",
+      "greekTheatricalDate": "2026-01-15",
+      "poster": "https://image.tmdb.org/t/p/w500/AbWxqCGw5m3cJ3aU9iiRXpCkE1J.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt32916440",
+      "type": "movie",
+      "name": "Marty Supreme",
+      "greekTheatricalDate": "2026-01-15",
+      "poster": "https://image.tmdb.org/t/p/w500/lYWEXbQgRTR4ZQleSXAgRbxAjvq.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt32298285",
+      "type": "movie",
+      "name": "Sirāt",
+      "greekTheatricalDate": "2026-01-15",
+      "poster": "https://image.tmdb.org/t/p/w500/bzBtsLi17rK4G6kDvOXfUZfAhca.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt37539162",
+      "type": "movie",
+      "name": "Call Me Mother",
+      "greekTheatricalDate": "2026-01-11",
+      "poster": "https://image.tmdb.org/t/p/w500/kMc1VvhyRdK9w43jaurzfxmnH4x.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0058138",
+      "type": "movie",
+      "name": "Γερτρούδη",
+      "greekTheatricalDate": "2026-01-08",
+      "poster": "https://image.tmdb.org/t/p/w500/kHjqxHcJlwd5fL8G6pDuLfOCaPW.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt27773954",
+      "type": "movie",
+      "name": "Ένα Πράγμα Με Φτερά",
+      "greekTheatricalDate": "2026-01-08",
+      "poster": "https://image.tmdb.org/t/p/w500/j3kM0tMW7EQaOrit0JW9NvoPPrp.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt33524865",
+      "type": "movie",
+      "name": "Τι Ψυχή θα Παραδώσεις Μωρή; — Part One",
+      "greekTheatricalDate": "2026-01-08",
+      "poster": "https://image.tmdb.org/t/p/w500/2eB3DVAxX20rZHU5XTyhvjR6V9J.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt27722618",
+      "type": "movie",
+      "name": "Το Αριστερό Μου Χέρι",
+      "greekTheatricalDate": "2026-01-08",
+      "poster": "https://image.tmdb.org/t/p/w500/gU1zqMzqFcQJu7F6LUrmkMJPiLp.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt22237964",
+      "type": "movie",
+      "name": "Το Μυστηριώδες Βλέμμα του Ροζ Φλαμίνγκο",
+      "greekTheatricalDate": "2026-01-08",
+      "poster": "https://image.tmdb.org/t/p/w500/xfPhni21LIEmuV8HiDfrLhcmTwr.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt14850054",
+      "type": "movie",
+      "name": "Greenland 2: Migration",
+      "greekTheatricalDate": "2026-01-08",
+      "poster": "https://image.tmdb.org/t/p/w500/z2tqCJLsw6uEJ8nJV8BsQXGa3dr.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt33028778",
+      "type": "movie",
+      "name": "Primate",
+      "greekTheatricalDate": "2026-01-08",
+      "poster": "https://image.tmdb.org/t/p/w500/rKleYiEj4pFqxedTRWfujLooi84.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt33244668",
+      "type": "movie",
+      "name": "Ανακόντα",
+      "greekTheatricalDate": "2026-01-01",
+      "poster": "https://image.tmdb.org/t/p/w500/hBxN6dwrANN1ic3a4G9x6JZcR3C.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt35820129",
+      "type": "movie",
+      "name": "Αποστολή Άγιος Βασίλης",
+      "greekTheatricalDate": "2026-01-01",
+      "poster": "https://image.tmdb.org/t/p/w500/t0OORtaTEQGbkATnR0Qfa5t4wgP.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt33336813",
+      "type": "movie",
+      "name": "Η φλαμένκο κιθάρα του Γεράι Κορτές",
+      "greekTheatricalDate": "2026-01-01",
+      "poster": "https://image.tmdb.org/t/p/w500/fCkUmnzlbxpMhHieiQAGQwo50hQ.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt29713093",
+      "type": "movie",
+      "name": "Θάβουμε τους Νεκρούς",
+      "greekTheatricalDate": "2026-01-01",
+      "poster": "https://image.tmdb.org/t/p/w500/xZqo0yPARmyF8TACVNyaOACkYWG.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt11575608",
+      "type": "movie",
+      "name": "Λαβύρινθος",
+      "greekTheatricalDate": "2026-01-01",
+      "poster": "https://image.tmdb.org/t/p/w500/v17k4SpGr3v70oboarlatfecyDV.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt33852162",
+      "type": "movie",
+      "name": "Μια Ιδιωτική Ζωή",
+      "greekTheatricalDate": "2026-01-01",
+      "poster": "https://image.tmdb.org/t/p/w500/grozteYTaspY4xaJRt3nw4zMtTs.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt35340614",
+      "type": "movie",
+      "name": "Γαλάζιο Μονοπάτι",
+      "greekTheatricalDate": "2025-12-25",
+      "poster": "https://image.tmdb.org/t/p/w500/ua8XnJ450rhBTxkY2wpD2ITw7BJ.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt38747537",
+      "type": "movie",
+      "name": "Καποδίστριας",
+      "greekTheatricalDate": "2025-12-25",
+      "poster": "https://image.tmdb.org/t/p/w500/a0ltj3wSFURugiuTgQpYbJbTgLR.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt23572848",
+      "type": "movie",
+      "name": "Μπόμπ Σφουγγαράκης: Η Aναζήτηση του Τετραγωνοπαντελονή",
+      "greekTheatricalDate": "2025-12-25",
+      "poster": "https://image.tmdb.org/t/p/w500/xJnOMMsFASxNiFnG7v3TNIQ3ife.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt31189315",
+      "type": "movie",
+      "name": "Father Mother Sister Brother",
+      "greekTheatricalDate": "2025-12-25",
+      "poster": "https://image.tmdb.org/t/p/w500/96O3Ol3f2veMxAxYqsML8rOumB9.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt37150816",
+      "type": "movie",
+      "name": "L'accord",
+      "greekTheatricalDate": "2025-12-20",
+      "poster": "https://image.tmdb.org/t/p/w500/hTvT5iSrwDc1HjCb4M5tr2WPrMV.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt32367116",
+      "type": "movie",
+      "name": "Αυτά που σκοτώνεις",
+      "greekTheatricalDate": "2025-12-18",
+      "poster": "https://image.tmdb.org/t/p/w500/kR8CHANk8KwQLWarMIQsk2mthhW.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt27543632",
+      "type": "movie",
+      "name": "Η Αγγελία",
+      "greekTheatricalDate": "2025-12-18",
+      "poster": "https://image.tmdb.org/t/p/w500/cWsBscZzwu5brg9YjNkGewRUvJX.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt35727399",
+      "type": "movie",
+      "name": "Χριστούγεννα με τον Ποντικούλη",
+      "greekTheatricalDate": "2025-12-18",
+      "poster": "https://image.tmdb.org/t/p/w500/2LgEDVRubQNsWzgJaUfIV4DcW7S.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt1757678",
+      "type": "movie",
+      "name": "Avatar: Φωτιά και Στάχτη",
+      "greekTheatricalDate": "2025-12-18",
+      "poster": "https://image.tmdb.org/t/p/w500/bRBeSHfGHwkEpImlhxPmOcUsaeg.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt34508974",
+      "type": "movie",
+      "name": "Άγια Νύχτα, Άγρια Νύχτα",
+      "greekTheatricalDate": "2025-12-11",
+      "poster": "https://image.tmdb.org/t/p/w500/xCdSd7NnRdnL8DGLVhI95WhUNoi.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt18382850",
+      "type": "movie",
+      "name": "Αν είχα πόδια θα σε κλωτσούσα",
+      "greekTheatricalDate": "2025-12-11",
+      "poster": "https://image.tmdb.org/t/p/w500/va0TQ9WprMXRqQAzY56vyqY0Yd5.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0090931",
+      "type": "movie",
+      "name": "Το δέντρο που πληγώναμε",
+      "greekTheatricalDate": "2025-12-11",
+      "poster": "https://image.tmdb.org/t/p/w500/rLxhPTxN5msoxEsUrlakncXtf1T.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt32332404",
+      "type": "movie",
+      "name": "Keeper",
+      "greekTheatricalDate": "2025-12-11",
+      "poster": "https://image.tmdb.org/t/p/w500/mbGHijUc0C3fcM12l6ro6FgxIvg.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt32085997",
+      "type": "movie",
+      "name": "Miséricorde",
+      "greekTheatricalDate": "2025-12-11",
+      "poster": "https://image.tmdb.org/t/p/w500/7LVCXVdsGPPXRYGu5SRqgfVP96h.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt7967302",
+      "type": "movie",
+      "name": "O Βασιλιάς Των Βασιλιάδων: Μια Ιστορία απο τον Κάρολο Ντίκενς",
+      "greekTheatricalDate": "2025-12-11",
+      "poster": "https://image.tmdb.org/t/p/w500/ccw7CCIAvcZV431CP7NhHAHuiHR.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt38155153",
+      "type": "movie",
+      "name": "Through Phase One",
+      "greekTheatricalDate": "2025-12-06",
+      "poster": "https://image.tmdb.org/t/p/w500/oOAqoH2CjMu7t7IWVDYE96GXbdg.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt39124108",
+      "type": "movie",
+      "name": "Rec'n'Play",
+      "greekTheatricalDate": "2025-12-05",
+      "poster": "https://image.tmdb.org/t/p/w500/GRl6dfLXzoln4MvvJZ9JMC50oB.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt14124080",
+      "type": "movie",
+      "name": "Απόδραση στη Νορμανδία",
+      "greekTheatricalDate": "2025-12-04",
+      "poster": "https://image.tmdb.org/t/p/w500/50rOFWgFUsCw3zfwSKXcdglh3Ji.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt32263650",
+      "type": "movie",
+      "name": "Για τον Κρίστι",
+      "greekTheatricalDate": "2025-12-04",
+      "poster": "https://image.tmdb.org/t/p/w500/uVsMhhOnhzQe1bfkT4ZB6KokGU3.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt36943034",
+      "type": "movie",
+      "name": "Η Φωνή της Χιντ Ρατζάμπ",
+      "greekTheatricalDate": "2025-12-04",
+      "poster": "https://image.tmdb.org/t/p/w500/q7M8kQB46T11vmDMD6E239jsqTz.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt30274401",
+      "type": "movie",
+      "name": "Πέντε Νύχτες στου Φρέντι 2",
+      "greekTheatricalDate": "2025-12-04",
+      "poster": "https://image.tmdb.org/t/p/w500/udAxQEORq2I5wxI97N2TEqdhzBE.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt26923797",
+      "type": "movie",
+      "name": "Σιωπηλή αγάπη",
+      "greekTheatricalDate": "2025-12-04",
+      "poster": "https://image.tmdb.org/t/p/w500/ykB9bwUHT1AV04KjYPLhfgMwYdD.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt38504906",
+      "type": "movie",
+      "name": "Τα Κάλαντα των Χριστουγέννων",
+      "greekTheatricalDate": "2025-12-04",
+      "poster": "https://image.tmdb.org/t/p/w500/ee9udvVF4zQcmMupYrsHCjPgMI5.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt14813816",
+      "type": "movie",
+      "name": "Το Ταρανδάκι των Χριστουγέννων",
+      "greekTheatricalDate": "2025-12-04",
+      "poster": "https://image.tmdb.org/t/p/w500/qqt2atvzPJJBvtAAHtwXKO11loQ.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt40618648",
+      "type": "movie",
+      "name": "(The) Holy Elephant",
+      "greekTheatricalDate": "2025-12-03",
+      "poster": "https://image.tmdb.org/t/p/w500/kaxqse30KJYxoTXDIDQ8aGEFt6x.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt38938933",
+      "type": "movie",
+      "name": "Echoes Between Land and Blue Sky: The Lives of Mongolian Deaf Nomads",
+      "greekTheatricalDate": "2025-12-01",
+      "poster": "https://image.tmdb.org/t/p/w500/kTgy1DwR0FPiNQVWePcVCKWAKFn.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt36983478",
+      "type": "movie",
+      "name": "Holding Echoes",
+      "greekTheatricalDate": "2025-11-30",
+      "poster": "https://image.tmdb.org/t/p/w500/9SCAIABHMoJFfS5nNSCJ9wdxOaU.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt24950660",
+      "type": "movie",
+      "name": "Για Πάντα;",
+      "greekTheatricalDate": "2025-11-27",
+      "poster": "https://image.tmdb.org/t/p/w500/yiwGcjfDKXD5PqQnyKUU9kspWQQ.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt26443597",
+      "type": "movie",
+      "name": "Ζωούπολη 2",
+      "greekTheatricalDate": "2025-11-27",
+      "poster": "https://image.tmdb.org/t/p/w500/oJ7g2CifqpStmoYQyaLQgEU32qO.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt9362736",
+      "type": "movie",
+      "name": "Πέθανε Αγάπη μου",
+      "greekTheatricalDate": "2025-11-27",
+      "poster": "https://image.tmdb.org/t/p/w500/kajpShbFhOdpl6yCrLezMrr9tB4.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt30220107",
+      "type": "movie",
+      "name": "Ρενουάρ",
+      "greekTheatricalDate": "2025-11-27",
+      "poster": "https://image.tmdb.org/t/p/w500/92pUHLbUXJd61xUSzfEiNtrVVZy.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt32919616",
+      "type": "movie",
+      "name": "Σπασμένη φλέβα",
+      "greekTheatricalDate": "2025-11-27",
+      "poster": "https://image.tmdb.org/t/p/w500/kCQ0lU1xShRaajnTncPIYi0qOr1.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt31530623",
+      "type": "movie",
+      "name": "Το Δάκρυ του Διαβόλου",
+      "greekTheatricalDate": "2025-11-27",
+      "poster": "https://image.tmdb.org/t/p/w500/oEyeYAKNZko7aUbWy2BkPEsBzz.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt35929110",
+      "type": "movie",
+      "name": "Meet, Greet & Bye",
+      "greekTheatricalDate": "2025-11-22",
+      "poster": "https://image.tmdb.org/t/p/w500/7gEBNzmaTiBVG3g0eUDPU3kPbcc.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt38966273",
+      "type": "movie",
+      "name": "placeholder",
+      "greekTheatricalDate": "2025-11-22",
+      "poster": "https://image.tmdb.org/t/p/w500/y1E74fda2UnJzckcuq1D6RQqAaB.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt35683445",
+      "type": "movie",
+      "name": "Γειά σου, Φρίντα",
+      "greekTheatricalDate": "2025-11-20",
+      "poster": "https://image.tmdb.org/t/p/w500/hY8TslXAaJD0cytxifrhy6h5cJl.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt33381401",
+      "type": "movie",
+      "name": "Η Αγάπη που Απομένει",
+      "greekTheatricalDate": "2025-11-20",
+      "poster": "https://image.tmdb.org/t/p/w500/cW1T0oQcyVfcRR0e4cevno9Zc2h.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt32204858",
+      "type": "movie",
+      "name": "Νυχτερινή Εφημερία",
+      "greekTheatricalDate": "2025-11-20",
+      "poster": "https://image.tmdb.org/t/p/w500/2X2FZIYdXYNwDbStJhgeoVn0pWH.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt14107334",
+      "type": "movie",
+      "name": "Ο Άτρωτος",
+      "greekTheatricalDate": "2025-11-20",
+      "poster": "https://image.tmdb.org/t/p/w500/dKL78O9zxczVgjtNcQ9UkbYLzqX.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt30810787",
+      "type": "movie",
+      "name": "Όνειρα",
+      "greekTheatricalDate": "2025-11-20",
+      "poster": "https://image.tmdb.org/t/p/w500/ctBhKsd2AGlubApDf7VogbFKRlG.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt31844586",
+      "type": "movie",
+      "name": "Sisu 2: Ο Δρόμος της Εκδίκησης",
+      "greekTheatricalDate": "2025-11-20",
+      "poster": "https://image.tmdb.org/t/p/w500/roCMOuMQ55Z2TxVx1vZZTevlo0n.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt19847976",
+      "type": "movie",
+      "name": "Wicked: Μέρος Δεύτερο",
+      "greekTheatricalDate": "2025-11-20",
+      "poster": "https://image.tmdb.org/t/p/w500/si9tolnefLSUKaqQEGz1bWArOaL.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt35222590",
+      "type": "movie",
+      "name": "８番出口",
+      "greekTheatricalDate": "2025-11-13",
+      "poster": "https://image.tmdb.org/t/p/w500/lLbSXLvZIsn77SeHlMZ428bCxoE.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt33549447",
+      "type": "movie",
+      "name": "Ανεμώνη",
+      "greekTheatricalDate": "2025-11-13",
+      "poster": "https://image.tmdb.org/t/p/w500/dubKbJTRTJmji0VUEo5pVoZ92ra.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt33996352",
+      "type": "movie",
+      "name": "Δεσποινίς Μόξι: Η Οδύσσεια Μιας Γάτας",
+      "greekTheatricalDate": "2025-11-13",
+      "poster": "https://image.tmdb.org/t/p/w500/lKxmXNfjzNchKi3F8rJpUpZBtR7.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt1527793",
+      "type": "movie",
+      "name": "Καμιά Άλλη Επιλογή",
+      "greekTheatricalDate": "2025-11-13",
+      "poster": "https://image.tmdb.org/t/p/w500/vc2S0dvgpsM0XfSiXZDMVkRCSSU.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt29567915",
+      "type": "movie",
+      "name": "Νυρεμβέργη",
+      "greekTheatricalDate": "2025-11-13",
+      "poster": "https://image.tmdb.org/t/p/w500/xthXNYltOOm80vW5Kxjzxx5gvQ6.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt38121182",
+      "type": "movie",
+      "name": "JUJUTSU KAISEN: Εκτέλεση -Το Συμβάν στη Shibuya x Η Έναρξη του Αγώνα Εξόντωσης-",
+      "greekTheatricalDate": "2025-11-13",
+      "poster": "https://image.tmdb.org/t/p/w500/v0s3dx6am0RzfsuK3KdEy8ZoCDs.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt12300742",
+      "type": "movie",
+      "name": "Βουγονία",
+      "greekTheatricalDate": "2025-11-06",
+      "poster": "https://image.tmdb.org/t/p/w500/rSdOua3wKMEaFWDcKAYWRjXQWOt.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt33270263",
+      "type": "movie",
+      "name": "Η Τελετουργία",
+      "greekTheatricalDate": "2025-11-06",
+      "poster": "https://image.tmdb.org/t/p/w500/t45V9B1kSvwVpupWie1t9e1YWXe.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt36598711",
+      "type": "movie",
+      "name": "Κράτα την Ψυχή σου στο Χέρι και Περπάτα",
+      "greekTheatricalDate": "2025-11-06",
+      "poster": "https://image.tmdb.org/t/p/w500/xC6FfKOMCkC1KlT3GCY3H9Ev6FB.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt31227572",
+      "type": "movie",
+      "name": "Κυνηγός: Επικίνδυνη Ζώνη",
+      "greekTheatricalDate": "2025-11-06",
+      "poster": "https://image.tmdb.org/t/p/w500/pHpq9yNUIo6aDoCXEBzjSolywgz.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt38772835",
+      "type": "movie",
+      "name": "Μικρός Ανθρωποφάγος",
+      "greekTheatricalDate": "2025-11-06",
+      "poster": "https://image.tmdb.org/t/p/w500/xjmjDHNRacy3eSrpKW2LApSO8Kf.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt32323252",
+      "type": "movie",
+      "name": "Christy",
+      "greekTheatricalDate": "2025-11-06",
+      "poster": "https://image.tmdb.org/t/p/w500/fDsxBOmBFL57QtKM9kTJ3AQU8lD.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt32897929",
+      "type": "movie",
+      "name": "Grand Prix: O Γύρος της Ευρώπης",
+      "greekTheatricalDate": "2025-11-06",
+      "poster": "https://image.tmdb.org/t/p/w500/jGGEqRaHAJ1pKJBj35WVxDyQBNw.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0354668",
+      "type": "movie",
+      "name": "Save the Green Planet!",
+      "greekTheatricalDate": "2025-11-06",
+      "poster": "https://image.tmdb.org/t/p/w500/kou9TDjveVwBhWnxCRUT88RUVCs.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt36435448",
+      "type": "movie",
+      "name": "Μάχη",
+      "greekTheatricalDate": "2025-11-02",
+      "poster": "https://image.tmdb.org/t/p/w500/brCzPvFTkSiB9cOEmduQxFApmSr.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt38637678",
+      "type": "movie",
+      "name": "Θηλυκό",
+      "greekTheatricalDate": "2025-10-31",
+      "poster": "https://image.tmdb.org/t/p/w500/s9m1FGqICfgNDkHRQCM7IlC7rCx.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt28291010",
+      "type": "movie",
+      "name": "Επιχείρηση Καμπούλ",
+      "greekTheatricalDate": "2025-10-30",
+      "poster": "https://image.tmdb.org/t/p/w500/orcdyqJZhbr731iN7yq7TK5zluc.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt12583926",
+      "type": "movie",
+      "name": "Η Επέτειος",
+      "greekTheatricalDate": "2025-10-30",
+      "poster": "https://image.tmdb.org/t/p/w500/sSdpXGBNt3mQzjZZVK6eV5NcPdc.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0068755",
+      "type": "movie",
+      "name": "Με λένε Στέλιο",
+      "greekTheatricalDate": "2025-10-30",
+      "poster": "https://image.tmdb.org/t/p/w500/qh3PRGVhYlEBVnMi5yDeTnZDwCV.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt33088452",
+      "type": "movie",
+      "name": "Μετανιώνοντας για Σένα",
+      "greekTheatricalDate": "2025-10-30",
+      "poster": "https://image.tmdb.org/t/p/w500/z4gVnxTaks3anTycwKjDmvQSuWt.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt9612976",
+      "type": "movie",
+      "name": "Ο Φίλος μου ο Ταφίτι",
+      "greekTheatricalDate": "2025-10-30",
+      "poster": "https://image.tmdb.org/t/p/w500/y0sABKBMePQIg9WPpizS8JItq8s.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt28231777",
+      "type": "movie",
+      "name": "Σκοτώστε τον Τζόκεϊ",
+      "greekTheatricalDate": "2025-10-30",
+      "poster": "https://image.tmdb.org/t/p/w500/2CGm69ebTBnbqFZIT8cWSuRIb8S.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt22507216",
+      "type": "movie",
+      "name": "Στο νησί του Άμρουμ",
+      "greekTheatricalDate": "2025-10-30",
+      "poster": "https://image.tmdb.org/t/p/w500/z87OLGYXojP3bJjp0EpbutpvGTy.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt38780056",
+      "type": "movie",
+      "name": "Der Schlagbaum",
+      "greekTheatricalDate": "2025-10-30",
+      "poster": "https://image.tmdb.org/t/p/w500/YuyrzA1ZT5rQ0CHJ4cWuzdfcWC.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt31688586",
+      "type": "movie",
+      "name": "Nouvelle Vague",
+      "greekTheatricalDate": "2025-10-30",
+      "poster": "https://image.tmdb.org/t/p/w500/yZUZAMsw31KfIg66eB00eJrYN8n.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt35715953",
+      "type": "movie",
+      "name": "Αχινός",
+      "greekTheatricalDate": "2025-10-23",
+      "poster": "https://image.tmdb.org/t/p/w500/zc8n3hm3S2VxFxlNH1MNN28LVMa.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt14999684",
+      "type": "movie",
+      "name": "Η Κατάρα του Σέλμπι Όουκς",
+      "greekTheatricalDate": "2025-10-23",
+      "poster": "https://image.tmdb.org/t/p/w500/i3omY4P6QUzFQlEeclWY92RuXCH.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt35975080",
+      "type": "movie",
+      "name": "Τα τέρματα του Αυγούστου",
+      "greekTheatricalDate": "2025-10-23",
+      "poster": "https://image.tmdb.org/t/p/w500/5KK6EoBaM616CUU7qwKUQwOVDMR.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt30400277",
+      "type": "movie",
+      "name": "Το Φιλί της Γυναίκας Αράχνης",
+      "greekTheatricalDate": "2025-10-23",
+      "poster": "https://image.tmdb.org/t/p/w500/c8zDeDq0Uatjly6Fh4ycmWuoLYy.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0059643",
+      "type": "movie",
+      "name": "Το Χειρόγραφο της Σαραγόσα",
+      "greekTheatricalDate": "2025-10-23",
+      "poster": "https://image.tmdb.org/t/p/w500/3P8g5U4gbifjM2lnqSpZogh7FrD.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt37185884",
+      "type": "movie",
+      "name": "Τομ και Τζέρι: Η Απαγορευμένη Πυξίδα",
+      "greekTheatricalDate": "2025-10-23",
+      "poster": "https://image.tmdb.org/t/p/w500/5qttWFjsO62k88civZaDMHiBTvy.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt30472557",
+      "type": "movie",
+      "name": "Chainsaw Man – Η Ταινία: Reze Arc",
+      "greekTheatricalDate": "2025-10-23",
+      "poster": "https://image.tmdb.org/t/p/w500/pHyxb2RV5wLlboAwm9ZJ9qTVEDw.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt31923069",
+      "type": "movie",
+      "name": "Springsteen: Deliver Me from Nowhere",
+      "greekTheatricalDate": "2025-10-23",
+      "poster": "https://image.tmdb.org/t/p/w500/csBV3eq4RDjNg1acNQ8kwOZyPlZ.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt37284825",
+      "type": "movie",
+      "name": "Ζηλωτής",
+      "greekTheatricalDate": "2025-10-21",
+      "poster": "https://image.tmdb.org/t/p/w500/8kUS7N6ENL4zMhz9Ccxn4AK0c2q.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt38734796",
+      "type": "movie",
+      "name": "When Nobody's Watching",
+      "greekTheatricalDate": "2025-10-20",
+      "poster": "https://image.tmdb.org/t/p/w500/zAlO5VU3ckgDZuuyAgAGWPgDKge.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt36491653",
+      "type": "movie",
+      "name": "Ένα Απλό Ατύχημα",
+      "greekTheatricalDate": "2025-10-16",
+      "poster": "https://image.tmdb.org/t/p/w500/eNYGj2DG3n8OrVPTfYunpPW9uas.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt32159989",
+      "type": "movie",
+      "name": "Μετά το Κυνήγι",
+      "greekTheatricalDate": "2025-10-16",
+      "poster": "https://image.tmdb.org/t/p/w500/ryF8QPGUGlo8gRB4OYKb4J0r3aJ.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt29644189",
+      "type": "movie",
+      "name": "Νεκρό Τηλέφωνο 2",
+      "greekTheatricalDate": "2025-10-16",
+      "poster": "https://image.tmdb.org/t/p/w500/vBOpqxW0SDhACwEO2LZT29DuNG2.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt32249940",
+      "type": "movie",
+      "name": "Ρίφενσταλ: στην καρδιά του Τρίτου Ράιχ",
+      "greekTheatricalDate": "2025-10-16",
+      "poster": "https://image.tmdb.org/t/p/w500/yl4AbKmwXR8bPVsbPyldD50yN8Y.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0037674",
+      "type": "movie",
+      "name": "Τα παιδιά του Παραδείσου",
+      "greekTheatricalDate": "2025-10-16",
+      "poster": "https://image.tmdb.org/t/p/w500/yiy9stl1jjVhW44ypkWMFDT8Ix3.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt27543578",
+      "type": "movie",
+      "name": "Τύχη Βουνό",
+      "greekTheatricalDate": "2025-10-16",
+      "poster": "https://image.tmdb.org/t/p/w500/rywxUbd4zvHiRP7nOHeDzuQSLIZ.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt14260876",
+      "type": "movie",
+      "name": "Χάιντι: η διάσωση του μικρού λύγκα",
+      "greekTheatricalDate": "2025-10-16",
+      "poster": "https://image.tmdb.org/t/p/w500/bFyjQ3tlbElWrO3YBwb49KCjmyQ.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt28522171",
+      "type": "movie",
+      "name": "Καλές Γιορτές",
+      "greekTheatricalDate": "2025-10-13",
+      "poster": "https://image.tmdb.org/t/p/w500/qo4oPwn1KBoG0gLcJFbgJpvv8k8.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt34195868",
+      "type": "movie",
+      "name": "The Spectacle",
+      "greekTheatricalDate": "2025-10-11",
+      "poster": "https://image.tmdb.org/t/p/w500/bOV1DuCinOZI8lpN80XxYNrl60o.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt30810792",
+      "type": "movie",
+      "name": "Αγάπη μόνο",
+      "greekTheatricalDate": "2025-10-09",
+      "poster": "https://image.tmdb.org/t/p/w500/dm1nMJ64sTeQBYxXV76R0u4sq9Z.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0023649",
+      "type": "movie",
+      "name": "Βαμπίρ",
+      "greekTheatricalDate": "2025-10-09",
+      "poster": "https://image.tmdb.org/t/p/w500/yt3JS5JSoZseSohYkhs6FLU9B0O.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt36424914",
+      "type": "movie",
+      "name": "Κατοικίδια στο Express",
+      "greekTheatricalDate": "2025-10-09",
+      "poster": "https://image.tmdb.org/t/p/w500/b10qy1KwrfmH0MGS2rBUJ0BxgYB.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt7574556",
+      "type": "movie",
+      "name": "Στα Βάθη του Χειμώνα",
+      "greekTheatricalDate": "2025-10-09",
+      "poster": "https://image.tmdb.org/t/p/w500/5DcrN62sGAiRJxt8rXSRlSRLwIE.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt35521922",
+      "type": "movie",
+      "name": "Good Boy",
+      "greekTheatricalDate": "2025-10-09",
+      "poster": "https://image.tmdb.org/t/p/w500/daInKxjoRNLFWIus64fHAy91V0k.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt4627382",
+      "type": "movie",
+      "name": "Roofman: Ένας Έντιμος Κλέφτης",
+      "greekTheatricalDate": "2025-10-09",
+      "poster": "https://image.tmdb.org/t/p/w500/wXDFtcnYtevleGzCmAD2ReQnJ4l.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt6604188",
+      "type": "movie",
+      "name": "TRON: Ares",
+      "greekTheatricalDate": "2025-10-09",
+      "poster": "https://image.tmdb.org/t/p/w500/chpWmskl3aKm1aTZqUHRCtviwPy.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt36414406",
+      "type": "movie",
+      "name": "Η Πέππα Γνωρίζει το Νέο Μωρό",
+      "greekTheatricalDate": "2025-10-02",
+      "poster": "https://image.tmdb.org/t/p/w500/6paslxI4gqCb7JjApTDErIkvEPg.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0036506",
+      "type": "movie",
+      "name": "Μέρες Οργής",
+      "greekTheatricalDate": "2025-10-02",
+      "poster": "https://image.tmdb.org/t/p/w500/jEOqbGLFo8fxHHgYoZVTMVYMoQG.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt1630029",
+      "type": "movie",
+      "name": "Avatar: The Way of Water",
+      "greekTheatricalDate": "2025-10-02",
+      "poster": "https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt31434030",
+      "type": "movie",
+      "name": "Dracula",
+      "greekTheatricalDate": "2025-10-02",
+      "poster": "https://image.tmdb.org/t/p/w500/ykyRfv7JDofLxXLAwtLXaSuaFfM.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt34956443",
+      "type": "movie",
+      "name": "Ne Zha 2",
+      "greekTheatricalDate": "2025-10-02",
+      "poster": "https://image.tmdb.org/t/p/w500/293Mo4GWf7Tl0TfAr5NFghqeMy7.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt36958014",
+      "type": "movie",
+      "name": "Kygo: Back at the Bowl",
+      "greekTheatricalDate": "2025-09-26",
+      "poster": "https://image.tmdb.org/t/p/w500/szffsjhAO81a27guRgJVaof67kt.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt27679443",
+      "type": "movie",
+      "name": "Διαβάζοντας τη Λολίτα στην Τεχεράνη",
+      "greekTheatricalDate": "2025-09-25",
+      "poster": "https://image.tmdb.org/t/p/w500/69WQXk3Omh0IKles3Pcmlhvo3En.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0072446",
+      "type": "movie",
+      "name": "Η Γη Της Επαγγελίας",
+      "greekTheatricalDate": "2025-09-25",
+      "poster": "https://image.tmdb.org/t/p/w500/pjk8K5MpQJX0XczTC2KOVWNj0lC.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0027342",
+      "type": "movie",
+      "name": "Ιστορίες του Σηκουάνα",
+      "greekTheatricalDate": "2025-09-25",
+      "poster": "https://image.tmdb.org/t/p/w500/8vMDpc2cD05vys5jWkXoy9co6C.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt28671344",
+      "type": "movie",
+      "name": "Κλείδωσες; Οι Άγνωστοι 2",
+      "greekTheatricalDate": "2025-09-25",
+      "poster": "https://image.tmdb.org/t/p/w500/pqADzs5SJvI2jC0DThPVMuNJcWS.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt30144839",
+      "type": "movie",
+      "name": "Μια Μάχη Μετά την Άλλη",
+      "greekTheatricalDate": "2025-09-25",
+      "poster": "https://image.tmdb.org/t/p/w500/lbBWwxBht4JFP5PsuJ5onpMqugW.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt30691223",
+      "type": "movie",
+      "name": "Μπερλινγκουέρ: Η Μεγάλη Ελπίδα",
+      "greekTheatricalDate": "2025-09-25",
+      "poster": "https://image.tmdb.org/t/p/w500/nOszJZETEGjZRCPfZJdDqxHpHiG.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt32214143",
+      "type": "movie",
+      "name": "Το Κουκλόσπιτο της Γκάμπι: Η Ταινία",
+      "greekTheatricalDate": "2025-09-25",
+      "poster": "https://image.tmdb.org/t/p/w500/t6LLguAmu6iZUN8pWhT7Q0IcaQ5.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt31710990",
+      "type": "movie",
+      "name": "Χαμένα Όνειρα",
+      "greekTheatricalDate": "2025-09-25",
+      "poster": "https://image.tmdb.org/t/p/w500/zJCOHBvy4O6nIslbbxJ8tICn53d.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt13610344",
+      "type": "movie",
+      "name": "Harvest",
+      "greekTheatricalDate": "2025-09-25",
+      "poster": "https://image.tmdb.org/t/p/w500/semdbWe02N2vfUYsJ2gAPmlQTpS.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt13650700",
+      "type": "movie",
+      "name": "Ένα Μεγάλο Όμορφο Τολμηρό Ταξίδι",
+      "greekTheatricalDate": "2025-09-18",
+      "poster": "https://image.tmdb.org/t/p/w500/uMAkmQlKthQpTMiyPAKOYK3JnMs.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt32372983",
+      "type": "movie",
+      "name": "Έρωτας στη Βαρκελώνη",
+      "greekTheatricalDate": "2025-09-18",
+      "poster": "https://image.tmdb.org/t/p/w500/8bQtzFJoLelplIgfIe2i37JGGls.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt0043014",
+      "type": "movie",
+      "name": "Η Λεωφόρος της Δύσης",
+      "greekTheatricalDate": "2025-09-18",
+      "poster": "https://image.tmdb.org/t/p/w500/zt8aQ6ksqK6p1AopC5zVTDS9pKT.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt15466518",
+      "type": "movie",
+      "name": "Μαύρη Φάλαινα",
+      "greekTheatricalDate": "2025-09-18",
+      "poster": "https://image.tmdb.org/t/p/w500/c7ZsATIYWQQSAjmwp5bLPFoHNP0.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt20258920",
+      "type": "movie",
+      "name": "Μολυβένιος Στρατιώτης",
+      "greekTheatricalDate": "2025-09-18",
+      "poster": "https://image.tmdb.org/t/p/w500/lFFDrFLXywFhy6khHes1LCFVMsL.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt37334010",
+      "type": "movie",
+      "name": "Ο Γελωτοποιός 2",
+      "greekTheatricalDate": "2025-09-18",
+      "poster": "https://image.tmdb.org/t/p/w500/47dsw1jSOV0Be5zmy7CtLhYpqU.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt11539996",
+      "type": "movie",
+      "name": "Ο Μεσολαβητής",
+      "greekTheatricalDate": "2025-09-18",
+      "poster": "https://image.tmdb.org/t/p/w500/mpwccO2L8LUVtVTJTdgUVgoQqAo.jpg",
+      "source": "legacy-production-snapshot"
+    },
+    {
+      "id": "tt28513569",
+      "type": "movie",
+      "name": "Το Παιδί-Αστραπή και ο Τιγρούλης",
+      "greekTheatricalDate": "2025-09-18",
+      "poster": "https://image.tmdb.org/t/p/w500/mEgVvLbrAWguyXslB53MtOdnVhx.jpg",
+      "source": "legacy-production-snapshot"
+    }
+  ]
 }

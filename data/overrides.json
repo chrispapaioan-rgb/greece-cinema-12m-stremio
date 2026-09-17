@@ -2,14 +2,160 @@
   "include": [
     {
       "id": "tt33764258",
-      "type": "movie",
-      "name": "The Odyssey",
+      "tmdbId": 1368337,
+      "name": "Οδύσσεια",
       "originalName": "The Odyssey",
+      "year": 2026,
       "greekTheatricalDate": "2026-07-16",
-      "releaseType": 3,
-      "releaseNote": "Greece theatrical release verified from multiple external release sources",
-      "year": 2026
+      "sources": [
+        "https://www.athinorama.gr/cinema/movie/odusseia-10091064/"
+      ],
+      "releaseNote": "Greek theatrical release; source review dated 16 July 2026, corroborated by Greek release announcement."
+    },
+    {
+      "name": "Τρυφερό Κτήνος",
+      "originalName": "Gentle Monster",
+      "year": 2026,
+      "aliases": [],
+      "greekTheatricalDate": "2026-09-17",
+      "isRerelease": false,
+      "sources": [
+        "https://www.athinorama.gr/cinema/3077861/3077861-oles-oi-kritikes-ton-neon-tainion-tis-ebdomadas/",
+        "https://flix.gr/cinema/gentle-monster-review.html"
+      ]
+    },
+    {
+      "name": "Resident Evil",
+      "originalName": "Resident Evil",
+      "year": 2026,
+      "aliases": [],
+      "greekTheatricalDate": "2026-09-17",
+      "isRerelease": false,
+      "sources": [
+        "https://www.athinorama.gr/cinema/3077861/3077861-oles-oi-kritikes-ton-neon-tainion-tis-ebdomadas/",
+        "https://flix.gr/cinema/resident-evil-review.html"
+      ]
+    },
+    {
+      "name": "Κότα",
+      "originalName": "Hen",
+      "year": 2025,
+      "aliases": [
+        "Tyúk"
+      ],
+      "greekTheatricalDate": "2026-09-17",
+      "isRerelease": false,
+      "sources": [
+        "https://www.athinorama.gr/cinema/3077861/3077861-oles-oi-kritikes-ton-neon-tainion-tis-ebdomadas/",
+        "https://flix.gr/cinema/hen-review.html"
+      ]
+    },
+    {
+      "name": "Tennis Maestro",
+      "originalName": "Il Maestro",
+      "year": 2025,
+      "aliases": [],
+      "greekTheatricalDate": "2026-09-17",
+      "isRerelease": false,
+      "sources": [
+        "https://www.athinorama.gr/cinema/3077861/3077861-oles-oi-kritikes-ton-neon-tainion-tis-ebdomadas/",
+        "https://flix.gr/cinema/tennis-maestro-review.html"
+      ]
+    },
+    {
+      "name": "Παράλληλες Ιστορίες",
+      "originalName": "Histoires parallèles",
+      "year": 2026,
+      "aliases": [
+        "Parallel Tales"
+      ],
+      "greekTheatricalDate": "2026-09-17",
+      "isRerelease": false,
+      "sources": [
+        "https://www.athinorama.gr/cinema/3077861/3077861-oles-oi-kritikes-ton-neon-tainion-tis-ebdomadas/",
+        "https://flix.gr/cinema/parallel-tales-review.html"
+      ]
+    },
+    {
+      "name": "Κωδικός Τεχεράνη",
+      "originalName": "The Fix",
+      "year": 2026,
+      "aliases": [],
+      "greekTheatricalDate": "2026-09-17",
+      "isRerelease": false,
+      "sources": [
+        "https://www.athinorama.gr/cinema/3077861/3077861-oles-oi-kritikes-ton-neon-tainion-tis-ebdomadas/",
+        "https://flix.gr/cinema/the-fix-review.html"
+      ]
+    },
+    {
+      "name": "Ράλλυ: Από το Παρίσι στις Πυραμίδες",
+      "originalName": "Flåklypa - Fra Paris til Pyramidene",
+      "year": 2025,
+      "aliases": [
+        "Rally from Paris to the Pyramids"
+      ],
+      "greekTheatricalDate": "2026-09-17",
+      "isRerelease": false,
+      "sources": [
+        "https://www.athinorama.gr/cinema/3077861/3077861-oles-oi-kritikes-ton-neon-tainion-tis-ebdomadas/",
+        "https://flix.gr/cinema/rally-from-paris-to-the-pyramids-review.html"
+      ]
+    },
+    {
+      "name": "Η Επέλαση",
+      "originalName": "Onslaught",
+      "year": 2026,
+      "aliases": [],
+      "greekTheatricalDate": "2026-09-17",
+      "isRerelease": false,
+      "sources": [
+        "https://www.athinorama.gr/cinema/3077861/3077861-oles-oi-kritikes-ton-neon-tainion-tis-ebdomadas/",
+        "https://flix.gr/cinema/onslaught-review.html"
+      ]
+    },
+    {
+      "name": "Ο Θάνατος Ενός Γραφειοκράτη",
+      "originalName": "La muerte de un burócrata",
+      "year": 1966,
+      "aliases": [
+        "Death of a Bureaucrat"
+      ],
+      "greekTheatricalDate": "2026-09-17",
+      "isRerelease": true,
+      "sources": [
+        "https://www.athinorama.gr/cinema/3077861/3077861-oles-oi-kritikes-ton-neon-tainion-tis-ebdomadas/",
+        "https://flix.gr/cinema/death-of-a-bureaucrat-review.html"
+      ]
     }
   ],
-  "exclude": []
+  "exclude": [
+    {
+      "id": "tt43677086",
+      "date": "2026-09-07",
+      "name": "Imago",
+      "reason": "DISFF49 festival screening, not verified commercial theatrical distribution",
+      "sources": [
+        "https://www.dramafilmfestival.gr/progam-presentation-disff49-2026/"
+      ]
+    },
+    {
+      "id": "tt43686954",
+      "date": "2026-09-06",
+      "name": "Μια Κρυψώνα",
+      "reason": "DISFF49 festival screening, not verified commercial theatrical distribution",
+      "sources": [
+        "https://www.dramafilmfestival.gr/progam-presentation-disff49-2026/"
+      ]
+    },
+    {
+      "id": "tt43687023",
+      "date": "2026-09-06",
+      "name": "Holterline",
+      "reason": "DISFF49 festival screening, not verified commercial theatrical distribution",
+      "sources": [
+        "https://www.dramafilmfestival.gr/progam-presentation-disff49-2026/"
+      ]
+    }
+  ]
 }

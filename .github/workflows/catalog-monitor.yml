@@ -1,0 +1,43 @@
+name: Refresh and verify Greek cinema catalog
+on:
+  schedule:
+    - cron: '15 */6 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: production-catalog-check
+  cancel-in-progress: false
+jobs:
+  refresh-and-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Wake service and wait for a fresh catalog
+        run: |
+          node <<'JS'
+          (async () => {
+            const url = 'https://greece-cinema-12m-stremio.onrender.com/health';
+            for (let attempt = 0; attempt < 15; attempt++) {
+              try {
+                const response = await fetch(url, { signal: AbortSignal.timeout(90000) });
+                const health = await response.json();
+                if (response.ok && health.ok) {
+                  console.log('Fresh catalog:', health.generatedAt, health.count);
+                  return;
+                }
+                console.log('Waiting for refresh:', health.lastRefreshError || health.refreshing);
+              } catch (error) { console.log(error.message); }
+              await new Promise(resolve => setTimeout(resolve, 30000));
+            }
+            throw new Error('Catalog did not become fresh');
+          })().catch(error => { console.error(error.message); process.exitCode = 1; });
+          JS
+      - name: Verify both complete catalogs and metadata
+        run: npm run check
