@@ -7,7 +7,7 @@ Two Discover catalogs contain the same rolling set of Greek theatrical releases:
 - **Νεότερη προβολή**: latest official Greek theatrical release/re-release date descending; title and ID break ties.
 - **Υψηλότερη βαθμολογία**: TMDB vote average descending, then vote count, then Greek date. Unrated films are last. Scores are not IMDb scores and there is no minimum vote threshold.
 
-The description shows the TMDB score, vote count and Greek theatrical date. Addon-specific metadata IDs prevent Cinemeta from replacing that description; the movie's `videos[0].id` and `behaviorHints.defaultVideoId` retain its IMDb ID (or TMDB ID when IMDb is unavailable) for stream-provider compatibility. The addon does not supply streams.
+The description shows the TMDB score, vote count and Greek theatrical date. Addon-specific metadata IDs prevent Cinemeta from replacing that description; the movie's `videos[0].id` retains its IMDb ID (or TMDB ID when IMDb is unavailable) for stream-provider compatibility. The addon does not supply streams.
 
 ## Rolling dates and refresh
 
@@ -48,3 +48,5 @@ npm run check -- https://greece-cinema-12m-stremio.onrender.com
 Tests cover daily rollover, leap years, release types, re-releases, ranking/unrated films, all-page pagination, source failures, CORS, and metadata/IMDb video identity. Production checks compare every page of both catalogs to the source snapshot and verify Odyssey and its description.
 
 This product uses the TMDB API but is not endorsed or certified by TMDB.
+
+Version 2.2.3 opens the full details before stream selection and repeats credits, original year and description on the video object for mobile clients. Native Android 2.3.2 behavior has not been reproduced in an emulator; web/API validation is not proof of device compatibility.

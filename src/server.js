@@ -6,7 +6,7 @@ const CATALOG_ID = 'greece-theatrical-12m-v2';
 const RATING_ID = 'greece-theatrical-12m-rating';
 const LEGACY_IDS = new Set([CATALOG_ID, 'greece-theatrical-12m', 'greece-cinema-12m']);
 const manifest = {
-  id: 'gr.cinema.rolling12m.v2', version: '2.2.2', name: 'Ελλάδα • Κυκλοφορίες 12μήνου',
+  id: 'gr.cinema.rolling12m.v2', version: '2.2.3', name: 'Ελλάδα • Κυκλοφορίες 12μήνου',
   description: 'Ελληνικές κινηματογραφικές ημερομηνίες, νεότερες πρώτες. Περιλαμβάνει επανακυκλοφορίες. Δεδομένα TMDB και τεκμηριωμένες διορθώσεις ελληνικών πηγών.',
   resources: ['catalog', { name: 'meta', types: ['movie'], idPrefixes: ['grcinema:'] }], types: ['movie'],
   catalogs: [{ id: CATALOG_ID, name: '🇬🇷 Ελλάδα • Νεότερη προβολή' }, { id: RATING_ID, name: '🇬🇷 Ελλάδα • Υψηλότερη βαθμολογία' }].map(c => ({ ...c, type: 'movie', extra: [{ name: 'skip', isRequired: false }, { name: 'search', isRequired: false }] })),
@@ -73,7 +73,7 @@ function createApp({ catalogFile = config.catalogFile, refreshFn = refresh, now 
   });
   app.get(['/meta/movie/:id.json', '/meta/movie/:id/:extra.json'], (req, res) => {
     if (!available(res)) return;
-    const sourceId = req.params.id.replace(/^grcinema:(?:details2:)?/, '');
+    const sourceId = req.params.id.replace(/^grcinema:(?:details[23]:)?/, '');
     const item = selectItems(snapshot.items, windowAt(now())).find(x => x.id === sourceId);
     if (!item) return res.status(404).json({ meta: null, ...cache });
     res.json({ meta: meta(item, req.params.id), ...cache });

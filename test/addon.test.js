@@ -27,7 +27,7 @@ test('ranking uses rating descending; votes break ties; unrated titles last', ()
 });
 test('metadata owns description but retains IMDb video ID for stream addons', () => {
   const m = meta(movie(33764258, '2026-07-16', { year: 2026, name: 'Οδύσσεια', rating: 8.2, ratingVotes: 500 }));
-  assert.equal(m.id, 'grcinema:details2:tt33764258'); assert.equal(m.behaviorHints.defaultVideoId, 'tt33764258');
+  assert.equal(m.id, 'grcinema:details3:tt33764258'); assert.equal(m.behaviorHints.defaultVideoId, undefined);
   assert.equal(m.videos[0].id, 'tt33764258'); assert.match(m.description, /16\/07\/2026/);
   assert.equal(m.releaseInfo, '2026'); assert.equal(m.imdbRating, undefined);
 });
@@ -94,13 +94,13 @@ test('HTTP: both catalogs same set, paging, search, CORS, metadata, stale and fa
   const byDate = await collect(CATALOG_ID), byRating = await collect(RATING_ID);
   assert.equal(byDate.length, 217); assert.equal(new Set(byDate.map(x => x.id)).size, 217);
   assert.deepEqual(byDate.map(x => x.id).sort(), byRating.map(x => x.id).sort());
-  assert.equal(byRating[0].id, 'grcinema:details2:tt210');
+  assert.equal(byRating[0].id, 'grcinema:details3:tt210');
   assert.equal((await get(`/catalog/movie/${CATALOG_ID}/skip=-1.json`)).status, 400);
   assert.equal((await get(`/catalog/movie/${CATALOG_ID}/skip=999999999999999999999.json`)).status, 400);
   const search = await get(`/catalog/movie/${CATALOG_ID}/search=${encodeURIComponent('οδυσσεια')}.json`);
-  assert.equal(search.body.metas[0].id, 'grcinema:details2:tt33764258');
-  const detail = await get('/meta/movie/grcinema:details2:tt33764258.json'); assert.match(detail.body.meta.description, /TMDB: 8.2/);
-  assert.equal(detail.body.meta.behaviorHints.defaultVideoId, 'tt33764258');
+  assert.equal(search.body.metas[0].id, 'grcinema:details3:tt33764258');
+  const detail = await get('/meta/movie/grcinema:details3:tt33764258.json'); assert.match(detail.body.meta.description, /TMDB: 8.2/);
+  assert.equal(detail.body.meta.behaviorHints.defaultVideoId, undefined); assert.equal(detail.body.meta.videos[0].id, 'tt33764258'); assert.equal(detail.body.meta.videos[0].overview, detail.body.meta.description);
   assert.equal((await fetch(base + '/manifest.json', { method: 'OPTIONS' })).status, 204);
   assert.equal((await get('/health')).status, 200);
   await serverApp.safeRefresh(); assert.equal((await get('/health')).status, 503);
@@ -124,7 +124,7 @@ test('the rolling window advances daily in both catalogs even before refresh com
   await instance.safeRefresh();
   for (const id of [CATALOG_ID, RATING_ID]) {
     const body = await (await fetch(`${base}/catalog/movie/${id}.json`)).json();
-    assert.deepEqual(new Set(body.metas.map(x => x.id)), new Set(['grcinema:details2:tt2', 'grcinema:details2:tt3']));
+    assert.deepEqual(new Set(body.metas.map(x => x.id)), new Set(['grcinema:details3:tt2', 'grcinema:details3:tt3']));
   }
   assert.ok(refreshCount >= 1); assert.equal(instance.status().window.from, '2025-09-18');
 });
@@ -132,9 +132,9 @@ test('the rolling window advances daily in both catalogs even before refresh com
 test('complete descriptions and native credits survive metadata cache migration', async () => {
   const x = { id: 'tt123', type: 'movie', name: 'Δοκιμή', greekTheatricalDate: '2026-09-17', year: 1966, rating: 8.5, ratingVotes: 30, overview: 'Ελληνική υπόθεση.', director: ['Σκηνοθέτης'], cast: ['Ηθοποιός'] };
   const m = meta(x);
-  assert.equal(m.id, 'grcinema:details2:tt123');
+  assert.equal(m.id, 'grcinema:details3:tt123');
   for (const text of ['8.5/10', '1966', 'Σκηνοθέτης', 'Ηθοποιός', 'Ελληνική υπόθεση.']) assert.ok(m.description.includes(text));
   assert.deepEqual(m.links.map(x => x.category), ['director', 'actor']);
   assert.equal(meta(x, 'grcinema:tt123').id, 'grcinema:tt123');
-  assert.equal(m.behaviorHints.defaultVideoId, 'tt123');
+  assert.equal(m.behaviorHints.defaultVideoId, undefined); assert.equal(m.videos[0].overview, m.description); assert.equal(m.videos[0].releaseInfo, '1966'); assert.deepEqual(m.videos[0].directors, ['Σκηνοθέτης']);
 });

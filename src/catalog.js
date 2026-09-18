@@ -47,12 +47,12 @@ function writeAtomic(file, value) {
 function normalize(v) {
   return String(v || '').normalize('NFD').replace(/\p{M}/gu, '').toLowerCase().replace(/ς/g, 'σ').replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
 }
-function metaId(x) { return `grcinema:details2:${x.id}`; }
+function metaId(x) { return `grcinema:details3:${x.id}`; }
 function meta(x, requestedId = metaId(x)) {
   const date = x.greekTheatricalDate.split('-').reverse().join('/');
-  return {
+  const result = {
     id: requestedId, type: 'movie', name: x.name, posterShape: 'poster',
-    behaviorHints: { defaultVideoId: x.id },
+    behaviorHints: {},
     videos: [{ id: x.id, title: x.name, released: `${validDate(x.originalReleaseDate) ? x.originalReleaseDate : x.greekTheatricalDate}T00:00:00.000Z` }],
     poster: x.poster || (/^tt/.test(x.id) ? `https://images.metahub.space/poster/medium/${x.id}/img` : undefined),
     releaseInfo: x.year ? String(x.year) : undefined,
@@ -74,5 +74,12 @@ function meta(x, requestedId = metaId(x)) {
     ],
     runtime: x.runtime ? `${x.runtime} min` : undefined
   };
+  // Mobile clients may display the selected video's overview instead of the parent description.
+  Object.assign(result.videos[0], {
+    overview: result.description, releaseInfo: result.releaseInfo,
+    cast: result.cast, directors: result.director, links: result.links,
+    runtime: result.runtime, genres: result.genres, thumbnail: result.poster
+  });
+  return result;
 }
 module.exports = { validDate, validItem, windowAt, compare, compareRating, ratingLabel, selectItems, readJson, writeAtomic, normalize, metaId, meta };

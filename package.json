@@ -1,6 +1,6 @@
 {
   "name": "greece-cinema-12m-stremio",
-  "version": "2.2.2",
+  "version": "2.2.3",
   "description": "Stremio catalog of theatrical releases in Greece over the rolling last 12 months",
   "scripts": {
     "start": "node src/server.js",
