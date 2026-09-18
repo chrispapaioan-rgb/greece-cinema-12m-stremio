@@ -35,6 +35,8 @@ async function discoverRange(client, from, to) {
   return [first.results, ...rest].flat();
 }
 function movieItem(det, release) {
+  const english = (det.translations?.translations || []).find(x => x.iso_639_1 === 'en' && x.data?.overview?.trim());
+  const overview = det.overview?.trim() || english?.data.overview?.trim() || '';
   return {
     id: det.imdb_id || det.external_ids?.imdb_id || `tmdb:${det.id}`, tmdbId: det.id, type: 'movie', name: det.title || det.original_title,
     originalName: det.original_title || det.title, greekTheatricalDate: release.date, releaseType: release.type, releaseNote: release.note,
@@ -42,7 +44,7 @@ function movieItem(det, release) {
     poster: det.poster_path ? `https://image.tmdb.org/t/p/w500${det.poster_path}` : null,
     background: det.backdrop_path ? `https://image.tmdb.org/t/p/w1280${det.backdrop_path}` : null,
     rating: Number.isFinite(det.vote_average) ? det.vote_average : null, ratingVotes: Number.isInteger(det.vote_count) ? det.vote_count : 0,
-    overview: det.overview || '', runtime: det.runtime || null, genres: (det.genres || []).map(x => x.name),
+    overview, overviewLanguage: det.overview?.trim() ? 'el' : (overview ? 'en' : null), runtime: det.runtime || null, genres: (det.genres || []).map(x => x.name),
     director: (det.credits?.crew || []).filter(x => x.job === 'Director').map(x => x.name), cast: (det.credits?.cast || []).slice(0, 8).map(x => x.name),
     source: 'tmdb-gr-theatrical', sources: [`https://www.themoviedb.org/movie/${det.id}/releases`], isRerelease: /re.?release|επανέκδ|επανακυκ/i.test(release.note || '')
   };

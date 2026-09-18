@@ -24,7 +24,7 @@ async function api(path, params = {}, { fetcher = fetch, sleep = delay, token = 
   }
 }
 const discover = (from, to, page) => api('/discover/movie', { region: 'GR', 'release_date.gte': from, 'release_date.lte': to, with_release_type: '2|3', sort_by: 'primary_release_date.desc', include_adult: false, include_video: false, language: 'el-GR', page });
-const details = id => api(`/movie/${id}`, { language: 'el-GR', append_to_response: 'external_ids,release_dates,credits' });
+const details = id => api(`/movie/${id}`, { language: 'el-GR', append_to_response: 'external_ids,release_dates,credits,translations' });
 const find = id => api(`/find/${id}`, { external_source: 'imdb_id', language: 'el-GR' });
 const search = query => api('/search/movie', { query, language: 'el-GR', include_adult: false });
 function greekTheatricalDates(payload) {

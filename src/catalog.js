@@ -55,7 +55,15 @@ function meta(x) {
     videos: [{ id: x.id, title: x.name, released: `${validDate(x.originalReleaseDate) ? x.originalReleaseDate : x.greekTheatricalDate}T00:00:00.000Z` }],
     poster: x.poster || (/^tt/.test(x.id) ? `https://images.metahub.space/poster/medium/${x.id}/img` : undefined),
     releaseInfo: x.year ? String(x.year) : undefined,
-    description: `${ratingLabel(x)}\nΕλληνική κινηματογραφική κυκλοφορία: ${date}${x.isRerelease ? ' (επανακυκλοφορία)' : ''}.` + (x.overview ? `\n\n${x.overview}` : ''),
+    description: [
+      ratingLabel(x),
+      `Έτος πρώτης κυκλοφορίας: ${x.year || (validDate(x.originalReleaseDate) ? x.originalReleaseDate.slice(0, 4) : 'Δεν είναι διαθέσιμο')}.`,
+      `Σκηνοθεσία: ${(x.director || []).join(', ') || 'Δεν είναι διαθέσιμη'}.`,
+      `Ηθοποιοί: ${(x.cast || []).join(', ') || 'Δεν είναι διαθέσιμοι'}.`,
+      `Ελληνική κινηματογραφική κυκλοφορία: ${date}${x.isRerelease ? ' (επανακυκλοφορία)' : ''}.`,
+      '',
+      `Υπόθεση${x.overviewLanguage === 'en' ? ' (στα αγγλικά)' : ''}: ${x.overview?.trim() || 'Δεν υπάρχει διαθέσιμη περίληψη στην πηγή.'}`
+    ].join('\n'),
     released: validDate(x.originalReleaseDate) ? `${x.originalReleaseDate}T00:00:00.000Z` : undefined,
     greekTheatricalDate: x.greekTheatricalDate,
     background: x.background || undefined, genres: x.genres || [], director: x.director || [], cast: x.cast || [],

@@ -6,7 +6,7 @@ const CATALOG_ID = 'greece-theatrical-12m-v2';
 const RATING_ID = 'greece-theatrical-12m-rating';
 const LEGACY_IDS = new Set([CATALOG_ID, 'greece-theatrical-12m', 'greece-cinema-12m']);
 const manifest = {
-  id: 'gr.cinema.rolling12m.v2', version: '2.2.0', name: 'Ελλάδα • Κυκλοφορίες 12μήνου',
+  id: 'gr.cinema.rolling12m.v2', version: '2.2.1', name: 'Ελλάδα • Κυκλοφορίες 12μήνου',
   description: 'Ελληνικές κινηματογραφικές ημερομηνίες, νεότερες πρώτες. Περιλαμβάνει επανακυκλοφορίες. Δεδομένα TMDB και τεκμηριωμένες διορθώσεις ελληνικών πηγών.',
   resources: ['catalog', { name: 'meta', types: ['movie'], idPrefixes: ['grcinema:'] }], types: ['movie'],
   catalogs: [{ id: CATALOG_ID, name: '🇬🇷 Ελλάδα • Νεότερη προβολή' }, { id: RATING_ID, name: '🇬🇷 Ελλάδα • Υψηλότερη βαθμολογία' }].map(c => ({ ...c, type: 'movie', extra: [{ name: 'skip', isRequired: false }, { name: 'search', isRequired: false }] })),
