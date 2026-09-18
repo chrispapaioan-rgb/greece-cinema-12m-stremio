@@ -6,7 +6,7 @@ const CATALOG_ID = 'greece-theatrical-12m-v2';
 const RATING_ID = 'greece-theatrical-12m-rating';
 const LEGACY_IDS = new Set([CATALOG_ID, 'greece-theatrical-12m', 'greece-cinema-12m']);
 const manifest = {
-  id: 'gr.cinema.rolling12m.v2', version: '2.2.1', name: 'Ελλάδα • Κυκλοφορίες 12μήνου',
+  id: 'gr.cinema.rolling12m.v2', version: '2.2.2', name: 'Ελλάδα • Κυκλοφορίες 12μήνου',
   description: 'Ελληνικές κινηματογραφικές ημερομηνίες, νεότερες πρώτες. Περιλαμβάνει επανακυκλοφορίες. Δεδομένα TMDB και τεκμηριωμένες διορθώσεις ελληνικών πηγών.',
   resources: ['catalog', { name: 'meta', types: ['movie'], idPrefixes: ['grcinema:'] }], types: ['movie'],
   catalogs: [{ id: CATALOG_ID, name: '🇬🇷 Ελλάδα • Νεότερη προβολή' }, { id: RATING_ID, name: '🇬🇷 Ελλάδα • Υψηλότερη βαθμολογία' }].map(c => ({ ...c, type: 'movie', extra: [{ name: 'skip', isRequired: false }, { name: 'search', isRequired: false }] })),
@@ -69,14 +69,14 @@ function createApp({ catalogFile = config.catalogFile, refreshFn = refresh, now 
     if (search) items = items.filter(x => normalize(`${x.name} ${x.originalName || ''}`).includes(search));
     if (req.params.id === RATING_ID) items.sort(compareRating);
     const skip = Number(skipText);
-    res.json({ metas: items.slice(skip, skip + 100).map(meta), ...cache });
+    res.json({ metas: items.slice(skip, skip + 100).map(x => meta(x)), ...cache });
   });
-  app.get('/meta/movie/:id.json', (req, res) => {
+  app.get(['/meta/movie/:id.json', '/meta/movie/:id/:extra.json'], (req, res) => {
     if (!available(res)) return;
-    const sourceId = req.params.id.replace(/^grcinema:/, '');
+    const sourceId = req.params.id.replace(/^grcinema:(?:details2:)?/, '');
     const item = selectItems(snapshot.items, windowAt(now())).find(x => x.id === sourceId);
     if (!item) return res.status(404).json({ meta: null, ...cache });
-    res.json({ meta: meta(item), ...cache });
+    res.json({ meta: meta(item, req.params.id), ...cache });
   });
   app.get('/', (req, res) => res.type('html').send(`<!doctype html><html lang="el"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ελλάδα • Κυκλοφορίες 12μήνου</title><style>body{font:17px/1.6 system-ui;max-width:900px;margin:40px auto;padding:0 20px;background:#111827;color:#e5e7eb}a{color:#93c5fd}.button{display:inline-block;padding:12px 20px;background:#2563eb;color:white;border-radius:8px;text-decoration:none}input{padding:10px;font:inherit;width:90%;max-width:500px}td,th{text-align:left;padding:8px;border-bottom:1px solid #374151}small{color:#9ca3af}</style><h1>🇬🇷 Ελλάδα • Κυκλοφορίες 12μήνου</h1><p>Ταινίες με ελληνική κινηματογραφική κυκλοφορία τους τελευταίους 12 μήνες, με τις νεότερες πρώτες. Οι επανακυκλοφορίες ταξινομούνται με τη νέα ελληνική ημερομηνία.</p><p><a class="button" id="install">Εγκατάσταση στο Stremio</a> · <a id="web">Άνοιγμα στο Stremio Web</a></p><p>Στο Discover επίλεξε Movies → 🇬🇷 Ελλάδα • Νεότερη προβολή ή Υψηλότερη βαθμολογία. Αν έχεις παλιότερο αντίγραφο του ίδιου addon, αφαίρεσέ το μία φορά πριν την εγκατάσταση.</p><p>Manifest: <a href="/manifest.json" id="manifest"></a></p><p id="status">Φόρτωση καταλόγου…</p><input id="search" aria-label="Αναζήτηση ταινίας" placeholder="Αναζήτηση, π.χ. Οδύσσεια"><table><thead><tr><th>Θέση</th><th>Ταινία</th><th>Ελληνική κυκλοφορία</th></tr></thead><tbody id="movies"></tbody></table><p><small>Πηγές: TMDB και τεκμηριωμένες διορθώσεις ελληνικών πηγών. Η πληρότητα εξαρτάται από τα στοιχεία των πηγών. This product uses the TMDB API but is not endorsed or certified by TMDB.</small></p><script>
 const manifestUrl=location.origin+'/manifest.json';

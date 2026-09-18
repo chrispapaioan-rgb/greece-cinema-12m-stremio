@@ -47,10 +47,11 @@ function writeAtomic(file, value) {
 function normalize(v) {
   return String(v || '').normalize('NFD').replace(/\p{M}/gu, '').toLowerCase().replace(/ς/g, 'σ').replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
 }
-function meta(x) {
+function metaId(x) { return `grcinema:details2:${x.id}`; }
+function meta(x, requestedId = metaId(x)) {
   const date = x.greekTheatricalDate.split('-').reverse().join('/');
   return {
-    id: `grcinema:${x.id}`, type: 'movie', name: x.name, posterShape: 'poster',
+    id: requestedId, type: 'movie', name: x.name, posterShape: 'poster',
     behaviorHints: { defaultVideoId: x.id },
     videos: [{ id: x.id, title: x.name, released: `${validDate(x.originalReleaseDate) ? x.originalReleaseDate : x.greekTheatricalDate}T00:00:00.000Z` }],
     poster: x.poster || (/^tt/.test(x.id) ? `https://images.metahub.space/poster/medium/${x.id}/img` : undefined),
@@ -67,7 +68,11 @@ function meta(x) {
     released: validDate(x.originalReleaseDate) ? `${x.originalReleaseDate}T00:00:00.000Z` : undefined,
     greekTheatricalDate: x.greekTheatricalDate,
     background: x.background || undefined, genres: x.genres || [], director: x.director || [], cast: x.cast || [],
+    links: [
+      ...(x.director || []).map(name => ({ name, category: 'director', url: `stremio:///search?search=${encodeURIComponent(name)}` })),
+      ...(x.cast || []).map(name => ({ name, category: 'actor', url: `stremio:///search?search=${encodeURIComponent(name)}` }))
+    ],
     runtime: x.runtime ? `${x.runtime} min` : undefined
   };
 }
-module.exports = { validDate, validItem, windowAt, compare, compareRating, ratingLabel, selectItems, readJson, writeAtomic, normalize, meta };
+module.exports = { validDate, validItem, windowAt, compare, compareRating, ratingLabel, selectItems, readJson, writeAtomic, normalize, metaId, meta };

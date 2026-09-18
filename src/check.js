@@ -21,7 +21,7 @@ async function check(base = 'https://greece-cinema-12m-stremio.onrender.com') {
       if (!r.metas.length) break;
     }
     const expected = catalog.id.endsWith('-rating') ? [...items].sort(compareRating) : items;
-    assert.deepEqual(metas.map(x => x.id), expected.map(x => `grcinema:${x.id}`));
+    assert.deepEqual(metas.map(x => x.id), expected.map(x => `grcinema:details2:${x.id}`));
     assert.equal(new Set(metas.map(x => x.id)).size, items.length);
     assert.ok(metas.every(x => x.description.includes('Βαθμολογία TMDB:')));
     results.push({ catalog: catalog.id, count: metas.length, pages });
@@ -29,7 +29,7 @@ async function check(base = 'https://greece-cinema-12m-stremio.onrender.com') {
   const odyssey = items.find(x => x.id === 'tt33764258');
   if (windowAt().from <= '2026-07-16' && windowAt().to >= '2026-07-16') {
     assert.ok(odyssey, 'Odyssey missing'); assert.equal(odyssey.greekTheatricalDate, '2026-07-16');
-    const detail = await get('/meta/movie/grcinema:tt33764258.json');
+    const detail = await get('/meta/movie/grcinema:details2:tt33764258.json');
     assert.match(detail.meta.description, /16\/07\/2026/);
     assert.match(detail.meta.description, /Βαθμολογία TMDB:/);
     assert.equal(detail.meta.behaviorHints.defaultVideoId, 'tt33764258');
