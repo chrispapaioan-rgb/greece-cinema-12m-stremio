@@ -22,7 +22,9 @@
       "sources": [
         "https://www.athinorama.gr/cinema/3077861/3077861-oles-oi-kritikes-ton-neon-tainion-tis-ebdomadas/",
         "https://flix.gr/cinema/gentle-monster-review.html"
-      ]
+      ],
+      "id": "tt37020296",
+      "tmdbId": 1473148
     },
     {
       "name": "Resident Evil",
@@ -34,7 +36,9 @@
       "sources": [
         "https://www.athinorama.gr/cinema/3077861/3077861-oles-oi-kritikes-ton-neon-tainion-tis-ebdomadas/",
         "https://flix.gr/cinema/resident-evil-review.html"
-      ]
+      ],
+      "id": "tt35538033",
+      "tmdbId": 1423191
     },
     {
       "name": "Κότα",
@@ -48,7 +52,9 @@
       "sources": [
         "https://www.athinorama.gr/cinema/3077861/3077861-oles-oi-kritikes-ton-neon-tainion-tis-ebdomadas/",
         "https://flix.gr/cinema/hen-review.html"
-      ]
+      ],
+      "id": "tt37534605",
+      "tmdbId": 1534155
     },
     {
       "name": "Tennis Maestro",
@@ -60,7 +66,9 @@
       "sources": [
         "https://www.athinorama.gr/cinema/3077861/3077861-oles-oi-kritikes-ton-neon-tainion-tis-ebdomadas/",
         "https://flix.gr/cinema/tennis-maestro-review.html"
-      ]
+      ],
+      "id": "tt5179884",
+      "tmdbId": 1143973
     },
     {
       "name": "Παράλληλες Ιστορίες",
@@ -74,7 +82,9 @@
       "sources": [
         "https://www.athinorama.gr/cinema/3077861/3077861-oles-oi-kritikes-ton-neon-tainion-tis-ebdomadas/",
         "https://flix.gr/cinema/parallel-tales-review.html"
-      ]
+      ],
+      "id": "tt36646880",
+      "tmdbId": 1157869
     },
     {
       "name": "Κωδικός Τεχεράνη",
@@ -86,7 +96,9 @@
       "sources": [
         "https://www.athinorama.gr/cinema/3077861/3077861-oles-oi-kritikes-ton-neon-tainion-tis-ebdomadas/",
         "https://flix.gr/cinema/the-fix-review.html"
-      ]
+      ],
+      "id": "tt9601292",
+      "tmdbId": 1228834
     },
     {
       "name": "Ράλλυ: Από το Παρίσι στις Πυραμίδες",
@@ -100,7 +112,9 @@
       "sources": [
         "https://www.athinorama.gr/cinema/3077861/3077861-oles-oi-kritikes-ton-neon-tainion-tis-ebdomadas/",
         "https://flix.gr/cinema/rally-from-paris-to-the-pyramids-review.html"
-      ]
+      ],
+      "id": "tt35115823",
+      "tmdbId": 1016069
     },
     {
       "name": "Η Επέλαση",
@@ -112,7 +126,9 @@
       "sources": [
         "https://www.athinorama.gr/cinema/3077861/3077861-oles-oi-kritikes-ton-neon-tainion-tis-ebdomadas/",
         "https://flix.gr/cinema/onslaught-review.html"
-      ]
+      ],
+      "id": "tt32268691",
+      "tmdbId": 1284046
     },
     {
       "name": "Ο Θάνατος Ενός Γραφειοκράτη",
@@ -126,7 +142,9 @@
       "sources": [
         "https://www.athinorama.gr/cinema/3077861/3077861-oles-oi-kritikes-ton-neon-tainion-tis-ebdomadas/",
         "https://flix.gr/cinema/death-of-a-bureaucrat-review.html"
-      ]
+      ],
+      "id": "tt0060722",
+      "tmdbId": 43778
     }
   ],
   "exclude": [

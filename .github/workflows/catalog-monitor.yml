@@ -1,5 +1,8 @@
 name: Refresh and verify Greek cinema catalog
 on:
+  push:
+    branches: [main]
+    paths: ['src/**', 'test/**', 'package*.json', 'data/overrides.json', '.github/workflows/catalog-monitor.yml']
   schedule:
     - cron: '15 */6 * * *'
   workflow_dispatch:
@@ -19,6 +22,7 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci --ignore-scripts
+      - run: npm test
       - name: Wake service and wait for a fresh catalog
         run: |
           node <<'JS'
@@ -28,7 +32,7 @@ jobs:
               try {
                 const response = await fetch(url, { signal: AbortSignal.timeout(90000) });
                 const health = await response.json();
-                if (response.ok && health.ok) {
+                if (response.ok && health.ok && health.version === require('./package.json').version) {
                   console.log('Fresh catalog:', health.generatedAt, health.count);
                   return;
                 }
