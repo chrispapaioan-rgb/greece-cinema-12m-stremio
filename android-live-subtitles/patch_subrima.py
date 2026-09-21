@@ -18,6 +18,37 @@ s = gradle.read_text(encoding="utf-8")
 s = s.replace('applicationId "com.example.subtitles"', 'applicationId "gr.openai.livesubtitles"')
 s = s.replace('versionCode 1', 'versionCode 10')
 s = s.replace('versionName "1.0"', 'versionName "0.1.0-alpha"')
+
+# Disable optional native Whisper/SentencePiece build for the stable baseline.
+# Vosk + ML Kit are sufficient for the requested live-subtitle path and this
+# avoids bundling experimental native code that is not used when smart correction is off.
+native_default = '''        // NDK configuration for cross-compiling native libraries
+        ndk {
+            abiFilters 'armeabi-v7a', 'arm64-v8a' // Target architectures
+            version "26.1.10909125" // NDK version
+        }
+        // Configure external native builds using CMake
+        externalNativeBuild {
+            cmake {
+                abiFilters 'armeabi-v7a', 'arm64-v8a' // Target ABIs
+                arguments "-DCMAKE_BUILD_TYPE=Release" // Ensures optimized release build
+            }
+        }
+
+'''
+s = s.replace(native_default, '')
+native_top = '''    // ----------------------------------------------------------------------------
+    // External Native Build
+    // ----------------------------------------------------------------------------
+    // Specifies the CMake build script path and version for compiling native code.
+    externalNativeBuild {
+        cmake {
+            version "3.22.1"                                // CMake version used for native build
+            path "src/main/jni/CMakeLists.txt"             // Path to the native CMakeLists.txt
+        }
+    }
+'''
+s = s.replace(native_top, '')
 gradle.write_text(s, encoding="utf-8")
 
 strings = APP / "src/main/res/values/strings.xml"
