@@ -57,21 +57,10 @@ jobs:
           MODELS="_subrima/SubtitlesAppSubrimaProject/app/src/main/assets/lang.json"
           for code in en fr es de ru; do
             grep -q "<item>$code</item>" "$ARR"
-            python3 - "$MODELS" "$code" <<'PY'
-import json, sys
-p, code = sys.argv[1], sys.argv[2]
-d = json.load(open(p, encoding="utf-8"))
-assert code in d, code
-assert d[code].get("transcript_link"), f"missing Vosk model URL for {code}"
-PY
+            python3 -c 'import json,sys; d=json.load(open(sys.argv[1],encoding="utf-8")); c=sys.argv[2]; assert c in d and d[c].get("transcript_link"), "missing Vosk model URL for "+c' "$MODELS" "$code"
           done
           grep -q "<item>el</item>" "$ARR"
-          python3 - "$MAP" <<'PY'
-import json, sys
-d=json.load(open(sys.argv[1], encoding="utf-8"))
-assert d.get("el") == "el"
-print("Greek ML Kit mapping verified")
-PY
+          python3 -c 'import json,sys; d=json.load(open(sys.argv[1],encoding="utf-8")); assert d.get("el")=="el"; print("Greek ML Kit mapping verified")' "$MAP"
 
       - name: Build debug APK
         shell: bash
