@@ -101,6 +101,44 @@ s = s.replace('String def = includeAuto ? "auto" : "en";',
               'String def = includeAuto ? "auto" : "el";')
 settings.write_text(s, encoding="utf-8")
 
+# ---------- Make Greek the target from the very first launch ----------
+pipeline = APP / "src/main/java/com/example/subtitles/view_model/MainPipeline.java"
+s = pipeline.read_text(encoding="utf-8")
+s = s.replace('private String subtitleLang = "en"; // active subtitle/translation target language',
+              'private String subtitleLang = "el"; // Greek is the fixed subtitle/translation target')
+s = s.replace('prefs.getString("pref_subtitle_lang", "en")',
+              'prefs.getString("pref_subtitle_lang", "el")')
+pipeline.write_text(s, encoding="utf-8")
+
+# ---------- Harden transcription lifecycle and constrain Auto mode ----------
+tm = APP / "src/main/java/com/example/subtitles/view_model/transcriptManager.java"
+s = tm.read_text(encoding="utf-8")
+s = s.replace('''    private synchronized void checkValidLangBeforeChange(String newLang) {
+        if (!running.get() || newLang.equals(srcLang)) return;
+
+        Log.d(TAG, "new lang detected: " + newLang);''',
+'''    private synchronized void checkValidLangBeforeChange(String newLang) {
+        if (!running.get() || newLang.equals(srcLang)) return;
+
+        // Product scope: Auto mode is deliberately constrained to the five
+        // high-quality source models requested for Greek subtitle generation.
+        if (!(newLang.equals("en") || newLang.equals("fr") || newLang.equals("es") ||
+                newLang.equals("de") || newLang.equals("ru"))) {
+            Log.d(TAG, "Auto-detected language outside supported source set: " + newLang);
+            return;
+        }
+
+        Log.d(TAG, "new lang detected: " + newLang);''')
+s = s.replace('''        transcriber.destroy();
+        whisperT.close();
+        Log.i(TAG, "Pipeline destroyed");''',
+'''        transcriber.destroy();
+        if (whisperT != null) {
+            whisperT.close();
+        }
+        Log.i(TAG, "Pipeline destroyed");''')
+tm.write_text(s, encoding="utf-8")
+
 # ---------- Stable baseline: smart correction off ----------
 # Keep the optional Whisper code in the project, but default settings remain off.
 # This avoids forcing heavy Whisper inference for ordinary live-subtitle use.
