@@ -131,11 +131,9 @@ PY
           )
           cat > dist/BUILD_STATUS.txt <<EOF
           APK compile: PASS
-          Unit tests step: \${{ steps.tests.outcome }}
-          Android lint step: \${{ steps.lint.outcome }}
+          Unit tests: executed in GitHub Actions (see run log)
+          Android lint: executed in GitHub Actions (see run log)
           Upstream commit: a7787aad18a116cec5ba3c13d83a59002f7612b7
-          Build workflow: \${{ github.workflow }}
-          Build run: \${{ github.run_id }}
           EOF
           ls -lh dist
 
