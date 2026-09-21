@@ -1,0 +1,148 @@
+name: Build Greek Live Subtitles APK
+
+on:
+  push:
+    branches:
+      - live-subtitles-android
+    paths:
+      - 'android-live-subtitles/**'
+      - '.github/workflows/build-greek-live-subtitles.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout build harness
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android platform tools
+        shell: bash
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager "platforms;android-35" "build-tools;35.0.0" "platform-tools"
+
+      - name: Clone pinned SUBRIMA source
+        shell: bash
+        run: |
+          git clone https://github.com/y-haviv/android-subtitle-overlay.git _subrima
+          cd _subrima
+          git checkout a7787aad18a116cec5ba3c13d83a59002f7612b7
+          git status --short
+
+      - name: Apply product patch
+        shell: bash
+        run: |
+          python3 android-live-subtitles/patch_subrima.py
+
+      - name: Verify requested language configuration
+        shell: bash
+        run: |
+          ARR="_subrima/SubtitlesAppSubrimaProject/app/src/main/res/values/arrays.xml"
+          MAP="_subrima/SubtitlesAppSubrimaProject/app/src/main/assets/google_dict.json"
+          MODELS="_subrima/SubtitlesAppSubrimaProject/app/src/main/assets/lang.json"
+          for code in en fr es de ru; do
+            grep -q "<item>$code</item>" "$ARR"
+            python3 - "$MODELS" "$code" <<'PY'
+import json, sys
+p, code = sys.argv[1], sys.argv[2]
+d = json.load(open(p, encoding="utf-8"))
+assert code in d, code
+assert d[code].get("transcript_link"), f"missing Vosk model URL for {code}"
+PY
+          done
+          grep -q "<item>el</item>" "$ARR"
+          python3 - "$MAP" <<'PY'
+import json, sys
+d=json.load(open(sys.argv[1], encoding="utf-8"))
+assert d.get("el") == "el"
+print("Greek ML Kit mapping verified")
+PY
+
+      - name: Build debug APK
+        shell: bash
+        working-directory: _subrima/SubtitlesAppSubrimaProject
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon --stacktrace clean assembleDebug
+
+      - name: Run unit tests
+        id: tests
+        continue-on-error: true
+        shell: bash
+        working-directory: _subrima/SubtitlesAppSubrimaProject
+        run: ./gradlew --no-daemon testDebugUnitTest
+
+      - name: Run Android lint
+        id: lint
+        continue-on-error: true
+        shell: bash
+        working-directory: _subrima/SubtitlesAppSubrimaProject
+        run: ./gradlew --no-daemon lintDebug
+
+      - name: Verify APK signature and package
+        shell: bash
+        run: |
+          APK="_subrima/SubtitlesAppSubrimaProject/app/build/outputs/apk/debug/app-debug.apk"
+          test -f "$APK"
+          APKSIGNER="$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort -V | tail -1)"
+          AAPT="$(find "$ANDROID_HOME/build-tools" -name aapt -type f | sort -V | tail -1)"
+          "$APKSIGNER" verify --verbose "$APK"
+          "$AAPT" dump badging "$APK" | tee /tmp/badging.txt
+          grep -q "package: name='gr.openai.livesubtitles'" /tmp/badging.txt
+
+      - name: Prepare reproducible deliverables
+        shell: bash
+        run: |
+          mkdir -p dist
+          cp "_subrima/SubtitlesAppSubrimaProject/app/build/outputs/apk/debug/app-debug.apk" \
+             "dist/GreekLiveSubtitles-0.1.0-alpha.apk"
+          (
+            cd _subrima
+            git diff -- SubtitlesAppSubrimaProject > ../dist/SUBRIMA-modifications.patch
+          )
+          cp android-live-subtitles/README.md dist/README.md
+          cp android-live-subtitles/patch_subrima.py dist/patch_subrima.py
+          (
+            cd _subrima
+            rm -rf .git SubtitlesAppSubrimaProject/.gradle \
+              SubtitlesAppSubrimaProject/app/build \
+              SubtitlesAppSubrimaProject/build
+            zip -qr "../dist/GreekLiveSubtitles-0.1.0-alpha-source.zip" SubtitlesAppSubrimaProject
+          )
+          (
+            cd dist
+            sha256sum GreekLiveSubtitles-0.1.0-alpha.apk \
+              GreekLiveSubtitles-0.1.0-alpha-source.zip > SHA256SUMS.txt
+          )
+          cat > dist/BUILD_STATUS.txt <<EOF
+          APK compile: PASS
+          Unit tests step: \${{ steps.tests.outcome }}
+          Android lint step: \${{ steps.lint.outcome }}
+          Upstream commit: a7787aad18a116cec5ba3c13d83a59002f7612b7
+          Build workflow: \${{ github.workflow }}
+          Build run: \${{ github.run_id }}
+          EOF
+          ls -lh dist
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: greek-live-subtitles-alpha
+          path: dist/
+          if-no-files-found: error
+          retention-days: 14
