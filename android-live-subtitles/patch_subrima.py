@@ -108,6 +108,32 @@ s = s.replace('private String subtitleLang = "en"; // active subtitle/translatio
               'private String subtitleLang = "el"; // Greek is the fixed subtitle/translation target')
 s = s.replace('prefs.getString("pref_subtitle_lang", "en")',
               'prefs.getString("pref_subtitle_lang", "el")')
+s = s.replace('''        sourceLang   = prefs.getString("pref_source_lang",   "auto");
+        if(!sourceLang.equals("auto")&&!sourceLang.equals(srcLang)) {
+            srcLang = sourceLang;
+        }
+        if(!subtitleLang.equals(prefs.getString("pref_subtitle_lang", "el"))) {
+            if(!setLanguage(prefs.getString("pref_subtitle_lang", "el"))) {
+                notifyError("problem changing subtitles lang...");
+            }
+        }
+        transcriber.setParmeters();''',
+'''        sourceLang = prefs.getString("pref_source_lang", "auto");
+        boolean sourceChanged = false;
+        if (!sourceLang.equals("auto") && !sourceLang.equals(srcLang)) {
+            srcLang = sourceLang;
+            sourceChanged = true;
+        }
+
+        String requestedSubtitleLang = prefs.getString("pref_subtitle_lang", "el");
+        // Reconfigure ML Kit not only when the target changes, but also whenever
+        // the manually selected source changes (e.g. English -> French).
+        if (sourceChanged || !subtitleLang.equals(requestedSubtitleLang)) {
+            if (!setLanguage(requestedSubtitleLang)) {
+                notifyError("problem changing translation language pair...");
+            }
+        }
+        transcriber.setParmeters();''')
 pipeline.write_text(s, encoding="utf-8")
 
 # ---------- Harden transcription lifecycle and constrain Auto mode ----------
