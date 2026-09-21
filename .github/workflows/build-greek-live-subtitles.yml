@@ -65,6 +65,7 @@ jobs:
           grep -q "<item>el</item>" "$ARR"
           python3 -c 'import json,sys; d=json.load(open(sys.argv[1],encoding="utf-8")); assert d.get("el")=="el"; print("Greek ML Kit mapping verified")' "$MAP"
           grep -q 'private String subtitleLang = "el"' "_subrima/SubtitlesAppSubrimaProject/app/src/main/java/com/example/subtitles/view_model/MainPipeline.java"
+          grep -q 'boolean sourceChanged = false' "_subrima/SubtitlesAppSubrimaProject/app/src/main/java/com/example/subtitles/view_model/MainPipeline.java"
           grep -q 'if (whisperT != null)' "_subrima/SubtitlesAppSubrimaProject/app/src/main/java/com/example/subtitles/view_model/transcriptManager.java"
           grep -q 'newLang.equals("ru")' "_subrima/SubtitlesAppSubrimaProject/app/src/main/java/com/example/subtitles/view_model/transcriptManager.java"
 
