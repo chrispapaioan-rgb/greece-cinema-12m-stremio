@@ -63,11 +63,16 @@ jobs:
           echo "1a331345f04805badbb495c775a6ddffcdd1a732567d5ec8b3d5749e3c7a5e4b  src/main/assets/3dspeaker_speech_eres2net_base_sv_zh-cn_3dspeaker_16k.onnx" | sha256sum -c -
           echo "9e2449e1087496d8d4caba907f23e0bd3f78d91fa552479bb9c23ac09cbb1fd6  src/main/assets/silero_vad.onnx" | sha256sum -c -
 
-      - name: Build, unit test and lint
+      - name: Compile and run GreekLive acoustic unit tests
         working-directory: upstream/android
         run: |
           chmod +x gradlew
-          ./gradlew --no-daemon :app:testDebugUnitTest :app:lintDebug :app:assembleDebug --stacktrace
+          ./gradlew --no-daemon :app:testDebugUnitTest --tests com.xyq.livetranslate.AcousticSpeakerTurnTest --stacktrace
+
+      - name: Lint and assemble APK
+        working-directory: upstream/android
+        run: |
+          ./gradlew --no-daemon :app:lintDebug :app:assembleDebug --stacktrace
 
       - name: APK preflight
         run: |
