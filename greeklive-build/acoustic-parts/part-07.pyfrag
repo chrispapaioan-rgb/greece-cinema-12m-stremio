@@ -1,0 +1,68 @@
+
+# --- UI requirement: subtitle box has no frame and a fully transparent background.
+overlay = pkg / 'SubtitleOverlay.kt'
+s = overlay.read_text()
+
+s = one(
+    s,
+    '''        val container = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(12), dp(8), dp(12), dp(10))
+            elevation = dp(8).toFloat()
+        }
+''',
+    '''        val container = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(12), dp(8), dp(12), dp(10))
+            background = null
+            elevation = 0f
+        }
+''',
+    'transparent subtitle container',
+)
+
+s = one(
+    s,
+    '''        val shell = AccentFrameLayout(context, density).apply {
+            elevation = dp(8).toFloat()
+        }
+''',
+    '''        val shell = AccentFrameLayout(context, density).apply {
+            background = null
+            elevation = 0f
+            accentVisible = false
+        }
+''',
+    'transparent subtitle shell',
+)
+
+s = one(
+    s,
+    '''            window.accentVisible = true
+            val opacity = SettingsStore.bgOpacityPct(context).coerceIn(20, 100)
+            window.background = roundedRect(
+                fill = Color.argb(255 * opacity / 100, 20, 29, 43),
+                stroke = Color.argb(55, 255, 255, 255),
+                radius = 22,
+            )
+''',
+    '''            // Subtitle text floats directly over the video: no frame, no tint, no stroke.
+            window.accentVisible = false
+            window.background = null
+            container.background = null
+            window.elevation = 0f
+            container.elevation = 0f
+''',
+    'transparent expanded subtitle appearance',
+)
+
+overlay.write_text(s, encoding='utf-8')
+
+final_overlay = overlay.read_text()
+if 'window.accentVisible = false' not in final_overlay:
+    die('subtitle overlay still enables accent border')
+if 'window.background = null' not in final_overlay:
+    die('subtitle overlay background is not fully transparent')
+if 'container.background = null' not in final_overlay:
+    die('subtitle container background is not fully transparent')
+print('GreekLive transparent subtitle overlay refinement complete')
