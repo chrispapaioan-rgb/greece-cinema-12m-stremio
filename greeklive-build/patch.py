@@ -113,6 +113,14 @@ rel = "android/app/src/main/java/com/xyq/livetranslate/TranslationPlan.kt"
 text = read(rel)
 text = text.replace('const val DEFAULT_TARGET_LANGUAGE = "zh"', 'const val DEFAULT_TARGET_LANGUAGE = "el"', 1)
 
+write(rel, text)
+
+# ---------------------------------------------------------------------------
+# Translation catalog and speaker-turn protocol live in PromptBuilder.kt
+# ---------------------------------------------------------------------------
+rel = "android/app/src/main/java/com/xyq/livetranslate/PromptBuilder.kt"
+text = read(rel)
+
 def replace_list_block(text: str, marker: str, replacement: str) -> str:
     start = text.find(marker)
     if start < 0:
@@ -136,13 +144,6 @@ targets = '''    val targets = listOf(
     )'''
 text = replace_list_block(text, "    val sources = listOf(", sources)
 text = replace_list_block(text, "    val targets = listOf(", targets)
-write(rel, text)
-
-# ---------------------------------------------------------------------------
-# Speaker-turn protocol in Gemini prompt
-# ---------------------------------------------------------------------------
-rel = "android/app/src/main/java/com/xyq/livetranslate/PromptBuilder.kt"
-text = read(rel)
 text = re.sub(
     r'private val baseInstruction = """.*?"""\.trimIndent\(\)',
     '''private val baseInstruction = """
@@ -544,7 +545,7 @@ checks = {
     "version": 'versionName = "0.1.10"' in read("android/app/build.gradle.kts"),
     "explicit application class": 'android:name="com.xyq.livetranslate.LiveTranslateApp"' in read("android/app/src/main/AndroidManifest.xml"),
     "Greek default": 'DEFAULT_TARGET_LANGUAGE = "el"' in read("android/app/src/main/java/com/xyq/livetranslate/TranslationPlan.kt"),
-    "Greek target": 'TranslationLanguage("el"' in read("android/app/src/main/java/com/xyq/livetranslate/TranslationPlan.kt"),
+    "Greek target": 'TranslationLanguage("el"' in read("android/app/src/main/java/com/xyq/livetranslate/PromptBuilder.kt"),
     "speaker mode wired": 'speakerTurnMode = mode == StatusBus.MODE_VIDEO' in read("android/app/src/main/java/com/xyq/livetranslate/CaptureService.kt"),
     "84 percent width": 'displayWidth * 0.84f' in read("android/app/src/main/java/com/xyq/livetranslate/SubtitleOverlay.kt"),
     "marker logic": "SPEAKER_MARKER" in read("android/app/src/main/java/com/xyq/livetranslate/SubtitleStabilizer.kt"),
