@@ -1,0 +1,192 @@
+        - Preserve tone, numbers, proper names, and natural punctuation.
+        - Speaker boundaries are detected acoustically by the client. Do not emit ¶ or any speaker token.
+        - Keep each translation faithful to the current client-delimited speech turn.
+        - Never repeat a previously finalized subtitle in the next update.
+    """.trimIndent()''',
+    'PromptBuilder base instruction',
+)
+s = re.sub(
+    r'"Continuous movie/series audio\.[^"]*"',
+    '"Continuous movie/series audio. Translate only the current client-delimited speech turn; keep wording concise and natural for subtitles."',
+    s,
+    count=1,
+)
+prompt.write_text(s)
+
+# --- Gemini manual activity boundaries, correlated to server turnComplete.
+g = pkg / 'GeminiLiveClient.kt'
+s=g.read_text()
+s=one(s,
+'''    private val rotateAfterMs: Long = SettingsStore.DEFAULT_ROTATE_SECONDS * 1000L,
+    private val listener: Listener,
+''',
+'''    private val rotateAfterMs: Long = SettingsStore.DEFAULT_ROTATE_SECONDS * 1000L,
+    private val manualActivityDetection: Boolean = false,
+    private val listener: Listener,
+''','Gemini constructor')
+s=one(s,'        fun onOutputText(text: String)\n    }\n','        fun onOutputText(text: String)\n        fun onTurnComplete(turnId: Long?) {}\n    }\n','Gemini listener')
+s=one(s,
+'''            echoTargetLanguage: Boolean = true,
+            prompt: String = "",
+        ): String {
+''',
+'''            echoTargetLanguage: Boolean = true,
+            prompt: String = "",
+            manualActivityDetection: Boolean = false,
+        ): String {
+''','Gemini setup signature')
+s=one(s,
+'''                .put("inputAudioTranscription", JSONObject())
+                .put("outputAudioTranscription", JSONObject())
+            if (prompt.isNotBlank()) {
+''',
+'''                .put("inputAudioTranscription", JSONObject())
+                .put("outputAudioTranscription", JSONObject())
+            if (manualActivityDetection) {
+                setup.put(
+                    "realtimeInputConfig",
+                    JSONObject().put(
+                        "automaticActivityDetection",
+                        JSONObject().put("disabled", true)
+                    )
+                )
+            }
+            if (prompt.isNotBlank()) {
+''','Gemini manual activity config')
+
+# Replace byte-only queue with typed control/audio queue.
+s=one(s,
+'''    private val queue = LinkedBlockingDeque<ByteArray>()
+    private val sentRing = ArrayDeque<ByteArray>()
+''',
+'''    private sealed interface Outbound {
+        data class Audio(val bytes: ByteArray) : Outbound
+        data class ActivityStart(val turnId: Long) : Outbound
+        data class ActivityEnd(val turnId: Long) : Outbound
+    }
+
+    private val queue = LinkedBlockingDeque<Outbound>()
+    private val sentRing = ArrayDeque<ByteArray>()
+    private val sentTurnEnds = java.util.concurrent.ConcurrentLinkedQueue<Long>()
+    private val nextManualTurnId = java.util.concurrent.atomic.AtomicLong(0L)
+    @Volatile private var manualActivityOpen = false
+    @Volatile private var manualActivityTurnId = 0L
+''','Gemini queue fields')
+
+old='''    /** 捕获线程调用：塞入一块 100ms/16k/mono 的 PCM。 */
+    fun feedChunk(chunk: ByteArray) {
+        if (!running.get()) return
+        if (queue.size >= MAX_QUEUE) queue.pollFirst()
+        queue.offerLast(chunk)
+    }
+'''
+new='''    /** Capture-thread entry point: one PCM16/16k/mono chunk. */
+    fun feedChunk(chunk: ByteArray) {
+        if (!running.get()) return
+        offerOutbound(Outbound.Audio(chunk))
+    }
+
+    fun activityStart() {
+        if (!running.get() || !manualActivityDetection || manualActivityOpen) return
+        val turnId = nextManualTurnId.incrementAndGet()
+        manualActivityTurnId = turnId
+        manualActivityOpen = true
+        offerOutbound(Outbound.ActivityStart(turnId))
+    }
+
+    fun activityEnd(): Long? {
+        if (!running.get() || !manualActivityDetection || !manualActivityOpen) return null
+        val turnId = manualActivityTurnId.takeIf { it > 0L }
+        manualActivityOpen = false
+        manualActivityTurnId = 0L
+        if (turnId != null) offerOutbound(Outbound.ActivityEnd(turnId))
+        return turnId
+    }
+
+    private fun offerOutbound(item: Outbound) {
+        while (queue.size >= MAX_QUEUE) {
+            val it = queue.iterator()
+            var removedAudio = false
+            while (it.hasNext()) {
+                if (it.next() is Outbound.Audio) {
+                    it.remove()
+                    removedAudio = true
+                    break
+                }
+            }
+            if (!removedAudio) break
+        }
+        queue.offerLast(item)
+    }
+
+    private fun restoreManualActivityAfterReconnect() {
+        if (!manualActivityDetection || !manualActivityOpen || manualActivityTurnId <= 0L) return
+        val turnId = manualActivityTurnId
+        queue.removeIf { it is Outbound.ActivityStart && it.turnId == turnId }
+        queue.offerFirst(Outbound.ActivityStart(turnId))
+    }
+
+    private fun finalizeOrphanedTurnEnds() {
+        while (true) {
+            val id = sentTurnEnds.poll() ?: break
+            listener.onTurnComplete(id)
+        }
+    }
+'''
+s=one(s,old,new,'Gemini feed/control')
+s=one(s,'            sentRing.reversed().forEach { queue.offerFirst(it) }\n','            sentRing.reversed().forEach { queue.offerFirst(Outbound.Audio(it)) }\n','Gemini overlap')
+s=one(s,
+'''            prompt = prompt,
+        )
+''',
+'''            prompt = prompt,
+            manualActivityDetection = manualActivityDetection,
+        )
+''','Gemini instance setup')
+s=one(s,'        ready = false\n        rotateTask?.cancel(false)','        ready = false\n        finalizeOrphanedTurnEnds()\n        rotateTask?.cancel(false)','Gemini orphan turns')
+s=one(s,'            listener.onState("ready")\n','            listener.onState("ready")\n            restoreManualActivityAfterReconnect()\n','Gemini restore activity')
+s=one(s,
+'''        sc.optJSONObject("outputTranscription")?.optString("text")
+            ?.takeIf { it.isNotEmpty() }?.let { listener.onOutputText(it) }
+        // modelTurn 里的翻译语音块直接忽略，不播放
+''',
+'''        sc.optJSONObject("outputTranscription")?.optString("text")
+            ?.takeIf { it.isNotEmpty() }?.let { listener.onOutputText(it) }
+        if (sc.optBoolean("turnComplete", false)) listener.onTurnComplete(sentTurnEnds.poll())
+        // modelTurn 里的翻译语音块直接忽略，不播放
+''','Gemini turnComplete')
+
+sender='''    private fun senderLoop() {
+        while (running.get()) {
+            try {
+                val item = queue.pollFirst(100, TimeUnit.MILLISECONDS) ?: continue
+                if (!ready) {
+                    queue.offerFirst(item)
+                    Thread.sleep(60)
+                    continue
+                }
+
+                val msg = when (item) {
+                    is Outbound.Audio -> {
+                        val b64 = Base64.encodeToString(item.bytes, Base64.NO_WRAP)
+                        JSONObject()
+                            .put(
+                                "realtimeInput",
+                                JSONObject().put(
+                                    "audio",
+                                    JSONObject()
+                                        .put("data", b64)
+                                        .put("mimeType", "audio/pcm;rate=16000")
+                                )
+                            )
+                            .toString()
+                    }
+                    is Outbound.ActivityStart -> JSONObject()
+                        .put("realtimeInput", JSONObject().put("activityStart", JSONObject()))
+                        .toString()
+                    is Outbound.ActivityEnd -> JSONObject()
+                        .put("realtimeInput", JSONObject().put("activityEnd", JSONObject()))
+                        .toString()
+                }
+
+                val w = ws
