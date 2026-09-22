@@ -259,8 +259,9 @@ internal object SubtitleFragmentJoiner {
     }
 }
 '''
-if (!s.endsWith("}\n")) die('unexpected SubtitleStabilizer ending')
-s = s.dropLast(2) + insert
+if not s.endswith("}\\n"):
+    die('unexpected SubtitleStabilizer ending')
+s = s[:-2] + insert
 stab.write_text(s, encoding='utf-8')
 
 # Regression tests from the POCO screenshot plus geometry expectations.
