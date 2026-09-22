@@ -509,7 +509,7 @@ patch_strings(
         "video_subtitle": "Creates live Greek subtitles from Filmzie, Stremio and other Android apps that allow playback audio capture.",
         "video_plan_summary_default": "Movies & Series · Auto detect → Greek / Ελληνικά",
         "video_running_meta_default": "Auto detect → Greek / Ελληνικά · Movies & Series",
-        "video_sub_status_running": "Other apps' audio · Greek floating subtitles",
+        "video_sub_status_running": "Audio from other apps · Greek floating subtitles",
         "about_app_slogan": "GreekLive · Live Greek subtitles for media and conversations",
         "about_description": "Real-time Greek translation for Filmzie, Stremio and other Android media apps, with microphone fallback when playback capture is unavailable.",
     },
