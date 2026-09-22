@@ -1,5 +1,6 @@
 
 import xml.etree.ElementTree as ET
+import copy
 # --- Regression fix after POCO field test:
 # 1) English must be the default resource language, not merely values-en.
 # 2) Overlay permission must expose an explicit GRANT action.
@@ -52,14 +53,37 @@ set_string_file(runtime_en, {
     'rt_toast_projection_permission_denied': 'Screen sharing was cancelled. Tap Start translation to choose an app again.',
 })
 
-(app / 'src/main/res/values/strings.xml').write_text(
-    values_en.read_text(encoding='utf-8'),
-    encoding='utf-8',
-)
-(app / 'src/main/res/values/strings_runtime.xml').write_text(
-    runtime_en.read_text(encoding='utf-8'),
-    encoding='utf-8',
-)
+def merge_english_into_default(default_path: Path, english_path: Path) -> None:
+    d_tree = ET.parse(default_path)
+    e_tree = ET.parse(english_path)
+    d_root = d_tree.getroot()
+    e_root = e_tree.getroot()
+
+    # Key by resource tag + name. English entries replace matching default entries, while
+    # default-only resources (notably translatable=false identifiers) remain intact.
+    positions = {}
+    for idx, el in enumerate(list(d_root)):
+        name = el.attrib.get('name')
+        if name:
+            positions[(el.tag, name)] = idx
+
+    for e in list(e_root):
+        name = e.attrib.get('name')
+        if not name:
+            continue
+        key = (e.tag, name)
+        cloned = copy.deepcopy(e)
+        if key in positions:
+            d_root[positions[key]] = cloned
+        else:
+            positions[key] = len(d_root)
+            d_root.append(cloned)
+
+    ET.indent(d_tree, space='    ')
+    d_tree.write(default_path, encoding='utf-8', xml_declaration=True)
+
+merge_english_into_default(app / 'src/main/res/values/strings.xml', values_en)
+merge_english_into_default(app / 'src/main/res/values/strings_runtime.xml', runtime_en)
 
 # The overlay settings action now presents an explicit GRANT dialog. This same function is used
 # both by the Media permission banner and the Start flow, so users always see a clear action.
