@@ -1,0 +1,120 @@
+
+# --- Regression fix after POCO field test:
+# 1) English must be the default resource language, not merely values-en.
+# 2) Overlay permission must expose an explicit GRANT action.
+# 3) The permission path must resume into a fresh MediaProjection picker after returning.
+
+# Force the app's declared locale surface to English only.
+locales = app / 'src/main/res/xml/locales_config.xml'
+locales.write_text(
+    '<?xml version="1.0" encoding="utf-8"?>\n'
+    '<locale-config xmlns:android="http://schemas.android.com/apk/res/android">\n'
+    '    <locale android:name="en" />\n'
+    '</locale-config>\n',
+    encoding='utf-8',
+)
+
+# Add/replace English permission strings first, then mirror the complete English app strings
+# into the default values folder. This guarantees English even during the first Activity inflate
+# before AppCompat locale propagation completes on OEM Android builds.
+def set_string_file(path: Path, updates: dict[str, str]) -> None:
+    tree = ET.parse(path)
+    root = tree.getroot()
+    by_name = {el.attrib.get('name'): el for el in root.findall('string')}
+    for name, value in updates.items():
+        el = by_name.get(name)
+        if el is None:
+            el = ET.Element('string', {'name': name})
+            root.append(el)
+            by_name[name] = el
+        el.text = value
+    ET.indent(tree, space='    ')
+    tree.write(path, encoding='utf-8', xml_declaration=True)
+
+values_en = app / 'src/main/res/values-en/strings.xml'
+set_string_file(values_en, {
+    'overlay_permission_unauthorized': 'Floating subtitle permission required',
+    'btn_go_settings': 'GRANT',
+    'permission_overlay_title': 'Permission required',
+    'permission_overlay_message': (
+        'GreekLive needs permission to display subtitles over Filmzie, Stremio and other media apps. '
+        'Tap GRANT, enable "Display over other apps", then return to GreekLive.'
+    ),
+    'permission_grant': 'GRANT',
+    'permission_cancel': 'Cancel',
+    'rt_toast_overlay_permission_required': 'Grant floating subtitle permission to continue.',
+    'rt_toast_record_audio_permission_required': 'Microphone / playback audio permission is required.',
+    'rt_toast_projection_permission_denied': 'Screen sharing was cancelled. Tap Start translation to choose an app again.',
+})
+(app / 'src/main/res/values/strings.xml').write_text(values_en.read_text(encoding='utf-8'), encoding='utf-8')
+
+# Make the in-app locale helper impossible to fall back to the Chinese tag.
+locale = pkg / 'AppLocale.kt'
+s = locale.read_text()
+s = s.replace(
+    'const val TAG_ZH_HANS = "zh-Hans"',
+    'const val TAG_ZH_HANS = "en" // legacy constant retained for source compatibility',
+    1,
+)
+locale.write_text(s, encoding='utf-8')
+
+# The overlay settings action now presents an explicit GRANT dialog. This same function is used
+# both by the Media permission banner and the Start flow, so users always see a clear action.
+main = pkg / 'MainActivity.kt'
+s = main.read_text()
+old = '''    private fun openOverlaySettings() {
+        startActivity(
+            Intent(
+                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                Uri.parse("package:$packageName"),
+            ),
+        )
+    }
+'''
+new = '''    private fun openOverlaySettings() {
+        if (Settings.canDrawOverlays(this)) return
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.permission_overlay_title)
+            .setMessage(R.string.permission_overlay_message)
+            .setNegativeButton(R.string.permission_cancel, null)
+            .setPositiveButton(R.string.permission_grant) { _, _ ->
+                startActivity(
+                    Intent(
+                        Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                        Uri.parse("package:$packageName"),
+                    ),
+                )
+            }
+            .show()
+    }
+'''
+if old not in s:
+    die('MainActivity overlay settings anchor missing')
+s = s.replace(old, new, 1)
+main.write_text(s, encoding='utf-8')
+
+# Remove the remaining hard-coded Chinese runtime status labels. Resource-backed labels already
+# exist, but these values can surface in diagnostics and accessibility output.
+status = pkg / 'ui/UiRuntimeStatus.kt'
+s = status.read_text()
+for old, new in {
+    '"已暂停"': '"Paused"',
+    '"翻译中"': '"Translating"',
+    '"连接出错"': '"Connection error"',
+    '"正在切换连接"': '"Reconnecting"',
+    '"准备连接"': '"Preparing"',
+}.items():
+    s = s.replace(old, new)
+status.write_text(s, encoding='utf-8')
+
+# Field-test sanity gates.
+default_strings = (app / 'src/main/res/values/strings.xml').read_text(encoding='utf-8')
+if '<string name="video_btn_start">Start translation</string>' not in default_strings:
+    die('default resources are not English')
+if '>GRANT<' not in default_strings:
+    die('GRANT permission action missing')
+if 'android:name="zh-Hans"' in locales.read_text(encoding='utf-8'):
+    die('Chinese locale still declared')
+if 'launchFreshProjectionRequest(ready)' not in (pkg/'ui/SessionCoordinator.kt').read_text():
+    die('fresh MediaProjection picker flow lost')
+print('GreekLive English + GRANT permission regression fix complete')
