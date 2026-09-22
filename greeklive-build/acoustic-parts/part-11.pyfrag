@@ -1,0 +1,312 @@
+
+# --- POCO field refinement: full-width centered bottom subtitles + whitespace-safe streaming.
+overlay = pkg / 'SubtitleOverlay.kt'
+s = overlay.read_text()
+
+# Track whether the user has deliberately moved the expanded overlay. Until then, geometry follows
+# the real current display (important when GreekLive starts in portrait and Filmzie rotates landscape).
+s = one(
+    s,
+    '''    private var controlsVisible = false
+''',
+    '''    private var controlsVisible = false
+    private var userPositionedExpanded = false
+    private var lastDisplayWidth = 0
+    private var lastDisplayHeight = 0
+''',
+    'overlay geometry state',
+)
+
+# Use current WindowManager metrics instead of a resource width captured while the launcher UI was portrait.
+s = one(
+    s,
+    '''        val dm = context.resources.displayMetrics
+        expandedWidth = SubtitleOverlayGeometry.expandedWidth(dm.widthPixels, density)
+''',
+    '''        val dm = context.resources.displayMetrics
+        val initialDisplay = currentDisplaySize()
+        expandedWidth = SubtitleOverlayGeometry.expandedWidth(initialDisplay.first, density)
+''',
+    'overlay initial display width',
+)
+
+# The part-09 post block is replaced by a single measured/default placement function.
+old_post = '''        // Default placement is near the bottom edge, not the screen center. We wait until the
+        // overlay is measured so the full 1-3 line subtitle block stays visible above navigation.
+        shell.post {
+            if (root !== shell || lp !== params || collapsed) return@post
+            val measuredHeight = shell.height.takeIf { it > 0 } ?: dp(72)
+            params.y = SubtitleOverlayGeometry.defaultBottomY(
+                displayHeight = dm.heightPixels,
+                windowHeight = measuredHeight,
+                bottomMargin = dp(56),
+            )
+            expandedY = params.y
+            runCatching { wm.updateViewLayout(shell, params) }
+        }
+'''
+new_post = '''        // Wait for measurement, then place a wide subtitle strip centered near the bottom.
+        shell.post { applyDefaultExpandedGeometry(shell, params, force = true) }
+'''
+s = one(s, old_post, new_post, 'centered bottom placement')
+
+# Re-evaluate geometry when Filmzie/Stremio changes orientation, but never fight a manual drag.
+s = one(
+    s,
+    '''    fun maybeReapplyStyle() {
+        if (appliedStyle != StatusBus.styleVersion.get()) applyStyleNow()
+''',
+    '''    fun maybeReapplyStyle() {
+        if (appliedStyle != StatusBus.styleVersion.get()) applyStyleNow()
+        refreshDefaultGeometryIfDisplayChanged()
+''',
+    'orientation-aware geometry refresh',
+)
+
+# Mark manual expanded drags so subsequent subtitle updates do not snap the user's chosen position.
+s = one(
+    s,
+    '''                        } else {
+                            params.x = startX + dx.toInt()
+                            params.y = startY + dy.toInt()
+                        }
+''',
+    '''                        } else {
+                            userPositionedExpanded = true
+                            params.x = startX + dx.toInt()
+                            params.y = startY + dy.toInt()
+                        }
+''',
+    'manual drag marker',
+)
+
+# Insert display/placement helpers before controlButton().
+anchor = '''    private fun controlButton(iconRes: Int, description: String) = ImageView(context).apply {
+'''
+helpers = '''    private fun currentDisplaySize(): Pair<Int, Int> {
+        return if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            val bounds = wm.currentWindowMetrics.bounds
+            bounds.width() to bounds.height()
+        } else {
+            @Suppress("DEPRECATION")
+            val metrics = android.util.DisplayMetrics().also { wm.defaultDisplay.getRealMetrics(it) }
+            metrics.widthPixels to metrics.heightPixels
+        }
+    }
+
+    private fun refreshDefaultGeometryIfDisplayChanged() {
+        if (collapsed || userPositionedExpanded) return
+        val (displayWidth, displayHeight) = currentDisplaySize()
+        if (displayWidth == lastDisplayWidth && displayHeight == lastDisplayHeight) return
+        val window = root ?: return
+        val params = lp ?: return
+        window.post { applyDefaultExpandedGeometry(window, params, force = false) }
+    }
+
+    private fun applyDefaultExpandedGeometry(
+        window: View,
+        params: WindowManager.LayoutParams,
+        force: Boolean,
+    ) {
+        if (root !== window || lp !== params || collapsed) return
+        if (!force && userPositionedExpanded) return
+
+        val (displayWidth, displayHeight) = currentDisplaySize()
+        val measuredHeight = window.height.takeIf { it > 0 } ?: dp(72)
+        expandedWidth = SubtitleOverlayGeometry.expandedWidth(displayWidth, density)
+        params.width = expandedWidth
+        params.x = SubtitleOverlayGeometry.centeredX(displayWidth, expandedWidth)
+        params.y = SubtitleOverlayGeometry.defaultBottomY(
+            displayHeight = displayHeight,
+            windowHeight = measuredHeight,
+            bottomMargin = dp(44),
+        )
+
+        expandedX = params.x
+        expandedY = params.y
+        lastDisplayWidth = displayWidth
+        lastDisplayHeight = displayHeight
+        runCatching { wm.updateViewLayout(window, params) }
+    }
+
+'''
+s = one(s, anchor, helpers + anchor, 'display geometry helpers')
+
+# Make the v10-dev width explicit: 88% of the actual landscape display, no old 360dp cap.
+import re
+pattern = r'''    fun expandedWidth\(displayWidth: Int, density: Float\): Int \{.*?    \}\n\n    fun collapseToLeft'''
+replacement = '''    fun expandedWidth(displayWidth: Int, density: Float): Int {
+        val margin = (24 * density).roundToInt()
+        val available = (displayWidth - margin).coerceAtLeast(1)
+        val preferred = (displayWidth * 0.88f).roundToInt()
+        val minimum = minOf((240 * density).roundToInt(), available)
+        return minOf(preferred, available).coerceAtLeast(minimum)
+    }
+
+    fun centeredX(displayWidth: Int, windowWidth: Int): Int =
+        ((displayWidth - windowWidth) / 2).coerceAtLeast(0)
+
+    fun collapseToLeft'''
+s, n = re.subn(pattern, replacement, s, count=1, flags=re.S)
+if n != 1:
+    die('expandedWidth geometry replacement failed')
+
+overlay.write_text(s, encoding='utf-8')
+
+# --- Preserve spaces that arrive at the beginning of Gemini streaming fragments.
+stab = pkg / 'SubtitleStabilizer.kt'
+s = stab.read_text()
+
+old_ingest = '''    private fun ingestSpeakerText(raw: String) {
+        var text = cleanLeadingDash(raw)
+        if (text.isBlank()) return
+        if (prefixNextUtterance) {
+            text = DIALOG_PREFIX + text.trimStart()
+            prefixNextUtterance = false
+        }
+        appendWithOverlap(text)
+
+        // Do not split on punctuation. Only split when the box capacity is exceeded.
+'''
+new_ingest = '''    private fun ingestSpeakerText(raw: String) {
+        if (raw.isBlank()) return
+
+        // Only the first fragment of an utterance is normalized. Continuation fragments keep their
+        // leading whitespace exactly as emitted by Gemini; stripping it is what caused "νησί.με",
+        // "παιδίτης" and "μέσαστην" on the POCO field test.
+        val text = if (prefixNextUtterance) {
+            val first = stripSpeakerPrefix(raw)
+            if (first.isBlank()) return
+            prefixNextUtterance = false
+            DIALOG_PREFIX + first
+        } else {
+            raw
+        }
+        appendWithOverlap(text)
+
+        // Do not split on punctuation. Only split when the box capacity is exceeded.
+'''
+s = one(s, old_ingest, new_ingest, 'speaker whitespace preservation')
+
+old_clean = '''    private fun cleanLeadingDash(value: String): String {
+        var s = value.trimStart()
+        while (s.startsWith("-") || s.startsWith("—") || s.startsWith("–")) {
+            s = s.drop(1).trimStart()
+        }
+        return s
+    }
+'''
+new_clean = '''    private fun stripSpeakerPrefix(value: String): String {
+        var s = value.trimStart()
+        while (s.startsWith("-") || s.startsWith("—") || s.startsWith("–")) {
+            s = s.drop(1).trimStart()
+        }
+        return s
+    }
+'''
+s = one(s, old_clean, new_clean, 'speaker prefix cleanup')
+
+old_append = '''    private fun appendWithOverlap(fragment: String) {
+        if (fragment.isEmpty()) return
+        val tail = current.toString()
+        var k = minOf(tail.length, fragment.length)
+        while (k > 0) {
+            if (tail.regionMatches(tail.length - k, fragment, 0, k)) break
+            k--
+        }
+        if (k < 2) k = 0
+        current.append(fragment, k, fragment.length)
+    }
+'''
+new_append = '''    private fun appendWithOverlap(fragment: String) {
+        SubtitleFragmentJoiner.append(current, fragment)
+    }
+'''
+s = one(s, old_append, new_append, 'fragment join helper')
+
+# Add a pure helper that preserves exact incoming whitespace while still suppressing repeated overlap.
+insert = '''}
+
+internal object SubtitleFragmentJoiner {
+    fun append(target: StringBuilder, fragment: String) {
+        if (fragment.isEmpty()) return
+        val tail = target.toString()
+        var k = minOf(tail.length, fragment.length)
+        while (k > 0) {
+            if (tail.regionMatches(tail.length - k, fragment, 0, k)) break
+            k--
+        }
+        if (k < 2) k = 0
+
+        if (k > 0) {
+            target.append(fragment, k, fragment.length)
+            return
+        }
+
+        // Preserve the model's own leading space. As a conservative safety net, add one only after
+        // sentence punctuation when the next fragment begins with a letter/number.
+        if (
+            target.isNotEmpty() &&
+            fragment.isNotEmpty() &&
+            !target.last().isWhitespace() &&
+            !fragment.first().isWhitespace() &&
+            target.last() in ".!?;:…·" &&
+            fragment.first().isLetterOrDigit()
+        ) {
+            target.append(' ')
+        }
+        target.append(fragment)
+    }
+}
+'''
+if (!s.endsWith("}\n")) die('unexpected SubtitleStabilizer ending')
+s = s.dropLast(2) + insert
+stab.write_text(s, encoding='utf-8')
+
+# Regression tests from the POCO screenshot plus geometry expectations.
+test = app / 'src/test/java/com/xyq/livetranslate/SubtitleLayoutAndSpacingTest.kt'
+test.write_text(r'''package com.xyq.livetranslate
+
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Test
+
+class SubtitleLayoutAndSpacingTest {
+    @Test
+    fun landscapeOverlayUsesDevWidthAndIsCentered() {
+        val width = SubtitleOverlayGeometry.expandedWidth(displayWidth = 1850, density = 2.0f)
+        assertTrue(width >= 1600)
+        assertEquals((1850 - width) / 2, SubtitleOverlayGeometry.centeredX(1850, width))
+    }
+
+    @Test
+    fun streamingGreekKeepsWordSpaces() {
+        val b = StringBuilder("- το νησί.")
+        SubtitleFragmentJoiner.append(b, " με το αγέννητο")
+        SubtitleFragmentJoiner.append(b, " παιδί της")
+        SubtitleFragmentJoiner.append(b, " που μεγάλωνε μέσα")
+        SubtitleFragmentJoiner.append(b, " στην κοιλιά της.")
+        assertEquals(
+            "- το νησί. με το αγέννητο παιδί της που μεγάλωνε μέσα στην κοιλιά της.",
+            b.toString(),
+        )
+    }
+
+    @Test
+    fun overlapStillDoesNotDuplicateText() {
+        val b = StringBuilder("- Περιμένει τον")
+        SubtitleFragmentJoiner.append(b, " τον άντρα")
+        assertEquals("- Περιμένει τον άντρα", b.toString())
+    }
+}
+''', encoding='utf-8')
+
+final_overlay = overlay.read_text()
+final_stab = stab.read_text()
+if 'displayWidth * 0.88f' not in final_overlay:
+    die('v10-dev 88 percent width not applied')
+if 'centeredX(displayWidth, expandedWidth)' not in final_overlay:
+    die('subtitle overlay not centered')
+if 'raw' not in final_stab or 'stripSpeakerPrefix' not in final_stab:
+    die('whitespace-safe fragment ingestion missing')
+print('GreekLive wide centered subtitle + spacing refinement complete')
