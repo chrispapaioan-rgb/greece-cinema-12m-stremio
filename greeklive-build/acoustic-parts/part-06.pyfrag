@@ -1,0 +1,237 @@
+# Final compatibility refinement: keep Mic/Live stabilizer behavior unchanged while Media uses acoustic boundaries.
+subtitle = r'''package com.xyq.livetranslate
+
+import android.os.Handler
+
+/**
+ * Speaker-aware stabilizer for GreekLive v0.1.10.
+ *
+ * Media mode:
+ * - every new utterance starts with "- ";
+ * - punctuation never splits the current acoustic turn;
+ * - a local speaker-change event is a hard subtitle-box boundary;
+ * - an idle gap finalizes the utterance, so the next utterance gets a new dash;
+ * - maxCurrentChars is only a safety/capacity split for text that cannot fit the 3-line box.
+ *
+ * Mic/Live mode keeps the legacy punctuation/idle behavior of the POCO-tested v0.1.10 path.
+ */
+class SubtitleStabilizer(
+    private val handler: Handler,
+    private val idleCommitMs: Long = SettingsStore.DEFAULT_STAB_IDLE_MS.toLong(),
+    private val maxCurrentChars: Int = SettingsStore.DEFAULT_STAB_MAX_CHARS,
+    private val speakerTurnMode: Boolean = false,
+    private val onRender: (confirmed: String, current: String) -> Unit,
+) {
+    companion object {
+        private val LEGACY_TERMINATORS = charArrayOf('。', '！', '？', '…', '～', '!', '?')
+        private const val LEGACY_SPEAKER_MARKER = '¶'
+        private const val DIALOG_PREFIX = "- "
+    }
+
+    private val current = StringBuilder()
+    private var lastCommitted = ""
+    private var prefixNextUtterance = true
+
+    private val idleCommit = Runnable {
+        if (speakerTurnMode) {
+            finalizeActiveUtterance()
+            prefixNextUtterance = true
+            render()
+        } else {
+            commitLegacy(force = true)
+            render()
+        }
+    }
+
+    fun onFragment(text: String) {
+        if (text.isEmpty()) return
+        if (speakerTurnMode) {
+            onSpeakerFragment(text)
+        } else {
+            appendWithOverlap(text)
+            commitLegacy(force = current.length >= maxCurrentChars)
+            scheduleIdle()
+            render()
+        }
+    }
+
+    /** Hard boundary from the local acoustic speaker detector. */
+    fun onSpeakerBoundary() {
+        if (!speakerTurnMode) return
+        handler.removeCallbacks(idleCommit)
+        finalizeActiveUtterance()
+        render()
+        current.setLength(0)
+        lastCommitted = ""
+        prefixNextUtterance = true
+        onRender("", "")
+    }
+
+    fun reset() {
+        handler.removeCallbacks(idleCommit)
+        current.setLength(0)
+        lastCommitted = ""
+        prefixNextUtterance = true
+    }
+
+    private fun onSpeakerFragment(raw: String) {
+        if (raw.indexOf(LEGACY_SPEAKER_MARKER) >= 0) {
+            val parts = raw.split(LEGACY_SPEAKER_MARKER)
+            parts.forEachIndexed { index, part ->
+                if (index > 0) onSpeakerBoundary()
+                if (part.isNotBlank()) ingestSpeakerText(part)
+            }
+            return
+        }
+        ingestSpeakerText(raw)
+    }
+
+    private fun ingestSpeakerText(raw: String) {
+        var text = cleanLeadingDash(raw)
+        if (text.isBlank()) return
+        if (prefixNextUtterance) {
+            text = DIALOG_PREFIX + text.trimStart()
+            prefixNextUtterance = false
+        }
+        appendWithOverlap(text)
+
+        // Do not split on punctuation. Only split when the box capacity is exceeded.
+        if (current.length >= maxCurrentChars) {
+            finalizeActiveUtterance()
+            render()
+            prefixNextUtterance = true
+            return
+        }
+
+        scheduleIdle()
+        render()
+    }
+
+    private fun cleanLeadingDash(value: String): String {
+        var s = value.trimStart()
+        while (s.startsWith("-") || s.startsWith("—") || s.startsWith("–")) {
+            s = s.drop(1).trimStart()
+        }
+        return s
+    }
+
+    private fun scheduleIdle() {
+        handler.removeCallbacks(idleCommit)
+        if (current.isNotEmpty()) handler.postDelayed(idleCommit, idleCommitMs)
+    }
+
+    private fun finalizeActiveUtterance() {
+        val sentence = current.toString().trim()
+        current.setLength(0)
+        if (sentence.isEmpty() || sentence == DIALOG_PREFIX.trim()) return
+        if (sentence == lastCommitted || lastCommitted.contains(sentence)) return
+        lastCommitted = sentence
+    }
+
+    private fun render() = onRender(lastCommitted, current.toString())
+
+    private fun appendWithOverlap(fragment: String) {
+        if (fragment.isEmpty()) return
+        val tail = current.toString()
+        var k = minOf(tail.length, fragment.length)
+        while (k > 0) {
+            if (tail.regionMatches(tail.length - k, fragment, 0, k)) break
+            k--
+        }
+        if (k < 2) k = 0
+        current.append(fragment, k, fragment.length)
+    }
+
+    private fun commitLegacy(force: Boolean) {
+        val text = current.toString()
+        val cut = text.indexOfLast { it in LEGACY_TERMINATORS }
+        val done: String
+        val rest: String
+        when {
+            cut >= 0 -> {
+                done = text.substring(0, cut + 1)
+                rest = text.substring(cut + 1)
+            }
+            force && text.isNotBlank() -> {
+                done = text
+                rest = ""
+            }
+            else -> return
+        }
+        current.setLength(0)
+        current.append(rest)
+        val sentence = done.trim()
+        if (sentence.isNotEmpty() && sentence != lastCommitted && !lastCommitted.contains(sentence)) {
+            lastCommitted = sentence
+        }
+    }
+}
+'''
+(pkg/'SubtitleStabilizer.kt').write_text(subtitle, encoding='utf-8')
+
+# Targeted pure unit tests: do not execute upstream locale/UI tests whose assumptions are intentionally
+# changed by GreekLive (English-only UI, Greek-only target, custom 84% overlay).
+test_dir = app / 'src/test/java/com/xyq/livetranslate'
+test_dir.mkdir(parents=True, exist_ok=True)
+(test_dir/'AcousticSpeakerTurnTest.kt').write_text(r'''package com.xyq.livetranslate
+
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Test
+
+class AcousticSpeakerTurnTest {
+    @Test
+    fun sameSpeakerStaysInSameCluster() {
+        val t = SpeakerTurnTracker()
+        val first = t.observe(floatArrayOf(1f, 0f, 0f))
+        assertTrue(first is SpeakerTurnTracker.Result.Initial)
+        val same = t.observe(floatArrayOf(0.99f, 0.03f, 0f))
+        assertTrue(same is SpeakerTurnTracker.Result.Same)
+        assertEquals("spk_1", t.currentSpeaker())
+        assertEquals(1, t.speakerCount())
+    }
+
+    @Test
+    fun differentVoiceNeedsConfirmationThenSwitches() {
+        val t = SpeakerTurnTracker(confirmationsRequired = 2)
+        t.observe(floatArrayOf(1f, 0f, 0f))
+        val p = t.observe(floatArrayOf(0f, 1f, 0f))
+        assertTrue(p is SpeakerTurnTracker.Result.Pending)
+        assertEquals("spk_1", t.currentSpeaker())
+        val switched = t.observe(floatArrayOf(0.02f, 0.999f, 0f))
+        assertTrue(switched is SpeakerTurnTracker.Result.Switched)
+        assertEquals("spk_2", t.currentSpeaker())
+        assertEquals(2, t.speakerCount())
+    }
+
+    @Test
+    fun subtitleBoundaryWaitsForExactCompletedGeminiTurn() {
+        val ready = mutableListOf<String>()
+        val c = TurnBoundaryCoordinator { ready += it }
+        c.onSpeakerBoundary("spk_2", 7L)
+        c.onTurnComplete(6L)
+        assertTrue(ready.isEmpty())
+        c.onTurnComplete(7L)
+        assertEquals(listOf("spk_2"), ready)
+    }
+
+    @Test
+    fun alreadyCompletedTurnAllowsImmediateBoundary() {
+        val ready = mutableListOf<String>()
+        val c = TurnBoundaryCoordinator { ready += it }
+        c.onTurnComplete(11L)
+        c.onSpeakerBoundary("spk_3", 11L)
+        assertEquals(listOf("spk_3"), ready)
+    }
+}
+''', encoding='utf-8')
+
+# Re-assert requested Media UX after the compatibility refinement.
+final_stab = (pkg/'SubtitleStabilizer.kt').read_text()
+if 'text = DIALOG_PREFIX + text.trimStart()' not in final_stab:
+    die('final stabilizer lost dash prefix')
+if 'if (!speakerTurnMode) return' not in final_stab:
+    die('final stabilizer lost Media-only hard boundary guard')
+if 'commitLegacy(force = current.length >= maxCurrentChars)' not in final_stab:
+    die('final stabilizer no longer preserves Mic/Live legacy behavior')
+print('GreekLive acoustic compatibility refinement complete')
