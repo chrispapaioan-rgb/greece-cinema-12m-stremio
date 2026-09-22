@@ -1,4 +1,5 @@
 
+import xml.etree.ElementTree as ET
 # --- Regression fix after POCO field test:
 # 1) English must be the default resource language, not merely values-en.
 # 2) Overlay permission must expose an explicit GRANT action.
