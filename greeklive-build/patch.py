@@ -5,66 +5,99 @@ import sys
 import xml.etree.ElementTree as ET
 
 repo = Path(sys.argv[1]).resolve()
-android = repo / "android"
-app = android / "app"
 
-def read(rel):
+def read(rel: str) -> str:
     return (repo / rel).read_text(encoding="utf-8")
 
-def write(rel, text):
-    p = repo / rel
-    p.write_text(text, encoding="utf-8")
+def write(rel: str, text: str) -> None:
+    (repo / rel).write_text(text, encoding="utf-8")
 
-def replace_once(rel, old, new):
+def replace_once(rel: str, old: str, new: str) -> None:
     text = read(rel)
     if old not in text:
-        raise RuntimeError(f"pattern not found in {rel}: {old[:100]!r}")
+        raise RuntimeError(f"pattern not found in {rel}: {old[:120]!r}")
     write(rel, text.replace(old, new, 1))
 
-# ---- Build identity ----
+def replace_braced_function(text: str, signature: str, replacement: str) -> str:
+    start = text.find(signature)
+    if start < 0:
+        raise RuntimeError(f"function signature not found: {signature}")
+    brace = text.find("{", start)
+    if brace < 0:
+        raise RuntimeError(f"opening brace not found: {signature}")
+    depth = 0
+    end = None
+    for i in range(brace, len(text)):
+        c = text[i]
+        if c == "{":
+            depth += 1
+        elif c == "}":
+            depth -= 1
+            if depth == 0:
+                end = i + 1
+                break
+    if end is None:
+        raise RuntimeError(f"closing brace not found: {signature}")
+    return text[:start] + replacement + text[end:]
+
+# ---------------------------------------------------------------------------
+# Build identity
+# ---------------------------------------------------------------------------
 rel = "android/app/build.gradle.kts"
 text = read(rel)
-text = text.replace('applicationId = "com.xyq.livetranslate"', 'applicationId = "com.greeklive.subtitles"')
+text = text.replace('applicationId = "com.xyq.livetranslate"', 'applicationId = "com.greeklive.subtitles"', 1)
 text = re.sub(r'versionCode = \d+', 'versionCode = 10011', text, count=1)
 text = re.sub(r'versionName = "[^"]+"', 'versionName = "0.1.10"', text, count=1)
 write(rel, text)
 
-# ---- English-only UI ----
+# Make component class names explicit. The applicationId changes, but Kotlin
+# classes intentionally remain in the upstream com.xyq.livetranslate namespace.
+rel = "android/app/src/main/AndroidManifest.xml"
+text = read(rel)
+text = text.replace('android:name=".LiveTranslateApp"', 'android:name="com.xyq.livetranslate.LiveTranslateApp"', 1)
+text = text.replace('android:name=".MainActivity"', 'android:name="com.xyq.livetranslate.MainActivity"', 1)
+text = text.replace('android:name=".CaptureService"', 'android:name="com.xyq.livetranslate.CaptureService"', 1)
+# No self-updater in the custom build.
+text = text.replace('    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />\n', '')
+write(rel, text)
+
+# ---------------------------------------------------------------------------
+# English-only UI
+# ---------------------------------------------------------------------------
 rel = "android/app/src/main/java/com/xyq/livetranslate/AppLocale.kt"
 text = read(rel)
-text = re.sub(
-    r'fun init\(context: Context\) \{.*?^\s*\}',
+text = replace_braced_function(
+    text,
+    "fun init(context: Context)",
     '''fun init(context: Context) {
         applicationContext = context.applicationContext
         AppStrings.init(context)
         save(context, TAG_EN)
         apply(TAG_EN)
     }''',
-    text, count=1, flags=re.S | re.M,
 )
-text = re.sub(
-    r'fun normalize\(tag: String\?\): String = when \(tag\) \{.*?^\s*\}',
-    'fun normalize(tag: String?): String = TAG_EN',
-    text, count=1, flags=re.S | re.M,
+text = replace_braced_function(
+    text,
+    "fun normalize(tag: String?): String = when (tag)",
+    "fun normalize(tag: String?): String = TAG_EN",
 )
-text = re.sub(
-    r'fun current\(context: Context\): String \{.*?^\s*\}',
-    'fun current(context: Context): String = TAG_EN',
-    text, count=1, flags=re.S | re.M,
+text = replace_braced_function(
+    text,
+    "fun current(context: Context): String",
+    "fun current(context: Context): String = TAG_EN",
 )
-text = re.sub(
-    r'fun save\(context: Context, tag: String\) \{.*?^\s*\}',
+text = replace_braced_function(
+    text,
+    "fun save(context: Context, tag: String)",
     '''fun save(context: Context, tag: String) {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit()
             .putString(KEY_APP_LANGUAGE, TAG_EN)
             .apply()
     }''',
-    text, count=1, flags=re.S | re.M,
 )
 write(rel, text)
 
-# Hide the now-useless language chooser row.
 rel = "android/app/src/main/java/com/xyq/livetranslate/MainActivity.kt"
 text = read(rel)
 needle = 'val rowLanguage = root.findViewById<View?>(R.id.rowSetLanguage)'
@@ -73,23 +106,35 @@ if needle not in text:
 text = text.replace(needle, needle + '\n        rowLanguage?.visibility = View.GONE', 1)
 write(rel, text)
 
-# ---- Greek as the default translation target ----
+# ---------------------------------------------------------------------------
+# Translation languages: Auto + EN/FR/ES/DE/RU -> Greek
+# ---------------------------------------------------------------------------
 rel = "android/app/src/main/java/com/xyq/livetranslate/TranslationPlan.kt"
 text = read(rel)
 text = text.replace('const val DEFAULT_TARGET_LANGUAGE = "zh"', 'const val DEFAULT_TARGET_LANGUAGE = "el"', 1)
-target_anchor = '        TranslationLanguage("ru", "俄语", R.string.rt_lang_ru),\n    )\n\n    fun source'
-if target_anchor not in text:
-    raise RuntimeError("TranslationLanguageCatalog target anchor missing")
-text = text.replace(
-    target_anchor,
-    '        TranslationLanguage("ru", "俄语", R.string.rt_lang_ru),\n'
-    '        TranslationLanguage("el", "希腊语", R.string.rt_lang_el),\n'
-    '    )\n\n    fun source',
-    1,
-)
+
+source_re = re.compile(r'    val sources = listOf\(.*?^    \)', re.S | re.M)
+target_re = re.compile(r'    val targets = listOf\(.*?^    \)', re.S | re.M)
+sources = '''    val sources = listOf(
+        TranslationLanguage("auto", "自动检测", R.string.rt_lang_auto),
+        TranslationLanguage("en", "英语", R.string.rt_lang_en),
+        TranslationLanguage("fr", "法语", R.string.rt_lang_fr),
+        TranslationLanguage("es", "西班牙语", R.string.rt_lang_es),
+        TranslationLanguage("de", "德语", R.string.rt_lang_de),
+        TranslationLanguage("ru", "俄语", R.string.rt_lang_ru),
+    )'''
+targets = '''    val targets = listOf(
+        TranslationLanguage("el", "希腊语", R.string.rt_lang_el),
+    )'''
+if not source_re.search(text) or not target_re.search(text):
+    raise RuntimeError("TranslationLanguageCatalog lists not found")
+text = source_re.sub(sources, text, count=1)
+text = target_re.sub(targets, text, count=1)
 write(rel, text)
 
-# ---- Speaker-turn protocol ----
+# ---------------------------------------------------------------------------
+# Speaker-turn protocol in Gemini prompt
+# ---------------------------------------------------------------------------
 rel = "android/app/src/main/java/com/xyq/livetranslate/PromptBuilder.kt"
 text = read(rel)
 text = re.sub(
@@ -106,27 +151,25 @@ text = re.sub(
         - Keep consecutive speech from the same voice in the same turn, even across several sentences.
         - Do not output speaker names or numbers. Never repeat a previously finalized subtitle.
     """.trimIndent()''',
-    text, count=1, flags=re.S,
+    text,
+    count=1,
+    flags=re.S,
 )
-text = text.replace(
-    '"输入来自视频或其他应用的连续音频；结合前后文保持字幕连贯。"',
-    '"Continuous movie/series audio. Speaker separation is mandatory: emit ¶ exactly when the acoustic speaker identity changes, and keep the same voice in one turn across pauses and sentence endings."',
-    1,
-)
+old_video = '"输入来自视频或其他应用的连续音频；结合前后文保持字幕连贯。"'
+new_video = '"Continuous movie/series audio. Speaker separation is mandatory: emit ¶ exactly when the acoustic speaker identity changes, and keep the same voice in one turn across pauses and sentence endings."'
+if old_video not in text:
+    raise RuntimeError("video mode prompt anchor missing")
+text = text.replace(old_video, new_video, 1)
 write(rel, text)
 
-# ---- Stabilizer: whole utterance per speaker, marker => new box ----
+# ---------------------------------------------------------------------------
+# Stabilizer: punctuation does not split video dialogue. A model speaker marker
+# closes the old subtitle immediately and opens a new one with "- ".
+# ---------------------------------------------------------------------------
 stabilizer = r'''package com.xyq.livetranslate
 
 import android.os.Handler
 
-/**
- * GreekLive subtitle stabilizer.
- *
- * Video mode uses an explicit speaker marker (¶) produced by the translation model.
- * A marker finalizes the previous speaker turn immediately, then begins a new box
- * prefixed with "- ". Punctuation alone never splits a video speaker turn.
- */
 class SubtitleStabilizer(
     private val handler: Handler,
     private val idleCommitMs: Long = SettingsStore.DEFAULT_STAB_IDLE_MS.toLong(),
@@ -144,11 +187,7 @@ class SubtitleStabilizer(
     private var lastCommitted = ""
 
     private val idleCommit = Runnable {
-        if (speakerTurnMode) {
-            commitSpeakerTurn()
-        } else {
-            commitLegacy(force = true)
-        }
+        if (speakerTurnMode) commitSpeakerTurn() else commitLegacy(force = true)
         render()
     }
 
@@ -179,10 +218,10 @@ class SubtitleStabilizer(
             if (leading.isNotEmpty()) appendWithOverlap(leading)
 
             for (i in 1 until parts.size) {
-                // A real speaker marker is a hard subtitle boundary.
+                // Marker means a hard speaker boundary.
                 if (current.toString().removePrefix(DIALOG_PREFIX).isNotBlank()) {
                     commitSpeakerTurn()
-                    // Publish the previous turn to history before starting the next one.
+                    // Publish the old box before opening the next one.
                     render()
                 } else {
                     current.setLength(0)
@@ -194,10 +233,8 @@ class SubtitleStabilizer(
             }
         }
 
-        // Safety limit only; normal speaker turns end by marker or silence.
-        if (current.length >= maxCurrentChars) {
-            commitSpeakerTurn()
-        }
+        // High safety limit only. Normal video turns end on a speaker marker or silence.
+        if (current.length >= maxCurrentChars) commitSpeakerTurn()
         scheduleIdle()
         render()
     }
@@ -219,7 +256,6 @@ class SubtitleStabilizer(
 
     private fun render() = onRender(lastCommitted, current.toString())
 
-    /** Overlap-merge repeated server fragment tails. */
     private fun appendWithOverlap(frag: String) {
         if (frag.isEmpty()) return
         val tail = current.toString()
@@ -240,7 +276,6 @@ class SubtitleStabilizer(
         lastCommitted = sentence
     }
 
-    /** Original punctuation-based behavior retained for microphone/live mode. */
     private fun commitLegacy(force: Boolean) {
         val text = current.toString()
         val cut = text.indexOfLast { it in TERMINATORS }
@@ -288,23 +323,25 @@ class SubtitleStabilizer(
 '''
 write("android/app/src/main/java/com/xyq/livetranslate/SubtitleStabilizer.kt", stabilizer)
 
-# CaptureService: video tuning + speaker-turn mode.
+# Video-specific stabilizer values and English service errors.
 rel = "android/app/src/main/java/com/xyq/livetranslate/CaptureService.kt"
 text = read(rel)
-text = text.replace(
-    'val idleMsSnapshot = SettingsStore.stabIdleMs(this).toLong()\n        val maxCharsSnapshot = SettingsStore.stabMaxChars(this)',
-    'val idleMsSnapshot = if (mode == StatusBus.MODE_VIDEO) 1600L else SettingsStore.stabIdleMs(this).toLong()\n'
-    '        val maxCharsSnapshot = if (mode == StatusBus.MODE_VIDEO) 220 else SettingsStore.stabMaxChars(this)',
-    1,
-)
-text = text.replace(
-    'maxCurrentChars = maxCharsSnapshot,\n        ) { confirmed, current ->',
-    'maxCurrentChars = maxCharsSnapshot,\n'
-    '            speakerTurnMode = mode == StatusBus.MODE_VIDEO,\n'
-    '        ) { confirmed, current ->',
-    1,
-)
-error_map = {
+old = '''        val idleMsSnapshot = SettingsStore.stabIdleMs(this).toLong()
+        val maxCharsSnapshot = SettingsStore.stabMaxChars(this)'''
+new = '''        val idleMsSnapshot = if (mode == StatusBus.MODE_VIDEO) 1600L else SettingsStore.stabIdleMs(this).toLong()
+        val maxCharsSnapshot = if (mode == StatusBus.MODE_VIDEO) 220 else SettingsStore.stabMaxChars(this)'''
+if old not in text:
+    raise RuntimeError("CaptureService stabilizer snapshot anchor missing")
+text = text.replace(old, new, 1)
+old = '''            maxCurrentChars = maxCharsSnapshot,
+        ) { confirmed, current ->'''
+new = '''            maxCurrentChars = maxCharsSnapshot,
+            speakerTurnMode = mode == StatusBus.MODE_VIDEO,
+        ) { confirmed, current ->'''
+if old not in text:
+    raise RuntimeError("CaptureService stabilizer constructor anchor missing")
+text = text.replace(old, new, 1)
+for old, new in {
     '"error:会话快照无效"': '"error:invalid session snapshot"',
     '"error:未配置 API Key"': '"error:API key not configured"',
     '"error:前台服务启动失败"': '"error:foreground service failed"',
@@ -315,16 +352,17 @@ error_map = {
     '"error:音频采集启动失败"': '"error:audio capture start failed"',
     '"error:音频采集已中断"': '"error:audio capture interrupted"',
     '"error:音频采集异常"': '"error:audio capture error"',
-}
-for old, new in error_map.items():
+}.items():
     text = text.replace(old, new)
 write(rel, text)
 
-# ---- Overlay: 84% width, max 3 lines, no waiting box, auto clear ----
+# ---------------------------------------------------------------------------
+# Overlay: v0.1.7-like 84% width, 3 lines, no waiting box, short auto-clear.
+# ---------------------------------------------------------------------------
 rel = "android/app/src/main/java/com/xyq/livetranslate/SubtitleOverlay.kt"
 text = read(rel)
 text = text.replace(
-    'private var controlsVisible = false',
+    "private var controlsVisible = false",
     '''private var controlsVisible = false
 
     private val clearRunnable = Runnable {
@@ -358,9 +396,10 @@ text = text.replace(
         return true''',
     1,
 )
-text = re.sub(
-    r'''    fun setLines\(confirmed: String, current: String\) \{.*?^    \}''',
-    '''    fun setLines(confirmed: String, current: String) {
+text = replace_braced_function(
+    text,
+    "fun setLines(confirmed: String, current: String)",
+    '''fun setLines(confirmed: String, current: String) {
         latestConfirmed = confirmed.trim()
         latestCurrent = current.trim()
         root?.removeCallbacks(clearRunnable)
@@ -370,11 +409,11 @@ text = re.sub(
             root?.postDelayed(clearRunnable, visibleMs)
         }
     }''',
-    text, count=1, flags=re.S | re.M,
 )
-text = re.sub(
-    r'''    private fun renderLines\(\) \{.*?^    \}''',
-    '''    private fun renderLines() {
+text = replace_braced_function(
+    text,
+    "private fun renderLines()",
+    '''private fun renderLines() {
         tvConfirmed?.visibility = View.GONE
         val displayText = when {
             latestCurrent.isNotEmpty() -> latestCurrent
@@ -395,11 +434,10 @@ text = re.sub(
             visibility = View.VISIBLE
         }
     }''',
-    text, count=1, flags=re.S | re.M,
 )
 text = text.replace(
-    '        tvCurrent?.maxLines = SettingsStore.overlayMaxLines(context)',
-    '        tvCurrent?.maxLines = 3',
+    "        tvCurrent?.maxLines = SettingsStore.overlayMaxLines(context)",
+    "        tvCurrent?.maxLines = 3",
     1,
 )
 text = text.replace(
@@ -410,20 +448,22 @@ text = text.replace(
         if (collapsed) {''',
     1,
 )
-text = re.sub(
-    r'''    fun expandedWidth\(displayWidth: Int, density: Float\): Int \{.*?^    \}''',
-    '''    fun expandedWidth(displayWidth: Int, density: Float): Int {
+text = replace_braced_function(
+    text,
+    "fun expandedWidth(displayWidth: Int, density: Float): Int",
+    '''fun expandedWidth(displayWidth: Int, density: Float): Int {
         val margin = (24 * density).roundToInt()
         val available = (displayWidth - margin).coerceAtLeast(1)
         val preferred = (displayWidth * 0.84f).roundToInt()
         val minimum = minOf((240 * density).roundToInt(), available)
         return minOf(preferred, available).coerceAtLeast(minimum)
     }''',
-    text, count=1, flags=re.S | re.M,
 )
 write(rel, text)
 
-# ---- Disable upstream auto-update by default ----
+# ---------------------------------------------------------------------------
+# App defaults and strings
+# ---------------------------------------------------------------------------
 rel = "android/app/src/main/java/com/xyq/livetranslate/SettingsStore.kt"
 text = read(rel).replace(
     'prefs(c).getBoolean("autoCheckUpdate", true)',
@@ -432,8 +472,7 @@ text = read(rel).replace(
 )
 write(rel, text)
 
-# ---- Strings: brand, Greek label, media-focused copy ----
-def patch_strings(rel, updates, add_el=True):
+def patch_strings(rel: str, updates: dict[str, str]) -> None:
     p = repo / rel
     tree = ET.parse(p)
     root = tree.getroot()
@@ -442,7 +481,7 @@ def patch_strings(rel, updates, add_el=True):
         if name not in by_name:
             raise RuntimeError(f"missing string {name} in {rel}")
         by_name[name].text = value
-    if add_el and "rt_lang_el" not in by_name:
+    if "rt_lang_el" not in by_name:
         el = ET.Element("string", {"name": "rt_lang_el"})
         el.text = "Greek / Ελληνικά"
         root.append(el)
@@ -473,7 +512,6 @@ patch_strings(
     {"app_name": "GreekLive Subtitles"},
 )
 
-# Scene labels/instructions may live in the same resources. Patch when present.
 for rel in [
     "android/app/src/main/res/values-en/strings.xml",
     "android/app/src/main/res/values/strings.xml",
@@ -487,18 +525,25 @@ for rel in [
     if "rt_scene_general_video_instruction" in by_name:
         by_name["rt_scene_general_video_instruction"].text = (
             "For films and series. Translate dialogue naturally into modern Greek. "
-            "Preserve names and terminology. Keep one acoustic speaker turn together; "
-            "speaker changes are handled by the system speaker-turn marker."
+            "Keep one acoustic speaker turn together; speaker changes are hard subtitle boundaries."
         )
     ET.indent(tree, space="    ")
     tree.write(p, encoding="utf-8", xml_declaration=True)
 
-# ---- Static sanity checks before Gradle ----
-assert 'applicationId = "com.greeklive.subtitles"' in read("android/app/build.gradle.kts")
-assert 'versionName = "0.1.10"' in read("android/app/build.gradle.kts")
-assert 'DEFAULT_TARGET_LANGUAGE = "el"' in read("android/app/src/main/java/com/xyq/livetranslate/TranslationPlan.kt")
-assert 'TranslationLanguage("el"' in read("android/app/src/main/java/com/xyq/livetranslate/TranslationPlan.kt")
-assert 'speakerTurnMode = mode == StatusBus.MODE_VIDEO' in read("android/app/src/main/java/com/xyq/livetranslate/CaptureService.kt")
-assert 'displayWidth * 0.84f' in read("android/app/src/main/java/com/xyq/livetranslate/SubtitleOverlay.kt")
-assert 'SPEAKER_MARKER' in read("android/app/src/main/java/com/xyq/livetranslate/SubtitleStabilizer.kt")
+# ---------------------------------------------------------------------------
+# Pre-build source sanity checks
+# ---------------------------------------------------------------------------
+checks = {
+    "application id": 'applicationId = "com.greeklive.subtitles"' in read("android/app/build.gradle.kts"),
+    "version": 'versionName = "0.1.10"' in read("android/app/build.gradle.kts"),
+    "explicit application class": 'android:name="com.xyq.livetranslate.LiveTranslateApp"' in read("android/app/src/main/AndroidManifest.xml"),
+    "Greek default": 'DEFAULT_TARGET_LANGUAGE = "el"' in read("android/app/src/main/java/com/xyq/livetranslate/TranslationPlan.kt"),
+    "Greek target": 'TranslationLanguage("el"' in read("android/app/src/main/java/com/xyq/livetranslate/TranslationPlan.kt"),
+    "speaker mode wired": 'speakerTurnMode = mode == StatusBus.MODE_VIDEO' in read("android/app/src/main/java/com/xyq/livetranslate/CaptureService.kt"),
+    "84 percent width": 'displayWidth * 0.84f' in read("android/app/src/main/java/com/xyq/livetranslate/SubtitleOverlay.kt"),
+    "marker logic": "SPEAKER_MARKER" in read("android/app/src/main/java/com/xyq/livetranslate/SubtitleStabilizer.kt"),
+}
+for label, ok in checks.items():
+    if not ok:
+        raise RuntimeError(f"sanity check failed: {label}")
 print("GreekLive v0.1.10 source patch complete")
