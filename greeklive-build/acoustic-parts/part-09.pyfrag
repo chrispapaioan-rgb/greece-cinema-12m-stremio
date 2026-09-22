@@ -1,0 +1,100 @@
+
+# --- Default subtitle overlay placement: bottom of the screen, with safe bottom margin.
+overlay = pkg / 'SubtitleOverlay.kt'
+s = overlay.read_text()
+
+s = one(
+    s,
+    '''            gravity = Gravity.TOP or Gravity.START
+            x = dp(12)
+            y = dp(120)
+''',
+    '''            gravity = Gravity.TOP or Gravity.START
+            x = dp(12)
+            // Temporary value until the view is measured; immediately repositioned to bottom.
+            y = 0
+''',
+    'initial overlay coordinates',
+)
+
+s = one(
+    s,
+    '''        applyStyleNow()
+        setControlsVisible(true)
+''',
+    '''        applyStyleNow()
+        setControlsVisible(true)
+
+        // Default placement is near the bottom edge, not the screen center. We wait until the
+        // overlay is measured so the full 1-3 line subtitle block stays visible above navigation.
+        shell.post {
+            if (root !== shell || lp !== params || collapsed) return@post
+            val measuredHeight = shell.height.takeIf { it > 0 } ?: dp(72)
+            params.y = SubtitleOverlayGeometry.defaultBottomY(
+                displayHeight = dm.heightPixels,
+                windowHeight = measuredHeight,
+                bottomMargin = dp(56),
+            )
+            expandedY = params.y
+            runCatching { wm.updateViewLayout(shell, params) }
+        }
+''',
+    'bottom placement post',
+)
+
+# Add a deterministic geometry helper so placement is testable and clamped on small displays.
+s = one(
+    s,
+    '''    fun clampedY(displayHeight: Int, windowHeight: Int, requestedY: Int): Int =
+        requestedY.coerceIn(0, (displayHeight - windowHeight).coerceAtLeast(0))
+}
+''',
+    '''    fun clampedY(displayHeight: Int, windowHeight: Int, requestedY: Int): Int =
+        requestedY.coerceIn(0, (displayHeight - windowHeight).coerceAtLeast(0))
+
+    fun defaultBottomY(displayHeight: Int, windowHeight: Int, bottomMargin: Int): Int =
+        (displayHeight - windowHeight - bottomMargin)
+            .coerceIn(0, (displayHeight - windowHeight).coerceAtLeast(0))
+}
+''',
+    'bottom geometry helper',
+)
+
+overlay.write_text(s, encoding='utf-8')
+
+# Geometry regression tests: default is lower than center and always fully on-screen.
+test = app / 'src/test/java/com/xyq/livetranslate/SubtitleOverlayBottomPlacementTest.kt'
+test.write_text(r'''package com.xyq.livetranslate
+
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Test
+
+class SubtitleOverlayBottomPlacementTest {
+    @Test
+    fun defaultPlacementIsNearBottomNotCenter() {
+        val y = SubtitleOverlayGeometry.defaultBottomY(
+            displayHeight = 2400,
+            windowHeight = 240,
+            bottomMargin = 120,
+        )
+        assertEquals(2040, y)
+        assertTrue(y > 1200)
+    }
+
+    @Test
+    fun defaultPlacementNeverFallsOffSmallScreen() {
+        val y = SubtitleOverlayGeometry.defaultBottomY(
+            displayHeight = 480,
+            windowHeight = 460,
+            bottomMargin = 120,
+        )
+        assertEquals(0, y)
+    }
+}
+''', encoding='utf-8')
+
+final_overlay = overlay.read_text()
+if 'SubtitleOverlayGeometry.defaultBottomY' not in final_overlay:
+    die('bottom subtitle placement not wired')
+print('GreekLive bottom subtitle placement refinement complete')
