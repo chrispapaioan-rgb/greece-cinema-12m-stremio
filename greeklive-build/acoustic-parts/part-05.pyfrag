@@ -1,0 +1,122 @@
+                if (w != null && w.send(msg)) {
+                    when (item) {
+                        is Outbound.Audio -> {
+                            synchronized(sentRing) {
+                                sentRing.addLast(item.bytes)
+                                while (sentRing.size > OVERLAP_CHUNKS) sentRing.removeFirst()
+                            }
+                            StatusBus.chunksSent.incrementAndGet()
+                        }
+                        is Outbound.ActivityEnd -> sentTurnEnds.offer(item.turnId)
+                        is Outbound.ActivityStart -> Unit
+                    }
+                } else {
+                    queue.offerFirst(item)
+                    Thread.sleep(120)
+                }
+            } catch (_: InterruptedException) {
+                return
+            } catch (e: Exception) {
+                Log.w(TAG, "sender error: ${e.message}")
+            }
+        }
+    }
+}'''
+s=sub1(s,r'    private fun senderLoop\(\) \{.*?\n    \}\n\}',sender,'Gemini sender loop')
+g.write_text(s)
+
+# --- CaptureService: acoustic diarization only for Media mode; Mic/Live stays on the known-good path.
+c = pkg / 'CaptureService.kt'
+s=c.read_text()
+s=one(s,'    private var stabilizer: SubtitleStabilizer? = null\n','    private var stabilizer: SubtitleStabilizer? = null\n    private var speakerGate: SpeakerTurnGate? = null\n    private var boundaryCoordinator: TurnBoundaryCoordinator? = null\n','Capture fields')
+marker='        val c = GeminiLiveClient(\n'
+setup='''        val speakerEngine: SpeakerEmbeddingEngine? = if (mode == StatusBus.MODE_VIDEO) {
+            runCatching { SherpaSpeakerEmbeddingEngine(applicationContext) }
+                .onFailure { Log.w(TAG, "speaker embeddings unavailable: ${it.message}") }
+                .getOrNull()
+        } else null
+
+        val speechEngine: SpeechActivityEngine? = if (speakerEngine != null) {
+            runCatching { SherpaSpeechActivityEngine(applicationContext) }
+                .onFailure { Log.w(TAG, "Silero VAD unavailable; using RMS fallback: ${it.message}") }
+                .getOrNull() ?: RmsSpeechActivityEngine()
+        } else null
+        val acousticGateEnabled = mode == StatusBus.MODE_VIDEO && speakerEngine != null && speechEngine != null
+
+        boundaryCoordinator = if (acousticGateEnabled) TurnBoundaryCoordinator { speakerId ->
+            Log.d(TAG, "subtitle speaker boundary ready -> $speakerId")
+            mainHandler.post { stabilizer?.onSpeakerBoundary() }
+        } else null
+
+'''
+s=one(s,marker,setup+marker,'Capture engine setup')
+s=one(s,
+'''            rotateAfterMs = rotateMsSnapshot,
+            listener = object : GeminiLiveClient.Listener {
+''',
+'''            rotateAfterMs = rotateMsSnapshot,
+            manualActivityDetection = acousticGateEnabled,
+            listener = object : GeminiLiveClient.Listener {
+''','Capture manual activity flag')
+out='''                override fun onOutputText(text: String) {
+                    logger?.logZh(text)
+                    mainHandler.post { stabilizer?.onFragment(text) }
+                }
+
+'''
+s=one(s,out,out+'''                override fun onTurnComplete(turnId: Long?) {
+                    boundaryCoordinator?.onTurnComplete(turnId)
+                }
+
+''','Capture turn callback')
+pcm='''        val processor = PcmProcessor(
+            record.sampleRate,
+            record.channelCount,
+        ) { chunk -> c.feedChunk(chunk) }
+'''
+gate='''        speakerGate = if (acousticGateEnabled) {
+            SpeakerTurnGate(
+                embeddingEngine = speakerEngine!!,
+                speechActivityEngine = speechEngine!!,
+                onAudio = c::feedChunk,
+                onActivityStart = c::activityStart,
+                onActivityEnd = c::activityEnd,
+                onSpeakerBoundary = { speakerId, afterTurnId ->
+                    Log.d(TAG, "speaker boundary -> $speakerId afterTurn=$afterTurnId")
+                    boundaryCoordinator?.onSpeakerBoundary(speakerId, afterTurnId)
+                },
+            )
+        } else null
+
+        val processor = PcmProcessor(
+            record.sampleRate,
+            record.channelCount,
+        ) { chunk -> speakerGate?.feed(chunk) ?: c.feedChunk(chunk) }
+'''
+s=one(s,pcm,gate,'Capture PCM route')
+s=one(s,
+'''        client?.stop()
+        client = null
+''',
+'''        speakerGate?.close()
+        speakerGate = null
+        boundaryCoordinator?.reset()
+        boundaryCoordinator = null
+        client?.stop()
+        client = null
+''','Capture shutdown')
+c.write_text(s)
+
+# Source-level gates for the exact requested behavior.
+checks = {
+    'sherpa dependency': dep in gradle.read_text(),
+    'speaker gate': 'SpeakerTurnGate(' in c.read_text(),
+    'manual activity': 'manualActivityDetection = acousticGateEnabled' in c.read_text(),
+    'hard boundary': 'stabilizer?.onSpeakerBoundary()' in c.read_text(),
+    'first dash': 'prefixNextUtterance = true' in (pkg/'SubtitleStabilizer.kt').read_text(),
+    '3-line overlay preserved by base v10': 'maxLines = 3' in (pkg/'SubtitleOverlay.kt').read_text(),
+    'no Gemini marker responsibility': 'Speaker boundaries are detected acoustically by the client' in prompt.read_text(),
+}
+for label, ok in checks.items():
+    if not ok: die('sanity check failed: '+label)
+print('GreekLive v0.1.10 acoustic speaker-turn patch complete')
