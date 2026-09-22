@@ -113,8 +113,16 @@ rel = "android/app/src/main/java/com/xyq/livetranslate/TranslationPlan.kt"
 text = read(rel)
 text = text.replace('const val DEFAULT_TARGET_LANGUAGE = "zh"', 'const val DEFAULT_TARGET_LANGUAGE = "el"', 1)
 
-source_re = re.compile(r'    val sources = listOf\(.*?^    \)', re.S | re.M)
-target_re = re.compile(r'    val targets = listOf\(.*?^    \)', re.S | re.M)
+def replace_list_block(text: str, marker: str, replacement: str) -> str:
+    start = text.find(marker)
+    if start < 0:
+        raise RuntimeError(f"list marker not found: {marker}")
+    end = text.find("\n    )", start)
+    if end < 0:
+        raise RuntimeError(f"list end not found: {marker}")
+    end += len("\n    )")
+    return text[:start] + replacement + text[end:]
+
 sources = '''    val sources = listOf(
         TranslationLanguage("auto", "自动检测", R.string.rt_lang_auto),
         TranslationLanguage("en", "英语", R.string.rt_lang_en),
@@ -126,10 +134,8 @@ sources = '''    val sources = listOf(
 targets = '''    val targets = listOf(
         TranslationLanguage("el", "希腊语", R.string.rt_lang_el),
     )'''
-if not source_re.search(text) or not target_re.search(text):
-    raise RuntimeError("TranslationLanguageCatalog lists not found")
-text = source_re.sub(sources, text, count=1)
-text = target_re.sub(targets, text, count=1)
+text = replace_list_block(text, "    val sources = listOf(", sources)
+text = replace_list_block(text, "    val targets = listOf(", targets)
 write(rel, text)
 
 # ---------------------------------------------------------------------------
