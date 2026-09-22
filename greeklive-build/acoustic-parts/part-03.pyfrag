@@ -1,0 +1,139 @@
+if (first.seq > maxSeqInclusive) break\n            pending.removeFirst()\n            ensureOutboundActivityStart()\n            onAudio(first.bytes)\n        }\n    }\n\n    private fun trimPreRoll() {\n        while (preRoll.size > config.preRollChunks) preRoll.removeFirst()\n    }\n\n    private fun flushAllAndEnd() {\n        while (pending.isNotEmpty()) {\n            val c = pending.removeFirst()\n            ensureOutboundActivityStart()\n            onAudio(c.bytes)\n        }\n        closeOutboundActivityIfNeeded()\n        activityOpen = false\n        preRoll.clear()\n    }\n\n    override fun close() {\n        if (!running.compareAndSet(true, false)) return\n        worker.interrupt()\n        runCatching { worker.join(3000) }\n        runCatching { embeddingEngine.close() }\n        runCatching { speechActivityEngine.close() }\n    }\n\n    private fun ArrayDeque<Chunk>.takeLastSpeech(n: Int): List<Chunk> {\n        if (n <= 0) return emptyList()\n        val out = ArrayList<Chunk>(n)\n        val it = descendingIterator()\n        while (it.hasNext() && out.size < n) {\n            val c = it.next()\n            if (c.speech) out.add(c)\n        }\n        out.reverse()\n        return out\n    }\n}\n'
+SOURCES['TurnBoundaryCoordinator.kt'] = 'package com.xyq.livetranslate\n\nimport java.util.ArrayDeque\n\n/**\n * Correlates acoustic speaker boundaries with the specific Gemini manual-VAD turn that must have\n * finished producing output before the subtitle box may be cleared.\n *\n * This solves both arrival orders:\n * 1) acoustic boundary first -> wait for matching turnComplete\n * 2) turnComplete first -> apply the later acoustic boundary immediately\n */\nclass TurnBoundaryCoordinator(\n    private val onReadyBoundary: (speakerId: String) -> Unit,\n) {\n    private data class Pending(val speakerId: String, val afterTurnId: Long)\n\n    private val lock = Any()\n    private val pending = ArrayDeque<Pending>()\n    private var highestCompletedTurnId = 0L\n\n    fun onSpeakerBoundary(speakerId: String, afterTurnId: Long?) {\n        val ready = synchronized(lock) {\n            when {\n                afterTurnId == null || afterTurnId <= 0L -> listOf(speakerId)\n                afterTurnId <= highestCompletedTurnId -> listOf(speakerId)\n                else -> {\n                    pending.addLast(Pending(speakerId, afterTurnId))\n                    emptyList()\n                }\n            }\n        }\n        ready.forEach(onReadyBoundary)\n    }\n\n    fun onTurnComplete(turnId: Long?) {\n        if (turnId == null || turnId <= 0L) return\n        val ready = ArrayList<String>()\n        synchronized(lock) {\n            if (turnId > highestCompletedTurnId) highestCompletedTurnId = turnId\n            val it = pending.iterator()\n            while (it.hasNext()) {\n                val item = it.next()\n                if (item.afterTurnId <= highestCompletedTurnId) {\n                    ready += item.speakerId\n                    it.remove()\n                }\n            }\n        }\n        ready.forEach(onReadyBoundary)\n    }\n\n    fun reset() {\n        synchronized(lock) {\n            pending.clear()\n            highestCompletedTurnId = 0L\n        }\n    }\n}\n'
+
+# Purpose-built stabilizer for the requested UX:
+# - first/new utterance starts with '- '
+# - punctuation does NOT split a speaker turn
+# - speaker change is a hard box boundary
+# - same speaker may span several sentences in one box
+# - long silence finalizes the utterance, and the next utterance gets a fresh dash
+SOURCES['SubtitleStabilizer.kt'] = r'''package com.xyq.livetranslate
+
+import android.os.Handler
+
+class SubtitleStabilizer(
+    private val handler: Handler,
+    private val idleCommitMs: Long = SettingsStore.DEFAULT_STAB_IDLE_MS.toLong(),
+    private val maxCurrentChars: Int = SettingsStore.DEFAULT_STAB_MAX_CHARS,
+    private val speakerTurnMode: Boolean = false,
+    private val onRender: (confirmed: String, current: String) -> Unit,
+) {
+    companion object {
+        private const val LEGACY_SPEAKER_MARKER = '¶'
+        private const val DIALOG_PREFIX = "- "
+    }
+
+    private val current = StringBuilder()
+    private var lastCommitted = ""
+    private var prefixNextUtterance = true
+
+    private val idleCommit = Runnable {
+        if (speakerTurnMode) {
+            finalizeActiveUtterance()
+            prefixNextUtterance = true
+        } else {
+            finalizeActiveUtterance()
+        }
+        render()
+    }
+
+    fun onFragment(text: String) {
+        if (text.isEmpty()) return
+        if (speakerTurnMode && text.indexOf(LEGACY_SPEAKER_MARKER) >= 0) {
+            // Safety fallback only. The production path uses acoustic onSpeakerBoundary().
+            val parts = text.split(LEGACY_SPEAKER_MARKER)
+            parts.forEachIndexed { index, part ->
+                if (index > 0) onSpeakerBoundary()
+                if (part.isNotBlank()) ingest(part)
+            }
+            return
+        }
+        ingest(text)
+    }
+
+    /** Hard boundary from the local acoustic speaker detector. */
+    fun onSpeakerBoundary() {
+        handler.removeCallbacks(idleCommit)
+        finalizeActiveUtterance()
+        render()                 // publish old box once, even without punctuation
+        current.setLength(0)
+        lastCommitted = ""
+        prefixNextUtterance = true
+        onRender("", "")       // close old box before the new speaker begins
+    }
+
+    fun reset() {
+        handler.removeCallbacks(idleCommit)
+        current.setLength(0)
+        lastCommitted = ""
+        prefixNextUtterance = true
+    }
+
+    private fun ingest(raw: String) {
+        var text = cleanLeadingDash(raw)
+        if (text.isBlank()) return
+        if (prefixNextUtterance) {
+            text = DIALOG_PREFIX + text.trimStart()
+            prefixNextUtterance = false
+        }
+        appendWithOverlap(text)
+
+        // Only a capacity safety split; punctuation never splits a dialogue turn.
+        if (current.length >= maxCurrentChars) {
+            finalizeActiveUtterance()
+            render()
+            prefixNextUtterance = true
+            return
+        }
+
+        handler.removeCallbacks(idleCommit)
+        handler.postDelayed(idleCommit, idleCommitMs)
+        render()
+    }
+
+    private fun cleanLeadingDash(value: String): String {
+        var s = value.trimStart()
+        while (s.startsWith("-") || s.startsWith("—") || s.startsWith("–")) {
+            s = s.drop(1).trimStart()
+        }
+        return s
+    }
+
+    private fun finalizeActiveUtterance() {
+        val sentence = current.toString().trim()
+        current.setLength(0)
+        if (sentence.isEmpty() || sentence == DIALOG_PREFIX.trim()) return
+        if (sentence == lastCommitted || lastCommitted.contains(sentence)) return
+        lastCommitted = sentence
+    }
+
+    private fun render() = onRender(lastCommitted, current.toString())
+
+    private fun appendWithOverlap(fragment: String) {
+        if (fragment.isEmpty()) return
+        val tail = current.toString()
+        var k = minOf(tail.length, fragment.length)
+        while (k > 0) {
+            if (tail.regionMatches(tail.length - k, fragment, 0, k)) break
+            k--
+        }
+        if (k < 2) k = 0
+        current.append(fragment, k, fragment.length)
+    }
+}
+'''
+
+for name,text in SOURCES.items():
+    (pkg/name).write_text(text, encoding='utf-8')
+
+# --- Remove the old prompt-based speaker-marker responsibility. Gemini translates; local
+#     acoustics decides speaker boundaries.
+prompt = pkg / 'PromptBuilder.kt'
+s=prompt.read_text()
+s = sub1(
+    s,
+    r'private val baseInstruction = """.*?"""\.trimIndent\(\)',
+    '''private val baseInstruction = """
+        You are a real-time speech translation engine.
+        - Translate faithfully. Do not answer, explain, summarize, continue, or invent.
+        - Output only the target-language translation; do not add speaker names, labels, markers, or prefaces.
