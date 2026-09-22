@@ -1,0 +1,213 @@
+
+# --- MediaProjection consent reliability:
+# Every explicit Media-mode Start must create a fresh system projection request. Never reuse a
+# previous/cancelled request snapshot as an implicit grant. This keeps Android's "Choose what to
+# share" dialog in the loop on every new Media translation session.
+session = pkg / 'ui/SessionCoordinator.kt'
+s = session.read_text()
+
+# A cancelled share request is consumed. The next Start is therefore always a completely fresh
+# session request built from current UI/store state.
+s = one(
+    s,
+    '''        if (resultCode != Activity.RESULT_OK || data == null) {
+            pendingSnapshot = snapshot.copy(stage = PendingSessionStage.READY)
+            host.toast(context.getString(R.string.rt_toast_projection_permission_denied))
+            return
+        }
+''',
+    '''        if (resultCode != Activity.RESULT_OK || data == null) {
+            pendingSnapshot = null
+            host.toast(context.getString(R.string.rt_toast_projection_permission_denied))
+            return
+        }
+''',
+    'projection cancel must not keep reusable request',
+)
+
+# Video starts deliberately drop any stale pending projection state before preparing a new immutable
+# snapshot. Permission/overlay continuations remain intact because they re-enter continueStart()
+# directly and do not call startCapture().
+s = one(
+    s,
+    '''    private fun startCapture(captureMode: String) {
+        if (!isCaptureMode(captureMode)) return
+        val reusable = pendingSnapshot?.takeIf {
+''',
+    '''    private fun startCapture(captureMode: String) {
+        if (!isCaptureMode(captureMode)) return
+
+        // MediaProjection consent is per explicit Start action. A previous projection result,
+        // cancellation, or stale pending state must never suppress the Android share picker.
+        if (captureMode == StatusBus.MODE_VIDEO) {
+            pendingSnapshot = null
+        }
+
+        val reusable = pendingSnapshot?.takeIf {
+''',
+    'fresh media start state',
+)
+
+# Centralize the actual system picker launch and create a brand-new Intent object every time.
+s = one(
+    s,
+    '''            pendingSnapshot = ready.copy(stage = PendingSessionStage.WAITING_PROJECTION)
+            val projectionManager = context.getSystemService(MediaProjectionManager::class.java)
+            host.launchProjection(projectionManager.createScreenCaptureIntent())
+            return
+''',
+    '''            launchFreshProjectionRequest(ready)
+            return
+''',
+    'fresh projection launch call',
+)
+
+insert_before = '''    /** onResume：悬浮窗权限返回后自动续跑。 */
+'''
+fresh_fun = '''    private fun launchFreshProjectionRequest(snapshot: PendingSessionSnapshot) {
+        pendingSnapshot = snapshot.copy(stage = PendingSessionStage.WAITING_PROJECTION)
+        val projectionManager = context.getSystemService(MediaProjectionManager::class.java)
+
+        // createScreenCaptureIntent() must be called for every new capture session. Do not cache
+        // either this Intent or the result data. Android 14+ also treats a MediaProjection grant
+        // as single-use, which matches this explicit re-consent flow.
+        val request = projectionManager.createScreenCaptureIntent()
+        host.launchProjection(request)
+    }
+
+'''
+s = one(s, insert_before, fresh_fun + insert_before, 'projection helper insertion')
+session.write_text(s, encoding='utf-8')
+
+# Regression test: two separate Media Start actions must result in two separate projection launches.
+test = app / 'src/test/java/com/xyq/livetranslate/ui/SessionCoordinatorProjectionRepeatTest.kt'
+test.write_text(r'''package com.xyq.livetranslate.ui
+
+import android.Manifest
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
+import androidx.test.core.app.ApplicationProvider
+import com.xyq.livetranslate.CaptureService
+import com.xyq.livetranslate.SessionPromptContext
+import com.xyq.livetranslate.StatusBus
+import com.xyq.livetranslate.TranslationMode
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
+
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [34], application = android.app.Application::class)
+class SessionCoordinatorProjectionRepeatTest {
+    private val context = ApplicationProvider.getApplicationContext<Context>()
+
+    @After
+    fun resetStatus() {
+        StatusBus.serviceRunning = false
+        StatusBus.captureMode = ""
+        StatusBus.reset()
+    }
+
+    @Test
+    fun everyNewMediaStartLaunchesSystemProjectionPickerAgain() {
+        val host = Host().apply {
+            granted += Manifest.permission.RECORD_AUDIO
+            overlayAllowed = true
+        }
+        val coordinator = SessionCoordinator(
+            context = context,
+            persistDraftInputs = {},
+            sessionContextAccess = object : SessionContextAccess {
+                override fun current(mode: TranslationMode) = SessionPromptContext()
+            },
+            host = host,
+        )
+        val snap = PendingSessionSnapshot(
+            captureMode = StatusBus.MODE_VIDEO,
+            prompt = "translate",
+            sourceLanguageCode = "auto",
+            targetLanguageCode = "el",
+            scenePresetId = "general_video",
+            sceneLabel = "Movies & Series",
+            sessionTitle = "Media",
+            sessionContext = "",
+        )
+
+        coordinator.beginPreparedSessionForTest(snap)
+        assertEquals(1, host.projectionLaunches.size)
+
+        coordinator.onProjectionResult(Activity.RESULT_OK, Intent("projection-one"))
+        assertEquals(1, host.startedForegroundServices.size)
+        assertNull(coordinator.pendingSnapshotForTest())
+
+        // Simulate the first Media session having stopped. A new explicit Start must request
+        // consent again instead of relying on the first projection result.
+        StatusBus.serviceRunning = false
+        StatusBus.captureMode = ""
+
+        coordinator.beginPreparedSessionForTest(snap)
+        assertEquals(2, host.projectionLaunches.size)
+    }
+
+    @Test
+    fun cancelledPickerIsNotReusedOnNextStart() {
+        val host = Host().apply {
+            granted += Manifest.permission.RECORD_AUDIO
+            overlayAllowed = true
+        }
+        val coordinator = SessionCoordinator(
+            context = context,
+            persistDraftInputs = {},
+            sessionContextAccess = object : SessionContextAccess {
+                override fun current(mode: TranslationMode) = SessionPromptContext()
+            },
+            host = host,
+        )
+        val snap = PendingSessionSnapshot(
+            captureMode = StatusBus.MODE_VIDEO,
+            prompt = "translate",
+            sourceLanguageCode = "auto",
+            targetLanguageCode = "el",
+            scenePresetId = "general_video",
+            sceneLabel = "Movies & Series",
+            sessionTitle = "Media",
+            sessionContext = "",
+        )
+
+        coordinator.beginPreparedSessionForTest(snap)
+        coordinator.onProjectionResult(Activity.RESULT_CANCELED, null)
+        assertNull(coordinator.pendingSnapshotForTest())
+
+        coordinator.beginPreparedSessionForTest(snap)
+        assertEquals(2, host.projectionLaunches.size)
+    }
+
+    private class Host : SessionHost {
+        val granted = mutableSetOf<String>()
+        val projectionLaunches = mutableListOf<Intent>()
+        val startedForegroundServices = mutableListOf<Intent>()
+        var overlayAllowed = false
+
+        override fun checkPermission(permission: String) = permission in granted
+        override fun requestPermissions(permissions: Array<String>) = Unit
+        override fun canDrawOverlays() = overlayAllowed
+        override fun openOverlaySettings() = Unit
+        override fun launchProjection(intent: Intent) { projectionLaunches += intent }
+        override fun startForegroundService(intent: Intent) { startedForegroundServices += intent }
+        override fun startService(intent: Intent) = Unit
+        override fun openTranslationSettings() = Unit
+        override fun toast(message: String) = Unit
+    }
+}
+''', encoding='utf-8')
+
+final_session = session.read_text()
+if 'launchFreshProjectionRequest(ready)' not in final_session:
+    die('fresh projection flow not wired')
+if 'pendingSnapshot = null' not in final_session:
+    die('projection cancellation is still reusable')
+print('GreekLive fresh MediaProjection consent refinement complete')
