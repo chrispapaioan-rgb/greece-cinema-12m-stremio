@@ -18,17 +18,16 @@ s = one(
 )
 
 # Use current WindowManager metrics instead of a resource width captured while the launcher UI was portrait.
-s = one(
-    s,
-    '''        val dm = context.resources.displayMetrics
+old_initial_width = '''        val dm = context.resources.displayMetrics
         expandedWidth = SubtitleOverlayGeometry.expandedWidth(dm.widthPixels, density)
-''',
-    '''        val dm = context.resources.displayMetrics
+'''
+new_initial_width = '''        val dm = context.resources.displayMetrics
         val initialDisplay = currentDisplaySize()
         expandedWidth = SubtitleOverlayGeometry.expandedWidth(initialDisplay.first, density)
-''',
-    'overlay initial display width',
-)
+'''
+if old_initial_width not in s:
+    die('overlay initial display width anchor missing')
+s = s.replace(old_initial_width, new_initial_width, 1)
 
 # The part-09 post block is replaced by a single measured/default placement function.
 old_post = '''        // Default placement is near the bottom edge, not the screen center. We wait until the
