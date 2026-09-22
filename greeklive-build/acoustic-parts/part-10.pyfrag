@@ -48,16 +48,6 @@ set_string_file(values_en, {
 })
 (app / 'src/main/res/values/strings.xml').write_text(values_en.read_text(encoding='utf-8'), encoding='utf-8')
 
-# Make the in-app locale helper impossible to fall back to the Chinese tag.
-locale = pkg / 'AppLocale.kt'
-s = locale.read_text()
-s = s.replace(
-    'const val TAG_ZH_HANS = "zh-Hans"',
-    'const val TAG_ZH_HANS = "en" // legacy constant retained for source compatibility',
-    1,
-)
-locale.write_text(s, encoding='utf-8')
-
 # The overlay settings action now presents an explicit GRANT dialog. This same function is used
 # both by the Media permission banner and the Start flow, so users always see a clear action.
 main = pkg / 'MainActivity.kt'
