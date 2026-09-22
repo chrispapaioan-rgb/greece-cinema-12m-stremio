@@ -1,0 +1,39 @@
+#!/usr/bin/env python3
+from pathlib import Path
+import re, sys
+
+root = Path(sys.argv[1]).resolve()
+app = root / 'android/app'
+pkg = app / 'src/main/java/com/xyq/livetranslate'
+
+def die(msg):
+    raise SystemExit('ERROR: ' + msg)
+
+def one(s, old, new, label):
+    n=s.count(old)
+    if n != 1:
+        die(f'{label}: expected one anchor, found {n}')
+    return s.replace(old,new,1)
+
+def sub1(s, pat, repl, label):
+    out,n=re.subn(pat, lambda _m: repl, s, count=1, flags=re.S)
+    if n != 1:
+        die(f'{label}: expected one regex match, found {n}')
+    return out
+
+# --- Add sherpa AAR dependency without changing the known-good v0.1.10 package/signing setup.
+gradle = app / 'build.gradle.kts'
+s=gradle.read_text()
+dep='implementation(files("libs/sherpa-onnx-1.13.8.aar"))'
+if dep not in s:
+    s=one(s,'dependencies {\n','dependencies {\n    '+dep+'\n','sherpa dependency')
+gradle.write_text(s)
+
+# --- Acoustic subsystem source files (from validated v10), tuned to preserve the existing
+#     100 ms PCM transport of the POCO-tested v0.1.10 build.
+SOURCES = {}
+SOURCES['Pcm16.kt'] = 'package com.xyq.livetranslate\n\nimport kotlin.math.sqrt\n\nobject Pcm16 {\n    fun toFloat(chunk: ByteArray): FloatArray {\n        val out = FloatArray(chunk.size / 2)\n        var o = 0\n        var i = 0\n        while (i + 1 < chunk.size) {\n            val lo = chunk[i].toInt() and 0xff\n            val hi = chunk[i + 1].toInt()\n            val s = ((hi shl 8) or lo).toShort().toInt()\n            out[o++] = s / 32768.0f\n            i += 2\n        }\n        return if (o == out.size) out else out.copyOf(o)\n    }\n\n    fun joinToFloat(chunks: List<ByteArray>): FloatArray {\n        var n = 0\n        for (c in chunks) n += c.size / 2\n        val out = FloatArray(n)\n        var o = 0\n        for (c in chunks) {\n            val f = toFloat(c)\n            System.arraycopy(f, 0, out, o, f.size)\n            o += f.size\n        }\n        return out\n    }\n\n    fun rms(chunk: ByteArray): Float {\n        if (chunk.size < 2) return 0f\n        var sum = 0.0\n        var n = 0\n        var i = 0\n        while (i + 1 < chunk.size) {\n            val lo = chunk[i].toInt() and 0xff\n            val hi = chunk[i + 1].toInt()\n            val s = ((hi shl 8) or lo).toShort().toInt() / 32768.0\n            sum += s * s\n            n++\n            i += 2\n        }\n        return if (n == 0) 0f else sqrt(sum / n).toFloat()\n    }\n}\n'
+SOURCES['SpeechActivityEngine.kt'] = 'package com.xyq.livetranslate\n\n/**\n * Stateful speech/non-speech detector for PCM16 LE, mono, 16 kHz audio.\n */\ninterface SpeechActivityEngine : AutoCloseable {\n    fun isSpeech(chunk: ByteArray): Boolean\n    fun reset() {}\n    override fun close() {}\n}\n\n/**\n * Safe fallback when neural VAD cannot be initialized. This is deliberately conservative;\n * the preferred production path is SherpaSpeechActivityEngine.\n */\nclass RmsSpeechActivityEngine(\n    private val threshold: Float = 0.0045f,\n) : SpeechActivityEngine {\n    override fun isSpeech(chunk: ByteArray): Boolean = Pcm16.rms(chunk) >= threshold\n}\n'
+SOURCES['SpeakerEmbeddingEngine.kt'] = 'package com.xyq.livetranslate\n\n/**\n * Computes an identity-free speaker embedding from PCM16 LE, mono, 16 kHz chunks.\n */\ninterface SpeakerEmbeddingEngine : AutoCloseable {\n    fun embedding(chunks: List<ByteArray>): FloatArray?\n    override fun close() {}\n}\n'
+SOURCES['SherpaSpeechActivityEngine.kt'] = 'package com.xyq.livetranslate\n\nimport android.content.Context\nimport com.k2fsa.sherpa.onnx.SileroVadModelConfig\nimport com.k2fsa.sherpa.onnx.Vad\nimport com.k2fsa.sherpa.onnx.VadModelConfig\n\n/**\n * Stateful Silero VAD adapter. The model is loaded from the app asset root.\n */\nclass SherpaSpeechActivityEngine(\n    context: Context,\n    modelAssetName: String = DEFAULT_MODEL,\n) : SpeechActivityEngine {\n    private val vad = Vad(\n        assetManager = context.assets,\n        config = VadModelConfig(\n            sileroVadModelConfig = SileroVadModelConfig(\n                model = modelAssetName,\n                threshold = 0.50f,\n                minSilenceDuration = 0.25f,\n                minSpeechDuration = 0.20f,\n                windowSize = 512,\n                maxSpeechDuration = 30.0f,\n            ),\n            sampleRate = 16000,\n            numThreads = 1,\n            provider = "cpu",\n            debug = false,\n        )\n    )\n\n    override fun isSpeech(chunk: ByteArray): Boolean {\n        val samples = Pcm16.toFloat(chunk)\n        if (samples.isEmpty()) return false\n        vad.acceptWaveform(samples)\n        val detected = vad.isSpeechDetected()\n        // Match sherpa-onnx Android VAD usage: clear completed segment metadata\n        // without resetting the recurrent detection state.\n        vad.clear()\n        return detected\n    }\n\n    override fun reset() = vad.reset()\n    override fun close() = vad.release()\n\n    companion object {\n        const val DEFAULT_MODEL = "silero_vad.onnx"\n    }\n}\n'
+SOURCES['SherpaSpeakerEmbeddingEngine.kt'] = 'package com.xyq.livetranslate\n\nimport android.content.Context\nimport com.k2fsa.sherpa.onnx.SpeakerEmbeddingExtractor\nimport com.k2fsa.sherpa.onnx.SpeakerEmbeddingExtractorConfig\n\nclass SherpaSpeakerEmbeddingEngine(\n    context: Context,\n    modelAssetName: String = DEFAULT_MODEL,\n    numThreads: Int = 2,\n) : SpeakerEmbeddingEngine {\n    private val extractor = SpeakerEmbeddingExtractor(\n        assetManager = context.assets,\n        config = SpeakerEmbeddingExtractorConfig(\n            model = modelAssetName,\n            numThreads = numThreads,\n            debug = false,\n            provider = "cpu",\n        )\n    )\n\n    override fun embedding(chunks: List<ByteArray>): FloatArray? {\n        if (chunks.isEmpty()) return null\n        val samples = Pcm16.joinToFloat(chunks)\n        if (samples.isEmpty()) return null\n        val stream = extractor.createStream()\n        return try {\n            stream.acceptWaveform(samples = samples, sampleRate = 16000)\n            stream.inputFinished()\n            if (!extractor.isReady(stream)) null else extractor.compute(stream)\n        } finally {\n            stream.release()\n        }\n    }\n\n    override fun close() = extractor.release()\n\n    companion object {\n        const val DEFAULT_MODEL = "3dspeaker_speech_eres2net_base_sv_zh-cn_3dspeaker_16k.onnx"\n    }\n}\n'
