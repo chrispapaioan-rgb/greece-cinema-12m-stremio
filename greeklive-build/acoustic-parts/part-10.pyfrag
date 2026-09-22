@@ -15,9 +15,9 @@ locales.write_text(
     encoding='utf-8',
 )
 
-# Add/replace English permission strings first, then mirror the complete English app strings
-# into the default values folder. This guarantees English even during the first Activity inflate
-# before AppCompat locale propagation completes on OEM Android builds.
+# Add/replace English permission strings in the correct resource files, then mirror both
+# English resource sets into default values. This guarantees English even during the first
+# Activity inflate on OEM Android builds and avoids duplicate resource IDs.
 def set_string_file(path: Path, updates: dict[str, str]) -> None:
     tree = ET.parse(path)
     root = tree.getroot()
@@ -33,6 +33,8 @@ def set_string_file(path: Path, updates: dict[str, str]) -> None:
     tree.write(path, encoding='utf-8', xml_declaration=True)
 
 values_en = app / 'src/main/res/values-en/strings.xml'
+runtime_en = app / 'src/main/res/values-en/strings_runtime.xml'
+
 set_string_file(values_en, {
     'overlay_permission_unauthorized': 'Floating subtitle permission required',
     'btn_go_settings': 'GRANT',
@@ -43,11 +45,21 @@ set_string_file(values_en, {
     ),
     'permission_grant': 'GRANT',
     'permission_cancel': 'Cancel',
+})
+set_string_file(runtime_en, {
     'rt_toast_overlay_permission_required': 'Grant floating subtitle permission to continue.',
     'rt_toast_record_audio_permission_required': 'Microphone / playback audio permission is required.',
     'rt_toast_projection_permission_denied': 'Screen sharing was cancelled. Tap Start translation to choose an app again.',
 })
-(app / 'src/main/res/values/strings.xml').write_text(values_en.read_text(encoding='utf-8'), encoding='utf-8')
+
+(app / 'src/main/res/values/strings.xml').write_text(
+    values_en.read_text(encoding='utf-8'),
+    encoding='utf-8',
+)
+(app / 'src/main/res/values/strings_runtime.xml').write_text(
+    runtime_en.read_text(encoding='utf-8'),
+    encoding='utf-8',
+)
 
 # The overlay settings action now presents an explicit GRANT dialog. This same function is used
 # both by the Media permission banner and the Start flow, so users always see a clear action.
@@ -104,6 +116,9 @@ if '<string name="video_btn_start">Start translation</string>' not in default_st
     die('default resources are not English')
 if '>GRANT<' not in default_strings:
     die('GRANT permission action missing')
+default_runtime = (app / 'src/main/res/values/strings_runtime.xml').read_text(encoding='utf-8')
+if 'Screen sharing was cancelled' not in default_runtime:
+    die('default runtime resources are not English')
 if 'android:name="zh-Hans"' in locales.read_text(encoding='utf-8'):
     die('Chinese locale still declared')
 if 'launchFreshProjectionRequest(ready)' not in (pkg/'ui/SessionCoordinator.kt').read_text():
