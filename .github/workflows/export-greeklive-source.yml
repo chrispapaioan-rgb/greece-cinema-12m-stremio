@@ -1,0 +1,101 @@
+name: Export GreekLive working source project
+
+on:
+  push:
+    branches: [greeklive-tv-rebase-working-v10]
+    paths:
+      - '.github/workflows/export-greeklive-source.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      PINNED_UPSTREAM: 0c9ba335be827d27f87b3781180175b85cc62bd4
+    steps:
+      - name: Checkout GreekLive build helper
+        uses: actions/checkout@v4
+
+      - name: Clone pinned upstream source
+        run: |
+          git clone https://github.com/xieyuanqing/vtuber-live-translate.git upstream
+          git -C upstream checkout --detach "$PINNED_UPSTREAM"
+          test "$(git -C upstream rev-parse HEAD)" = "$PINNED_UPSTREAM"
+
+      - name: Recreate working GreekLive v0.1.10 source
+        run: |
+          python3 greeklive-build/patch.py upstream
+          cat greeklive-build/acoustic-parts/part-{00..12}.pyfrag > greeklive-build/working10015_patch.py
+          python3 -m py_compile greeklive-build/working10015_patch.py
+          python3 greeklive-build/working10015_patch.py upstream
+          sed -i 's/versionCode = 10011/versionCode = 10015/' upstream/android/app/build.gradle.kts
+
+      - name: Add pinned native dependency and models
+        run: |
+          mkdir -p upstream/android/app/libs upstream/android/app/src/main/assets
+          curl -fL --retry 4 --retry-delay 2 https://github.com/k2-fsa/sherpa-onnx/releases/download/v1.13.8/sherpa-onnx-1.13.8.aar -o upstream/android/app/libs/sherpa-onnx-1.13.8.aar
+          curl -fL --retry 4 --retry-delay 2 https://github.com/k2-fsa/sherpa-onnx/releases/download/speaker-recongition-models/3dspeaker_speech_eres2net_base_sv_zh-cn_3dspeaker_16k.onnx -o upstream/android/app/src/main/assets/3dspeaker_speech_eres2net_base_sv_zh-cn_3dspeaker_16k.onnx
+          curl -fL --retry 4 --retry-delay 2 https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/silero_vad.onnx -o upstream/android/app/src/main/assets/silero_vad.onnx
+          cd upstream/android/app
+          echo "633c24321e06b1fe79feafa03ea16cbc0f8a286641e2da3559bac91bdb13bd96  libs/sherpa-onnx-1.13.8.aar" | sha256sum -c -
+          echo "1a331345f04805badbb495c775a6ddffcdd1a732567d5ec8b3d5749e3c7a5e4b  src/main/assets/3dspeaker_speech_eres2net_base_sv_zh-cn_3dspeaker_16k.onnx" | sha256sum -c -
+          echo "9e2449e1087496d8d4caba907f23e0bd3f78d91fa552479bb9c23ac09cbb1fd6  src/main/assets/silero_vad.onnx" | sha256sum -c -
+
+      - name: Add source build information
+        run: |
+          cat > upstream/android/SOURCE_BUILD_INFO.md <<'EOF'
+          # GreekLive v0.1.10 working source project
+
+          This project reconstructs the pre-TV GreekLive v0.1.10 build that was device-tested with the Android MediaProjection chooser working.
+
+          - Package: com.greeklive.subtitles
+          - Version name: 0.1.10
+          - Version code: 10015
+          - compileSdk / targetSdk: 35
+          - minSdk: 29
+          - Pinned upstream: xieyuanqing/vtuber-live-translate
+          - Pinned upstream commit: 0c9ba335be827d27f87b3781180175b85cc62bd4
+          - Source reconstruction: greeklive build patch + acoustic parts 00..12
+          - TV-specific part-13 and all later TV/chooser experiments are intentionally NOT included.
+
+          Open the extracted folder in Android Studio. The Gradle wrapper is included.
+
+          Important: no Gemini API key is embedded in this source export.
+          EOF
+
+      - name: Verify expected project files
+        run: |
+          test -f upstream/android/settings.gradle.kts
+          test -f upstream/android/build.gradle.kts
+          test -f upstream/android/app/build.gradle.kts
+          test -f upstream/android/app/src/main/AndroidManifest.xml
+          test -f upstream/android/app/src/main/java/com/xyq/livetranslate/MainActivity.kt
+          test -f upstream/android/app/src/main/java/com/xyq/livetranslate/CaptureService.kt
+          test -f upstream/android/app/src/main/java/com/xyq/livetranslate/ui/SessionCoordinator.kt
+          test -f upstream/android/gradlew
+          grep -q 'applicationId = "com.greeklive.subtitles"' upstream/android/app/build.gradle.kts
+          grep -q 'versionCode = 10015' upstream/android/app/build.gradle.kts
+          grep -q 'versionName = "0.1.10"' upstream/android/app/build.gradle.kts
+
+      - name: Package Android Studio project
+        run: |
+          rm -rf GreekLive-v0.1.10-working10015-source
+          cp -a upstream/android GreekLive-v0.1.10-working10015-source
+          rm -rf GreekLive-v0.1.10-working10015-source/.gradle
+          find GreekLive-v0.1.10-working10015-source -name build -type d -prune -exec rm -rf {} +
+          zip -r -9 GreekLive-v0.1.10-working10015-source-project.zip GreekLive-v0.1.10-working10015-source
+          sha256sum GreekLive-v0.1.10-working10015-source-project.zip > SOURCE_SHA256SUMS.txt
+
+      - name: Upload source project
+        uses: actions/upload-artifact@v4
+        with:
+          name: GreekLive-v0.1.10-working10015-source-project
+          path: |
+            GreekLive-v0.1.10-working10015-source-project.zip
+            SOURCE_SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 7
