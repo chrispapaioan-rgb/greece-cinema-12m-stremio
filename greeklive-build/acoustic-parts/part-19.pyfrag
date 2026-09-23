@@ -1,0 +1,90 @@
+
+# --- Bytecode-parity restoration for the proven working v0.1.10 MediaProjection path.
+# part-18 restored the direct launcher. This part removes the remaining behavioral rewrites from
+# part-08 so startCapture/continueStart/onProjectionResult compile back to the working-v10 shape.
+
+session = pkg / 'ui/SessionCoordinator.kt'
+s = session.read_text()
+
+# 1) startCapture(): remove the later VIDEO-only pendingSnapshot reset. The working v10 did not
+# mutate pending state before evaluating permission continuation / preparing settings.
+extra_reset = '''        // MediaProjection consent is per explicit Start action. A previous projection result,
+        // cancellation, or stale pending state must never suppress the Android share picker.
+        if (captureMode == StatusBus.MODE_VIDEO) {
+            pendingSnapshot = null
+        }
+
+'''
+if extra_reset not in s:
+    die('part-08 startCapture reset not found')
+s = s.replace(extra_reset, '', 1)
+
+# 2) continueStart(): put the MediaProjection request inline again, bytecode-equivalent to the
+# proven v10 source.
+helper_call = '''            launchFreshProjectionRequest(ready)
+            return
+'''
+working_inline = '''            pendingSnapshot = ready.copy(stage = PendingSessionStage.WAITING_PROJECTION)
+            val projectionManager = context.getSystemService(MediaProjectionManager::class.java)
+            host.launchProjection(projectionManager.createScreenCaptureIntent())
+            return
+'''
+if helper_call not in s:
+    die('projection helper call not found')
+s = s.replace(helper_call, working_inline, 1)
+
+# Remove the now-unused helper function completely.
+helper_start = s.find('    private fun launchFreshProjectionRequest(snapshot: PendingSessionSnapshot) {')
+helper_end = s.find('\n    /** onResume', helper_start)
+if helper_start < 0 or helper_end < 0:
+    die('projection helper function anchors missing')
+s = s[:helper_start] + s[helper_end:]
+
+# 3) onProjectionResult(): restore working-v10 cancellation semantics. This does NOT reuse a grant;
+# it only leaves the frozen settings READY, exactly as the working binary did.
+cancel_new = '''        if (resultCode != Activity.RESULT_OK || data == null) {
+            pendingSnapshot = null
+            host.toast(context.getString(R.string.rt_toast_projection_permission_denied))
+            return
+        }
+'''
+cancel_working = '''        if (resultCode != Activity.RESULT_OK || data == null) {
+            pendingSnapshot = snapshot.copy(stage = PendingSessionStage.READY)
+            host.toast(context.getString(R.string.rt_toast_projection_permission_denied))
+            return
+        }
+'''
+if cancel_new not in s:
+    die('projection cancel replacement anchor missing')
+s = s.replace(cancel_new, cancel_working, 1)
+
+session.write_text(s, encoding='utf-8')
+
+# Update the repeated-consent regression test to match the known-good state semantics.
+test = app / 'src/test/java/com/xyq/livetranslate/ui/SessionCoordinatorProjectionRepeatTest.kt'
+ts = test.read_text()
+ts = ts.replace(
+    '''        coordinator.onProjectionResult(Activity.RESULT_CANCELED, null)
+        assertNull(coordinator.pendingSnapshotForTest())
+
+        coordinator.beginPreparedSessionForTest(snap)
+''',
+    '''        coordinator.onProjectionResult(Activity.RESULT_CANCELED, null)
+
+        coordinator.beginPreparedSessionForTest(snap)
+''',
+    1,
+)
+test.write_text(ts, encoding='utf-8')
+
+# Hard source gates: exact working-v10 flow only.
+final = session.read_text()
+if 'launchFreshProjectionRequest' in final:
+    die('projection helper still present')
+if 'if (captureMode == StatusBus.MODE_VIDEO) {\n            pendingSnapshot = null' in final:
+    die('VIDEO pending reset still present')
+if 'host.launchProjection(projectionManager.createScreenCaptureIntent())' not in final:
+    die('working inline MediaProjection launch not restored')
+if 'pendingSnapshot = snapshot.copy(stage = PendingSessionStage.READY)' not in final:
+    die('working projection-cancel state not restored')
+print('GreekLive working-v10 MediaProjection source parity restored')
