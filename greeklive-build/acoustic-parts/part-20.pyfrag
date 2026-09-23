@@ -1,0 +1,107 @@
+
+# --- Restore exact MediaProjection behavior from the KNOWN-GOOD picker build 10012.
+# This is the device-proven reference, not the older existing-build baseline.
+
+session = pkg / 'ui/SessionCoordinator.kt'
+s = session.read_text()
+
+# 1) Every explicit Video Start must invalidate any previous pending projection state.
+start_anchor = '''    private fun startCapture(captureMode: String) {
+        if (!isCaptureMode(captureMode)) return
+'''
+start_repl = '''    private fun startCapture(captureMode: String) {
+        if (!isCaptureMode(captureMode)) return
+
+        // Exact behavior from known-good build 10012:
+        // every explicit Video Start begins with a fresh projection-consent state.
+        if (captureMode == StatusBus.MODE_VIDEO) {
+            pendingSnapshot = null
+        }
+'''
+if start_anchor not in s:
+    die('startCapture anchor missing for 10012 restore')
+s = s.replace(start_anchor, start_repl, 1)
+
+# 2) continueStart must delegate to a dedicated fresh-projection helper, as in 10012.
+inline = '''            pendingSnapshot = ready.copy(stage = PendingSessionStage.WAITING_PROJECTION)
+            val projectionManager = context.getSystemService(MediaProjectionManager::class.java)
+            host.launchProjection(projectionManager.createScreenCaptureIntent())
+            return
+'''
+helper_call = '''            launchFreshProjectionRequest(ready)
+            return
+'''
+if inline not in s:
+    die('inline projection path missing before 10012 restore')
+s = s.replace(inline, helper_call, 1)
+
+# 3) Recreate the exact helper shape from 10012: build a brand-new platform intent each Start.
+resume_anchor = '''    /** onResume：悬浮窗权限返回后自动續跑。 */
+'''
+if resume_anchor not in s:
+    # Upstream source may use the simplified Chinese character variant.
+    resume_anchor = '''    /** onResume：悬浮窗权限返回后自动续跑。 */
+'''
+if resume_anchor not in s:
+    die('onResume anchor missing for projection helper insertion')
+
+helper = '''    private fun launchFreshProjectionRequest(snapshot: PendingSessionSnapshot) {
+        pendingSnapshot = snapshot.copy(stage = PendingSessionStage.WAITING_PROJECTION)
+        val projectionManager = context.getSystemService(MediaProjectionManager::class.java)
+        val request = projectionManager.createScreenCaptureIntent()
+        host.launchProjection(request)
+    }
+
+'''
+s = s.replace(resume_anchor, helper + resume_anchor, 1)
+
+# 4) Cancellation must discard the pending projection snapshot, exactly like 10012.
+cancel_old = '''        if (resultCode != Activity.RESULT_OK || data == null) {
+            pendingSnapshot = snapshot.copy(stage = PendingSessionStage.READY)
+            host.toast(context.getString(R.string.rt_toast_projection_permission_denied))
+            return
+        }
+'''
+cancel_good = '''        if (resultCode != Activity.RESULT_OK || data == null) {
+            pendingSnapshot = null
+            host.toast(context.getString(R.string.rt_toast_projection_permission_denied))
+            return
+        }
+'''
+if cancel_old not in s:
+    die('projection cancel READY path missing before 10012 restore')
+s = s.replace(cancel_old, cancel_good, 1)
+
+session.write_text(s, encoding='utf-8')
+
+# Unit-test semantics aligned with known-good 10012.
+test = app / 'src/test/java/com/xyq/livetranslate/ui/SessionCoordinatorProjectionRepeatTest.kt'
+ts = test.read_text()
+needle = '''        coordinator.onProjectionResult(Activity.RESULT_CANCELED, null)
+
+        coordinator.beginPreparedSessionForTest(snap)
+'''
+repl = '''        coordinator.onProjectionResult(Activity.RESULT_CANCELED, null)
+        assertNull(coordinator.pendingSnapshotForTest())
+
+        coordinator.beginPreparedSessionForTest(snap)
+'''
+if needle not in ts:
+    die('projection cancellation test anchor missing')
+ts = ts.replace(needle, repl, 1)
+test.write_text(ts, encoding='utf-8')
+
+# Hard source gates for exact known-good behavior.
+final = session.read_text()
+checks = {
+    'fresh video reset': 'if (captureMode == StatusBus.MODE_VIDEO) {\n            pendingSnapshot = null' in final,
+    'dedicated fresh helper call': 'launchFreshProjectionRequest(ready)' in final,
+    'new system intent per start': 'val request = projectionManager.createScreenCaptureIntent()' in final,
+    'direct host launch': 'host.launchProjection(request)' in final,
+    'cancel clears snapshot': 'pendingSnapshot = null\n            host.toast(context.getString(R.string.rt_toast_projection_permission_denied))' in final,
+}
+for label, ok in checks.items():
+    if not ok:
+        die('10012 MediaProjection parity gate failed: ' + label)
+
+print('GreekLive known-good 10012 MediaProjection flow restored')
