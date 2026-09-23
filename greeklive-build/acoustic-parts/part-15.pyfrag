@@ -1,0 +1,90 @@
+
+# --- TV latency + explicit MediaProjection user-choice refinement.
+session = pkg / 'ui/SessionCoordinator.kt'
+s = session.read_text()
+
+# Android 14+ exposes explicit user-choice MediaProjection config (full display or one app window).
+# Older TV builds fall back to the classic consent intent.
+import_anchor = 'import android.media.projection.MediaProjectionManager\n'
+if import_anchor not in s:
+    die('MediaProjectionManager import anchor missing')
+s = s.replace(
+    import_anchor,
+    import_anchor + 'import android.media.projection.MediaProjectionConfig\n',
+    1,
+)
+
+old = '''        val request = projectionManager.createScreenCaptureIntent()
+        host.launchProjection(request)
+'''
+new = '''        val request = if (Build.VERSION.SDK_INT >= 34) {
+            projectionManager.createScreenCaptureIntent(
+                MediaProjectionConfig.createConfigForUserChoice()
+            )
+        } else {
+            projectionManager.createScreenCaptureIntent()
+        }
+        host.launchProjection(request)
+'''
+if old not in s:
+    die('fresh projection request anchor missing')
+s = s.replace(old,new,1)
+session.write_text(s,encoding='utf-8')
+
+# Lower local acoustic look-ahead latency while keeping enough audio for short speaker embeddings.
+gate = pkg / 'SpeakerTurnGate.kt'
+s = gate.read_text()
+old = '''        val embeddingWindowSpeechChunks: Int = 8,
+        val analysisStepChunks: Int = 2,
+        val holdbackChunks: Int = 14,
+        val preRollChunks: Int = 4,
+'''
+new = '''        // Low-latency TV profile: ~0.6 s speaker window, 0.1 s analysis step,
+        // ~0.8 s hold-back. This removes ~0.6 s of local delay versus build 10017.
+        val embeddingWindowSpeechChunks: Int = 6,
+        val analysisStepChunks: Int = 1,
+        val holdbackChunks: Int = 8,
+        val preRollChunks: Int = 3,
+'''
+if old not in s:
+    die('SpeakerTurnGate latency config anchor missing')
+s=s.replace(old,new,1)
+gate.write_text(s,encoding='utf-8')
+
+# Once an acoustic switch is known, don't hold the old subtitle box for almost another second.
+capture = pkg / 'CaptureService.kt'
+s = capture.read_text()
+if '                            900L,' not in s:
+    die('speaker boundary grace anchor missing')
+s = s.replace('                            900L,','                            450L,',1)
+capture.write_text(s,encoding='utf-8')
+
+# Add a deterministic default-config regression test.
+test = app / 'src/test/java/com/xyq/livetranslate/AcousticSpeakerTurnTest.kt'
+ts = test.read_text()
+insert_at=ts.rfind('}')
+if insert_at < 0:
+    die('AcousticSpeakerTurnTest ending missing')
+extra=r'''
+    @Test
+    fun tvGateDefaultsStayLowLatency() {
+        val c = SpeakerTurnGate.Config()
+        assertEquals(6, c.embeddingWindowSpeechChunks)
+        assertEquals(1, c.analysisStepChunks)
+        assertEquals(8, c.holdbackChunks)
+        assertEquals(3, c.preRollChunks)
+    }
+'''
+ts=ts[:insert_at]+extra+ts[insert_at:]
+test.write_text(ts,encoding='utf-8')
+
+# Static acceptance gates.
+if 'MediaProjectionConfig.createConfigForUserChoice()' not in session.read_text():
+    die('Android 14 user-choice projection not applied')
+if 'embeddingWindowSpeechChunks: Int = 6' not in gate.read_text():
+    die('low-latency embedding window not applied')
+if 'holdbackChunks: Int = 8' not in gate.read_text():
+    die('low-latency holdback not applied')
+if '                            450L,' not in capture.read_text():
+    die('fast boundary UI grace not applied')
+print('GreekLive TV latency + MediaProjection user-choice refinement complete')
