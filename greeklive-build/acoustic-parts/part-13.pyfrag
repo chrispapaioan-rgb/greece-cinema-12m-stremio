@@ -1,0 +1,65 @@
+
+# --- Minimal Google TV exposure on top of the known-good 10015 runtime.
+# IMPORTANT: do not modify MainActivity.kt, SessionCoordinator.kt, or the MediaProjection path.
+manifest = app / 'src/main/AndroidManifest.xml'
+s = manifest.read_text()
+
+root = '<manifest xmlns:android="http://schemas.android.com/apk/res/android">\n'
+features = '''<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-feature android:name="android.software.leanback" android:required="false" />
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+    <uses-feature android:name="android.hardware.microphone" android:required="false" />
+'''
+if root not in s:
+    die('manifest root anchor missing')
+s = s.replace(root, features, 1)
+
+# Keep the working MainActivity declaration untouched. Expose it to Google TV only through
+# an activity-alias, so its code and lifecycle remain exactly the same as the proven 10015 APK.
+app_anchor = '''        android:label="@string/app_name"
+        android:localeConfig="@xml/locales_config"
+'''
+app_repl = '''        android:label="@string/app_name"
+        android:banner="@mipmap/ic_launcher"
+        android:localeConfig="@xml/locales_config"
+'''
+if app_anchor not in s:
+    die('application label anchor missing')
+s = s.replace(app_anchor, app_repl, 1)
+
+service_anchor = '''        <service
+            android:name=".CaptureService"
+'''
+alias = '''        <activity-alias
+            android:name="com.greeklive.subtitles.TvLauncher"
+            android:targetActivity="com.xyq.livetranslate.MainActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:banner="@mipmap/ic_launcher">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+'''
+if service_anchor not in s:
+    die('service anchor missing')
+s = s.replace(service_anchor, alias + service_anchor, 1)
+
+manifest.write_text(s, encoding='utf-8')
+
+final = manifest.read_text()
+checks = {
+    'leanback optional': 'android.software.leanback' in final,
+    'touchscreen optional': 'android.hardware.touchscreen' in final,
+    'mic optional': 'android.hardware.microphone' in final,
+    'TV alias': 'com.greeklive.subtitles.TvLauncher' in final,
+    'target working MainActivity': 'android:targetActivity="com.xyq.livetranslate.MainActivity"' in final,
+}
+for label, ok in checks.items():
+    if not ok:
+        die('minimal TV manifest sanity failed: ' + label)
+
+print('Minimal TV alias added; working 10015 runtime code left untouched')
