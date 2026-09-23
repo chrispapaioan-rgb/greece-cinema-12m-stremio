@@ -1,0 +1,293 @@
+
+# --- Universal phone + Google TV build.
+# One MainActivity/runtime for both form factors. MediaProjection chooser is the FIRST step for
+# Media mode, before API-key, RECORD_AUDIO or overlay checks.
+
+manifest = app / 'src/main/AndroidManifest.xml'
+s = manifest.read_text()
+
+# TV compatibility without removing phone compatibility.
+root_tag = '<manifest xmlns:android="http://schemas.android.com/apk/res/android">\n'
+feature_block = '''<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-feature android:name="android.software.leanback" android:required="false" />
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+    <uses-feature android:name="android.hardware.microphone" android:required="false" />
+'''
+s = one(s, root_tag, feature_block, 'universal optional TV features')
+
+# Banner is harmless on phone and lets TV launchers render the app correctly.
+app_label = '''        android:label="@string/app_name"
+        android:localeConfig="@xml/locales_config"
+'''
+if app_label in s:
+    s = one(
+        s,
+        app_label,
+        '''        android:label="@string/app_name"
+        android:banner="@mipmap/ic_launcher"
+        android:localeConfig="@xml/locales_config"
+''',
+        'universal app banner',
+    )
+
+# Same MainActivity is exposed to both phone and TV launchers.
+phone_filter = '''            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+'''
+dual_filter = phone_filter + '''            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+'''
+s = one(s, phone_filter, dual_filter, 'universal dual launcher')
+manifest.write_text(s, encoding='utf-8')
+
+session = pkg / 'ui/SessionCoordinator.kt'
+s = session.read_text()
+
+# Hold the real system picker result only while finishing normal prerequisites.
+field_anchor = '''    private var pendingSnapshot: PendingSessionSnapshot? = null
+    private var sessionContextAccess: SessionContextAccess? = sessionContextAccess
+'''
+field_repl = '''    private var pendingSnapshot: PendingSessionSnapshot? = null
+
+    // Universal Media flow: Android's share chooser is deliberately the first visible gate.
+    private var projectionPreflightActive = false
+    private var pendingProjectionResultCode: Int? = null
+    private var pendingProjectionData: Intent? = null
+
+    private var sessionContextAccess: SessionContextAccess? = sessionContextAccess
+'''
+s = one(s, field_anchor, field_repl, 'projection preflight fields')
+
+# Media Start always launches the platform chooser before any other prerequisite.
+old_toggle = '''    fun onModeToggle(captureMode: String) {
+        if (StatusBus.serviceRunning) {
+            if (StatusBus.captureMode.isNotEmpty() && StatusBus.captureMode != captureMode) {
+                val other = if (StatusBus.captureMode == StatusBus.MODE_MIC) {
+                    context.getString(R.string.rt_mode_interpretation)
+                } else {
+                    context.getString(R.string.rt_mode_video)
+                }
+                host.toast(context.getString(R.string.rt_toast_session_running_conflict, other))
+                return
+            }
+            host.startService(
+                Intent(context, CaptureService::class.java).setAction(CaptureService.ACTION_STOP),
+            )
+            return
+        }
+        startCapture(captureMode)
+    }
+'''
+new_toggle = '''    fun onModeToggle(captureMode: String) {
+        if (StatusBus.serviceRunning) {
+            if (StatusBus.captureMode.isNotEmpty() && StatusBus.captureMode != captureMode) {
+                val other = if (StatusBus.captureMode == StatusBus.MODE_MIC) {
+                    context.getString(R.string.rt_mode_interpretation)
+                } else {
+                    context.getString(R.string.rt_mode_video)
+                }
+                host.toast(context.getString(R.string.rt_toast_session_running_conflict, other))
+                return
+            }
+            clearProjectionPreflight()
+            host.startService(
+                Intent(context, CaptureService::class.java).setAction(CaptureService.ACTION_STOP),
+            )
+            return
+        }
+
+        if (captureMode == StatusBus.MODE_VIDEO) {
+            // FIRST action, by design. No API key, mic permission or overlay check can suppress
+            // Android's MediaProjection consent UI.
+            pendingSnapshot = null
+            clearProjectionPreflight()
+            projectionPreflightActive = true
+            val projectionManager = context.getSystemService(MediaProjectionManager::class.java)
+            host.launchProjection(projectionManager.createScreenCaptureIntent())
+            return
+        }
+
+        startCapture(captureMode)
+    }
+'''
+s = one(s, old_toggle, new_toggle, 'chooser-first onModeToggle')
+
+# Replace onProjectionResult with a preflight branch plus the legacy compatibility branch.
+start = s.find('    fun onProjectionResult(resultCode: Int, data: Intent?) {')
+end = s.find('\n    fun saveState(outState: Bundle) {', start)
+if start < 0 or end < 0:
+    die('onProjectionResult anchors missing')
+new_projection = '''    fun onProjectionResult(resultCode: Int, data: Intent?) {
+        if (projectionPreflightActive) {
+            projectionPreflightActive = false
+            if (resultCode != Activity.RESULT_OK || data == null) {
+                clearProjectionPreflight()
+                pendingSnapshot = null
+                host.toast(context.getString(R.string.rt_toast_projection_permission_denied))
+                return
+            }
+
+            pendingProjectionResultCode = resultCode
+            pendingProjectionData = data
+            startCapture(StatusBus.MODE_VIDEO)
+            return
+        }
+
+        // Compatibility path for restored/legacy coordinator state that requested projection from
+        // continueStart() rather than from the universal preflight.
+        val snapshot = pendingSnapshot
+            ?.takeIf {
+                it.captureMode == StatusBus.MODE_VIDEO &&
+                    it.stage == PendingSessionStage.WAITING_PROJECTION
+            }
+            ?: return
+        if (resultCode != Activity.RESULT_OK || data == null) {
+            pendingSnapshot = null
+            clearProjectionPreflight()
+            host.toast(context.getString(R.string.rt_toast_projection_permission_denied))
+            return
+        }
+
+        val startIntent = captureStartIntent(snapshot)
+            .putExtra(CaptureService.EXTRA_RESULT_CODE, resultCode)
+            .putExtra(CaptureService.EXTRA_RESULT_DATA, data)
+        host.startForegroundService(startIntent)
+        consumeStartedSession(snapshot)
+        clearProjectionPreflight()
+    }
+
+    private fun clearProjectionPreflight() {
+        projectionPreflightActive = false
+        pendingProjectionResultCode = null
+        pendingProjectionData = null
+    }
+'''
+s = s[:start] + new_projection + s[end:]
+
+# If settings preparation aborts (e.g. missing API key), consume the preflight grant. Next explicit
+# Start will display a fresh chooser again.
+prepare_old = '''        val prepared = prepareSessionSettings(captureMode) ?: return
+        pendingSnapshot = prepared
+'''
+prepare_new = '''        val prepared = prepareSessionSettings(captureMode)
+        if (prepared == null) {
+            if (captureMode == StatusBus.MODE_VIDEO) clearProjectionPreflight()
+            return
+        }
+        pendingSnapshot = prepared
+'''
+s = one(s, prepare_old, prepare_new, 'consume projection if preparation fails')
+
+# After mic/overlay prerequisites succeed, consume the chooser-first result directly. If there is no
+# preflight result (restored state/tests), keep the existing fresh-picker compatibility path.
+continue_old = '''            launchFreshProjectionRequest(ready)
+            return
+'''
+continue_new = '''            val projectionCode = pendingProjectionResultCode
+            val projectionData = pendingProjectionData
+            if (projectionCode == Activity.RESULT_OK && projectionData != null) {
+                val startIntent = captureStartIntent(ready)
+                    .putExtra(CaptureService.EXTRA_RESULT_CODE, projectionCode)
+                    .putExtra(CaptureService.EXTRA_RESULT_DATA, projectionData)
+                host.startForegroundService(startIntent)
+                consumeStartedSession(ready)
+                clearProjectionPreflight()
+                return
+            }
+
+            launchFreshProjectionRequest(ready)
+            return
+'''
+s = one(s, continue_old, continue_new, 'consume chooser-first result')
+
+session.write_text(s, encoding='utf-8')
+
+# Direct regression test: even with NO API key, NO RECORD_AUDIO and NO overlay permission,
+# pressing Media Start must launch Android's system projection chooser first.
+test = app / 'src/test/java/com/xyq/livetranslate/ui/UniversalProjectionOrderTest.kt'
+test.write_text(r'''package com.xyq.livetranslate.ui
+
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
+import androidx.test.core.app.ApplicationProvider
+import com.xyq.livetranslate.StatusBus
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
+
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [34], application = android.app.Application::class)
+class UniversalProjectionOrderTest {
+    private val context = ApplicationProvider.getApplicationContext<Context>()
+
+    @After
+    fun resetStatus() {
+        StatusBus.serviceRunning = false
+        StatusBus.captureMode = ""
+        StatusBus.reset()
+    }
+
+    @Test
+    fun mediaStartShowsProjectionBeforeAllOtherPrerequisites() {
+        val host = Host()
+        val coordinator = SessionCoordinator(
+            context = context,
+            persistDraftInputs = {},
+            host = host,
+        )
+
+        coordinator.onModeToggle(StatusBus.MODE_VIDEO)
+
+        assertEquals(1, host.projectionLaunches)
+        assertEquals(0, host.permissionRequests)
+        assertEquals(0, host.overlaySettingsLaunches)
+        assertEquals(0, host.translationSettingsLaunches)
+
+        coordinator.onProjectionResult(Activity.RESULT_CANCELED, null)
+        assertEquals(1, host.projectionLaunches)
+    }
+
+    private class Host : SessionHost {
+        var projectionLaunches = 0
+        var permissionRequests = 0
+        var overlaySettingsLaunches = 0
+        var translationSettingsLaunches = 0
+
+        override fun checkPermission(permission: String) = false
+        override fun requestPermissions(permissions: Array<String>) { permissionRequests++ }
+        override fun canDrawOverlays() = false
+        override fun openOverlaySettings() { overlaySettingsLaunches++ }
+        override fun launchProjection(intent: Intent) { projectionLaunches++ }
+        override fun startForegroundService(intent: Intent) = Unit
+        override fun startService(intent: Intent) = Unit
+        override fun openTranslationSettings() { translationSettingsLaunches++ }
+        override fun toast(message: String) = Unit
+    }
+}
+''', encoding='utf-8')
+
+# Static acceptance gates.
+mf = manifest.read_text()
+ss = session.read_text()
+checks = {
+    'phone launcher retained': 'android.intent.category.LAUNCHER' in mf,
+    'TV launcher added': 'android.intent.category.LEANBACK_LAUNCHER' in mf,
+    'touchscreen optional': 'android.hardware.touchscreen' in mf,
+    'microphone optional': 'android.hardware.microphone' in mf,
+    'chooser before startCapture': ss.index('host.launchProjection(projectionManager.createScreenCaptureIntent())') < ss.index('startCapture(captureMode)'),
+    'preflight result consumed': 'pendingProjectionData' in ss and 'pendingProjectionResultCode' in ss,
+    'order regression test': test.exists(),
+}
+for label, ok in checks.items():
+    if not ok:
+        die('universal sanity failed: ' + label)
+print('GreekLive Universal phone + TV chooser-first refinement complete')
