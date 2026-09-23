@@ -1,0 +1,199 @@
+
+# --- POCO field refinement: make speaker changes a hard, low-latency subtitle boundary.
+tracker = pkg / 'SpeakerTurnTracker.kt'
+s = tracker.read_text()
+
+s = s.replace(
+    '''    private val knownMatchThreshold: Float = 0.53f,
+    private val newSpeakerConsistencyThreshold: Float = 0.67f,
+    private val confirmationsRequired: Int = 2,
+    private val centroidEma: Float = 0.18f,
+''',
+    '''    // sherpa-onnx examples use ~0.4-0.5 for speaker identification. We keep 0.50 as the
+    // normal same-speaker gate, but add much lower "clearly different" thresholds so a real
+    // speaker switch cannot remain merged just because two overlapping windows are inconclusive.
+    private val knownMatchThreshold: Float = 0.50f,
+    private val newSpeakerConsistencyThreshold: Float = 0.60f,
+    private val hardDifferentThreshold: Float = 0.22f,
+    private val afterGapDifferentThreshold: Float = 0.34f,
+    private val confirmationsRequired: Int = 2,
+    private val centroidEma: Float = 0.14f,
+''',
+    1,
+)
+
+s = s.replace(
+    '''    fun observe(raw: FloatArray): Result {
+''',
+    '''    fun observe(raw: FloatArray, afterGap: Boolean = false): Result {
+''',
+    1,
+)
+
+needle = '''        val match = bestKnownMatch(embedding)
+        if (match != null && match.second >= knownMatchThreshold) {
+'''
+replacement = '''        val match = bestKnownMatch(embedding)
+        val activeSimilarity = centroids[active]?.let { cosine(it, embedding) } ?: -1f
+
+        // Strong evidence for a different voice. A short silence by itself never switches speaker:
+        // we still require the acoustic embedding to be sufficiently different from the active one.
+        val definiteDifferent =
+            activeSimilarity >= -0.5f &&
+                (
+                    activeSimilarity < hardDifferentThreshold ||
+                        (afterGap && activeSimilarity < afterGapDifferentThreshold)
+                )
+        if (definiteDifferent) {
+            val knownOther = match
+                ?.takeIf { it.first != active && it.second >= knownMatchThreshold }
+            val from = active
+            val to = if (knownOther != null) {
+                updateCentroid(knownOther.first, embedding)
+                knownOther.first
+            } else {
+                createSpeaker(embedding)
+            }
+            activeId = to
+            clearPending()
+            return Result.Switched(from, to, activeSimilarity.coerceAtLeast(0f))
+        }
+
+        if (match != null && match.second >= knownMatchThreshold) {
+'''
+if needle not in s:
+    die('speaker tracker match anchor missing')
+s = s.replace(needle, replacement, 1)
+tracker.write_text(s, encoding='utf-8')
+
+gate = pkg / 'SpeakerTurnGate.kt'
+s = gate.read_text()
+
+s = s.replace(
+    '''        val embeddingWindowSpeechChunks: Int = 12,
+        val analysisStepChunks: Int = 3,
+        val holdbackChunks: Int = 20,
+''',
+    '''        // 0.8 s local window / 0.2 s step catches short film dialogue turns. The previous
+        // 1.2 s window often never produced an embedding before a short reply had already ended.
+        val embeddingWindowSpeechChunks: Int = 8,
+        val analysisStepChunks: Int = 2,
+        val holdbackChunks: Int = 14,
+''',
+    1,
+)
+
+s = s.replace(
+    '''        when (val result = tracker.observe(embedding)) {
+''',
+    '''        when (val result = tracker.observe(embedding, afterGap = activityStartedAfterGap)) {
+''',
+    1,
+)
+gate.write_text(s, encoding='utf-8')
+
+# The old coordinator could wait forever if the remote Live session delayed/missed turnComplete.
+# Add an idempotent force-ready path so CaptureService can enforce the acoustic boundary after a
+# bounded grace period, preserving speaker separation as the higher-priority invariant.
+coord = pkg / 'TurnBoundaryCoordinator.kt'
+s = coord.read_text()
+
+anchor = '''    fun onTurnComplete(turnId: Long?) {
+'''
+force_fun = '''    fun forceReady(afterTurnId: Long?) {
+        if (afterTurnId == null || afterTurnId <= 0L) return
+        val ready = ArrayList<String>()
+        synchronized(lock) {
+            val it = pending.iterator()
+            while (it.hasNext()) {
+                val item = it.next()
+                if (item.afterTurnId <= afterTurnId) {
+                    ready += item.speakerId
+                    it.remove()
+                }
+            }
+        }
+        ready.forEach(onReadyBoundary)
+    }
+
+'''
+if anchor not in s:
+    die('turn coordinator anchor missing')
+s = s.replace(anchor, force_fun + anchor, 1)
+coord.write_text(s, encoding='utf-8')
+
+capture = pkg / 'CaptureService.kt'
+s = capture.read_text()
+old = '''                onSpeakerBoundary = { speakerId, afterTurnId ->
+                    Log.d(TAG, "speaker boundary -> $speakerId afterTurn=$afterTurnId")
+                    boundaryCoordinator?.onSpeakerBoundary(speakerId, afterTurnId)
+                },
+'''
+new = '''                onSpeakerBoundary = { speakerId, afterTurnId ->
+                    Log.d(TAG, "speaker boundary -> $speakerId afterTurn=$afterTurnId")
+                    val coordinator = boundaryCoordinator
+                    coordinator?.onSpeakerBoundary(speakerId, afterTurnId)
+
+                    // Normally turnComplete arrives first. If the remote session delays it, never
+                    // allow two acoustically different speakers to remain in the same subtitle box.
+                    if (afterTurnId != null) {
+                        mainHandler.postDelayed(
+                            { coordinator?.forceReady(afterTurnId) },
+                            900L,
+                        )
+                    }
+                },
+'''
+if old not in s:
+    die('CaptureService speaker boundary callback anchor missing')
+s = s.replace(old, new, 1)
+capture.write_text(s, encoding='utf-8')
+
+# Extend the targeted acoustic tests with the exact failure modes seen in POCO testing.
+test = app / 'src/test/java/com/xyq/livetranslate/AcousticSpeakerTurnTest.kt'
+s = test.read_text()
+insert_at = s.rfind('}')
+extra = r'''
+    @Test
+    fun clearlyDifferentVoiceSwitchesImmediatelyAfterGap() {
+        val t = SpeakerTurnTracker()
+        t.observe(floatArrayOf(1f, 0f, 0f))
+        val switched = t.observe(floatArrayOf(0f, 1f, 0f), afterGap = true)
+        assertTrue(switched is SpeakerTurnTracker.Result.Switched)
+        assertEquals("spk_2", t.currentSpeaker())
+    }
+
+    @Test
+    fun pauseAloneDoesNotCreateNewSpeakerWhenVoiceMatches() {
+        val t = SpeakerTurnTracker()
+        t.observe(floatArrayOf(1f, 0f, 0f))
+        val same = t.observe(floatArrayOf(0.99f, 0.04f, 0f), afterGap = true)
+        assertTrue(same is SpeakerTurnTracker.Result.Same)
+        assertEquals(1, t.speakerCount())
+    }
+
+    @Test
+    fun delayedTurnCompleteCannotBlockBoundaryForever() {
+        val ready = mutableListOf<String>()
+        val c = TurnBoundaryCoordinator { ready += it }
+        c.onSpeakerBoundary("spk_2", 21L)
+        assertTrue(ready.isEmpty())
+        c.forceReady(21L)
+        assertEquals(listOf("spk_2"), ready)
+        c.onTurnComplete(21L)
+        assertEquals(listOf("spk_2"), ready)
+    }
+'''
+if insert_at < 0:
+    die('AcousticSpeakerTurnTest ending missing')
+s = s[:insert_at] + extra + s[insert_at:]
+test.write_text(s, encoding='utf-8')
+
+# Sanity gates.
+if 'embeddingWindowSpeechChunks: Int = 8' not in gate.read_text():
+    die('short speaker window not applied')
+if 'hardDifferentThreshold' not in tracker.read_text():
+    die('hard different-speaker threshold not applied')
+if 'forceReady(afterTurnId)' not in capture.read_text():
+    die('speaker boundary timeout fallback not wired')
+print('GreekLive hard speaker-turn separation refinement complete')
