@@ -1,8 +1,8 @@
-name: GreekLive v0.1.10 acoustic speaker build
+name: GreekLive Universal v0.1.10 build
 
 on:
   push:
-    branches: [greeklive-v010-acoustic]
+    branches: [greeklive-universal]
     paths:
       - 'greeklive-build/**'
       - '.github/workflows/greeklive-build.yml'
@@ -50,7 +50,7 @@ jobs:
           python3 -m py_compile greeklive-build/acoustic_patch.py
           python3 greeklive-build/acoustic_patch.py upstream
           # Upgrade cleanly over the already-tested v0.1.10 package.
-          sed -i 's/versionCode = 10011/versionCode = 10015/' upstream/android/app/build.gradle.kts
+          sed -i 's/versionCode = 10011/versionCode = 10029/' upstream/android/app/build.gradle.kts
 
       - name: Download and pin sherpa + speaker models
         run: |
@@ -70,6 +70,7 @@ jobs:
           ./gradlew --no-daemon :app:testDebugUnitTest \
             --tests com.xyq.livetranslate.AcousticSpeakerTurnTest \
             --tests com.xyq.livetranslate.ui.SessionCoordinatorProjectionRepeatTest \
+            --tests com.xyq.livetranslate.ui.UniversalProjectionOrderTest \
             --tests com.xyq.livetranslate.SubtitleOverlayBottomPlacementTest \
             --tests com.xyq.livetranslate.SubtitleLayoutAndSpacingTest \
             --stacktrace
@@ -81,28 +82,34 @@ jobs:
 
       - name: APK preflight
         run: |
-          cp upstream/android/app/build/outputs/apk/debug/app-debug.apk GreekLive-v0.1.10.apk
-          unzip -t GreekLive-v0.1.10.apk
-          "$ANDROID_HOME/build-tools/35.0.0/aapt2" dump badging GreekLive-v0.1.10.apk | tee apk-badging.txt
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs GreekLive-v0.1.10.apk | tee apk-signature.txt
+          cp upstream/android/app/build/outputs/apk/debug/app-debug.apk GreekLive-Universal-v0.1.10.apk
+          unzip -t GreekLive-Universal-v0.1.10.apk
+          "$ANDROID_HOME/build-tools/35.0.0/aapt2" dump badging GreekLive-Universal-v0.1.10.apk | tee apk-badging.txt
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs GreekLive-Universal-v0.1.10.apk | tee apk-signature.txt
           grep -q "package: name='com.greeklive.subtitles'" apk-badging.txt
-          grep -q "versionCode='10015'" apk-badging.txt
+          grep -q "versionCode='10029'" apk-badging.txt
           grep -q "versionName='0.1.10'" apk-badging.txt
-          unzip -l GreekLive-v0.1.10.apk | tee apk-files.txt
+          "$ANDROID_HOME/build-tools/35.0.0/aapt2" dump xmltree GreekLive-Universal-v0.1.10.apk --file AndroidManifest.xml | tee apk-manifest.txt
+          grep -q "android.intent.category.LAUNCHER" apk-manifest.txt
+          grep -q "android.intent.category.LEANBACK_LAUNCHER" apk-manifest.txt
+          grep -q "android.software.leanback" apk-manifest.txt
+          grep -q "android.hardware.touchscreen" apk-manifest.txt
+          unzip -l GreekLive-Universal-v0.1.10.apk | tee apk-files.txt
           grep -q "assets/3dspeaker_speech_eres2net_base_sv_zh-cn_3dspeaker_16k.onnx" apk-files.txt
           grep -q "assets/silero_vad.onnx" apk-files.txt
           grep -q "lib/arm64-v8a/" apk-files.txt
-          sha256sum GreekLive-v0.1.10.apk | tee SHA256SUMS.txt
+          sha256sum GreekLive-Universal-v0.1.10.apk | tee SHA256SUMS.txt
 
-      - name: Upload POCO test APK
+      - name: Upload Universal APK
         uses: actions/upload-artifact@v4
         with:
-          name: GreekLive-v0.1.10-acoustic-poco-test
+          name: GreekLive-Universal-v0.1.10-10029
           path: |
-            GreekLive-v0.1.10.apk
+            GreekLive-Universal-v0.1.10.apk
             SHA256SUMS.txt
             apk-badging.txt
             apk-signature.txt
             apk-files.txt
+            apk-manifest.txt
           if-no-files-found: error
           retention-days: 7
