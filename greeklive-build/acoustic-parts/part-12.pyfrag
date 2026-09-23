@@ -149,6 +149,22 @@ if old not in s:
 s = s.replace(old, new, 1)
 capture.write_text(s, encoding='utf-8')
 
+# Existing confirmation test should exercise an ambiguous-but-different voice, not the new
+# deliberately immediate "obviously different" path.
+test = app / 'src/test/java/com/xyq/livetranslate/AcousticSpeakerTurnTest.kt'
+ts = test.read_text()
+ts = ts.replace(
+    'val p = t.observe(floatArrayOf(0f, 1f, 0f))',
+    'val p = t.observe(floatArrayOf(0.35f, 0.94f, 0f))',
+    1,
+)
+ts = ts.replace(
+    'val switched = t.observe(floatArrayOf(0.02f, 0.999f, 0f))',
+    'val switched = t.observe(floatArrayOf(0.34f, 0.94f, 0f))',
+    1,
+)
+test.write_text(ts, encoding='utf-8')
+
 # Extend the targeted acoustic tests with the exact failure modes seen in POCO testing.
 test = app / 'src/test/java/com/xyq/livetranslate/AcousticSpeakerTurnTest.kt'
 s = test.read_text()
