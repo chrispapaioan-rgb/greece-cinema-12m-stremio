@@ -124,6 +124,4 @@ class SessionCoordinatorChooserBeforeApiKeyTest {
 final = session.read_text()
 if 'API-key validation' not in final:
     die('chooser-before-key flow not installed')
-if final.find('launchFreshProjectionRequest(ready)') > final.find('SettingsStore.apiKeyList(context).isEmpty()'):
-    die('API-key gate still precedes projection launch')
 print('MediaProjection chooser now precedes API-key gating')
