@@ -1,0 +1,129 @@
+# --- Recovery: MediaProjection chooser must happen BEFORE API-key gating in Media mode.
+# This addresses fresh installs where SettingsStore has no key yet: Start must still reach Android's
+# system share picker, then ask for configuration if needed.
+
+session = pkg / 'ui/SessionCoordinator.kt'
+s = session.read_text()
+
+api_gate = '''        if (SettingsStore.apiKeyList(context).isEmpty()) {
+            host.toast(context.getString(R.string.rt_toast_fill_gemini_api_key_first))
+            host.openTranslationSettings()
+            return null
+        }
+
+'''
+if api_gate not in s:
+    die('API-key gate anchor missing in prepareSessionSettings')
+s = s.replace(api_gate, '', 1)
+
+projection_success = '''        val startIntent = captureStartIntent(snapshot)
+            .putExtra(CaptureService.EXTRA_RESULT_CODE, resultCode)
+            .putExtra(CaptureService.EXTRA_RESULT_DATA, data)
+        host.startForegroundService(startIntent)
+        consumeStartedSession(snapshot)
+'''
+projection_success_new = '''        // The Android share picker is deliberately reached before API-key validation.
+        // On a clean install the user must still see "Choose what to share" when pressing Start.
+        if (SettingsStore.apiKeyList(context).isEmpty()) {
+            pendingSnapshot = null
+            host.toast(context.getString(R.string.rt_toast_fill_gemini_api_key_first))
+            host.openTranslationSettings()
+            return
+        }
+
+        val startIntent = captureStartIntent(snapshot)
+            .putExtra(CaptureService.EXTRA_RESULT_CODE, resultCode)
+            .putExtra(CaptureService.EXTRA_RESULT_DATA, data)
+        host.startForegroundService(startIntent)
+        consumeStartedSession(snapshot)
+'''
+if projection_success not in s:
+    die('projection success anchor missing')
+s = s.replace(projection_success, projection_success_new, 1)
+session.write_text(s, encoding='utf-8')
+
+test = app / 'src/test/java/com/xyq/livetranslate/ui/SessionCoordinatorChooserBeforeApiKeyTest.kt'
+test.write_text(r'''package com.xyq.livetranslate.ui
+
+import android.Manifest
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
+import androidx.test.core.app.ApplicationProvider
+import com.xyq.livetranslate.SessionPromptContext
+import com.xyq.livetranslate.SettingsStore
+import com.xyq.livetranslate.StatusBus
+import com.xyq.livetranslate.TranslationMode
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
+
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [34], application = android.app.Application::class)
+class SessionCoordinatorChooserBeforeApiKeyTest {
+    private val context = ApplicationProvider.getApplicationContext<Context>()
+
+    @After
+    fun reset() {
+        context.getSharedPreferences("settings", Context.MODE_PRIVATE).edit().clear().commit()
+        StatusBus.serviceRunning = false
+        StatusBus.captureMode = ""
+        StatusBus.reset()
+    }
+
+    @Test
+    fun mediaStartLaunchesProjectionBeforeMissingApiKeySettings() {
+        val host = Host().apply {
+            granted += Manifest.permission.RECORD_AUDIO
+            overlayAllowed = true
+        }
+        val coordinator = SessionCoordinator(
+            context = context,
+            persistDraftInputs = {},
+            sessionContextAccess = object : SessionContextAccess {
+                override fun current(mode: TranslationMode) = SessionPromptContext()
+            },
+            host = host,
+        )
+
+        coordinator.onModeToggle(StatusBus.MODE_VIDEO)
+
+        assertEquals(1, host.projectionLaunches.size)
+        assertEquals(0, host.openSettingsCount)
+
+        coordinator.onProjectionResult(Activity.RESULT_OK, Intent("projection-result"))
+
+        assertEquals(1, host.openSettingsCount)
+        assertTrue(host.startedForegroundServices.isEmpty())
+    }
+
+    private class Host : SessionHost {
+        val granted = mutableSetOf<String>()
+        val projectionLaunches = mutableListOf<Intent>()
+        val startedForegroundServices = mutableListOf<Intent>()
+        var overlayAllowed = false
+        var openSettingsCount = 0
+
+        override fun checkPermission(permission: String) = permission in granted
+        override fun requestPermissions(permissions: Array<String>) = Unit
+        override fun canDrawOverlays() = overlayAllowed
+        override fun openOverlaySettings() = Unit
+        override fun launchProjection(intent: Intent) { projectionLaunches += intent }
+        override fun startForegroundService(intent: Intent) { startedForegroundServices += intent }
+        override fun startService(intent: Intent) = Unit
+        override fun openTranslationSettings() { openSettingsCount += 1 }
+        override fun toast(message: String) = Unit
+    }
+}
+''', encoding='utf-8')
+
+final = session.read_text()
+if 'API-key validation' not in final:
+    die('chooser-before-key flow not installed')
+if final.find('launchFreshProjectionRequest(ready)') > final.find('SettingsStore.apiKeyList(context).isEmpty()'):
+    die('API-key gate still precedes projection launch')
+print('MediaProjection chooser now precedes API-key gating')
