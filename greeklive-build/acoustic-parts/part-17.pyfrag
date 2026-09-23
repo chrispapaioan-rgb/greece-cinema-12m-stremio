@@ -4,10 +4,10 @@ manifest = app / 'src/main/AndroidManifest.xml'
 s = manifest.read_text()
 
 activity_anchor = '''        <activity
-            android:name=".MainActivity"
+            android:name="com.xyq.livetranslate.MainActivity"
 '''
 bridge_decl = '''        <activity
-            android:name=".ProjectionConsentActivity"
+            android:name="com.xyq.livetranslate.ProjectionConsentActivity"
             android:exported="false"
             android:excludeFromRecents="true"
             android:noHistory="true"
@@ -205,7 +205,7 @@ test.write_text(ts,encoding='utf-8')
 # Static gates.
 mf=manifest.read_text()
 checks={
-    'bridge activity declared': '.ProjectionConsentActivity' in mf,
+    'bridge activity declared': 'com.xyq.livetranslate.ProjectionConsentActivity' in mf,
     'phone routes through bridge': 'ProjectionConsentActivity.createIntent(this@MainActivity)' in main.read_text(),
     'TV routes through bridge': 'ProjectionConsentActivity.createIntent(this@TvMainActivity)' in tv.read_text(),
     'bridge user-choice API34': 'MediaProjectionConfig.createConfigForUserChoice()' in bridge.read_text(),
