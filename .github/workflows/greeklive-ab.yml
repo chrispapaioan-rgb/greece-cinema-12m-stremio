@@ -1,0 +1,119 @@
+name: GreekLive MediaProjection A-B isolation
+
+on:
+  push:
+    branches: [greeklive-tv-rebase-working-v10]
+    paths:
+      - '.github/workflows/greeklive-ab.yml'
+      - 'greeklive-build/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - variant: control
+            version_code: 10027
+            include_tv: "false"
+          - variant: tv-alias
+            version_code: 10028
+            include_tv: "true"
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      ANDROID_HOME: /usr/local/lib/android/sdk
+      ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+      PINNED_UPSTREAM: 0c9ba335be827d27f87b3781180175b85cc62bd4
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Prepare Android SDK
+        run: |
+          echo "y" | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platform-tools" "platforms;android-35" "build-tools;35.0.0" >/dev/null
+
+      - name: Clone pinned source
+        run: |
+          git clone https://github.com/xieyuanqing/vtuber-live-translate.git upstream
+          git -C upstream checkout --detach "$PINNED_UPSTREAM"
+          test "$(git -C upstream rev-parse HEAD)" = "$PINNED_UPSTREAM"
+
+      - name: Recreate working GreekLive baseline
+        run: python3 greeklive-build/patch.py upstream
+
+      - name: Apply exact pre-TV runtime plus optional TV manifest alias
+        run: |
+          if [ "${{ matrix.include_tv }}" = "true" ]; then
+            cat greeklive-build/acoustic-parts/part-{00..13}.pyfrag > greeklive-build/ab_patch.py
+          else
+            cat greeklive-build/acoustic-parts/part-{00..12}.pyfrag > greeklive-build/ab_patch.py
+          fi
+          python3 -m py_compile greeklive-build/ab_patch.py
+          python3 greeklive-build/ab_patch.py upstream
+          sed -i 's/versionCode = 10011/versionCode = ${{ matrix.version_code }}/' upstream/android/app/build.gradle.kts
+
+      - name: Download pinned acoustic dependencies
+        run: |
+          mkdir -p upstream/android/app/libs upstream/android/app/src/main/assets
+          curl -fL --retry 4 --retry-delay 2 https://github.com/k2-fsa/sherpa-onnx/releases/download/v1.13.8/sherpa-onnx-1.13.8.aar -o upstream/android/app/libs/sherpa-onnx-1.13.8.aar
+          curl -fL --retry 4 --retry-delay 2 https://github.com/k2-fsa/sherpa-onnx/releases/download/speaker-recongition-models/3dspeaker_speech_eres2net_base_sv_zh-cn_3dspeaker_16k.onnx -o upstream/android/app/src/main/assets/3dspeaker_speech_eres2net_base_sv_zh-cn_3dspeaker_16k.onnx
+          curl -fL --retry 4 --retry-delay 2 https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/silero_vad.onnx -o upstream/android/app/src/main/assets/silero_vad.onnx
+          cd upstream/android/app
+          echo "633c24321e06b1fe79feafa03ea16cbc0f8a286641e2da3559bac91bdb13bd96  libs/sherpa-onnx-1.13.8.aar" | sha256sum -c -
+          echo "1a331345f04805badbb495c775a6ddffcdd1a732567d5ec8b3d5749e3c7a5e4b  src/main/assets/3dspeaker_speech_eres2net_base_sv_zh-cn_3dspeaker_16k.onnx" | sha256sum -c -
+          echo "9e2449e1087496d8d4caba907f23e0bd3f78d91fa552479bb9c23ac09cbb1fd6  src/main/assets/silero_vad.onnx" | sha256sum -c -
+
+      - name: Tests and APK
+        working-directory: upstream/android
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon :app:testDebugUnitTest \
+            --tests com.xyq.livetranslate.ui.SessionCoordinatorProjectionRepeatTest \
+            --tests com.xyq.livetranslate.AcousticSpeakerTurnTest \
+            --stacktrace
+          ./gradlew --no-daemon :app:lintDebug :app:assembleDebug --stacktrace
+
+      - name: Preflight
+        run: |
+          cp upstream/android/app/build/outputs/apk/debug/app-debug.apk GreekLive-${{ matrix.variant }}-${{ matrix.version_code }}.apk
+          APK=GreekLive-${{ matrix.variant }}-${{ matrix.version_code }}.apk
+          unzip -t "$APK"
+          "$ANDROID_HOME/build-tools/35.0.0/aapt2" dump badging "$APK" | tee badging-${{ matrix.variant }}.txt
+          "$ANDROID_HOME/build-tools/35.0.0/aapt2" dump xmltree "$APK" --file AndroidManifest.xml | tee manifest-${{ matrix.variant }}.txt
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$APK" | tee signature-${{ matrix.variant }}.txt
+          grep -q "package: name='com.greeklive.subtitles'" badging-${{ matrix.variant }}.txt
+          grep -q "versionCode='${{ matrix.version_code }}'" badging-${{ matrix.variant }}.txt
+          if [ "${{ matrix.include_tv }}" = "true" ]; then
+            grep -q "TvLauncher" manifest-${{ matrix.variant }}.txt
+            grep -q "android.intent.category.LEANBACK_LAUNCHER" manifest-${{ matrix.variant }}.txt
+          else
+            ! grep -q "TvLauncher" manifest-${{ matrix.variant }}.txt
+          fi
+          mkdir dex
+          (cd dex && unzip -q -o "../$APK" 'classes*.dex')
+          sha256sum dex/classes*.dex | tee dex-${{ matrix.variant }}.txt
+          sha256sum "$APK" | tee sha256-${{ matrix.variant }}.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: GreekLive-mediaprojection-${{ matrix.variant }}-${{ matrix.version_code }}
+          path: |
+            GreekLive-${{ matrix.variant }}-${{ matrix.version_code }}.apk
+            badging-${{ matrix.variant }}.txt
+            manifest-${{ matrix.variant }}.txt
+            signature-${{ matrix.variant }}.txt
+            dex-${{ matrix.variant }}.txt
+            sha256-${{ matrix.variant }}.txt
+          if-no-files-found: error
+          retention-days: 7
