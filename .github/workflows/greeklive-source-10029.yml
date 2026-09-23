@@ -1,0 +1,133 @@
+name: GreekLive source project 10029
+
+on:
+  push:
+    branches: [greeklive-source-10029]
+    paths:
+      - '.github/workflows/greeklive-source-10029.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source-project:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      ANDROID_HOME: /usr/local/lib/android/sdk
+      ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+      PINNED_UPSTREAM: 0c9ba335be827d27f87b3781180175b85cc62bd4
+    steps:
+      - name: Checkout build helper
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Prepare Android SDK
+        run: |
+          echo "y" | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platform-tools" "platforms;android-35" "build-tools;35.0.0" >/dev/null
+
+      - name: Clone pinned upstream source
+        run: |
+          git clone https://github.com/xieyuanqing/vtuber-live-translate.git upstream
+          git -C upstream checkout --detach "$PINNED_UPSTREAM"
+          test "$(git -C upstream rev-parse HEAD)" = "$PINNED_UPSTREAM"
+
+      - name: Recreate GreekLive working pre-TV source
+        run: |
+          python3 greeklive-build/patch.py upstream
+          cat greeklive-build/acoustic-parts/part-{00..12}.pyfrag > greeklive-build/acoustic_patch_10029.py
+          python3 -m py_compile greeklive-build/acoustic_patch_10029.py
+          python3 greeklive-build/acoustic_patch_10029.py upstream
+          sed -i 's/versionCode = 10011/versionCode = 10029/' upstream/android/app/build.gradle.kts
+          grep -q 'versionCode = 10029' upstream/android/app/build.gradle.kts
+          grep -q 'versionName = "0.1.10"' upstream/android/app/build.gradle.kts
+
+      - name: Add pinned acoustic binaries
+        run: |
+          mkdir -p upstream/android/app/libs upstream/android/app/src/main/assets
+          curl -fL --retry 4 --retry-delay 2             https://github.com/k2-fsa/sherpa-onnx/releases/download/v1.13.8/sherpa-onnx-1.13.8.aar             -o upstream/android/app/libs/sherpa-onnx-1.13.8.aar
+          curl -fL --retry 4 --retry-delay 2             https://github.com/k2-fsa/sherpa-onnx/releases/download/speaker-recongition-models/3dspeaker_speech_eres2net_base_sv_zh-cn_3dspeaker_16k.onnx             -o upstream/android/app/src/main/assets/3dspeaker_speech_eres2net_base_sv_zh-cn_3dspeaker_16k.onnx
+          curl -fL --retry 4 --retry-delay 2             https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/silero_vad.onnx             -o upstream/android/app/src/main/assets/silero_vad.onnx
+          cd upstream/android/app
+          echo "633c24321e06b1fe79feafa03ea16cbc0f8a286641e2da3559bac91bdb13bd96  libs/sherpa-onnx-1.13.8.aar" | sha256sum -c -
+          echo "1a331345f04805badbb495c775a6ddffcdd1a732567d5ec8b3d5749e3c7a5e4b  src/main/assets/3dspeaker_speech_eres2net_base_sv_zh-cn_3dspeaker_16k.onnx" | sha256sum -c -
+          echo "9e2449e1087496d8d4caba907f23e0bd3f78d91fa552479bb9c23ac09cbb1fd6  src/main/assets/silero_vad.onnx" | sha256sum -c -
+
+      - name: Validate project builds
+        working-directory: upstream/android
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon :app:testDebugUnitTest             --tests com.xyq.livetranslate.AcousticSpeakerTurnTest             --tests com.xyq.livetranslate.ui.SessionCoordinatorProjectionRepeatTest             --tests com.xyq.livetranslate.SubtitleOverlayBottomPlacementTest             --tests com.xyq.livetranslate.SubtitleLayoutAndSpacingTest             --stacktrace
+          ./gradlew --no-daemon :app:assembleDebug --stacktrace
+
+      - name: Prepare source project archive
+        run: |
+          cat > upstream/BUILD_INFO_10029.txt <<'EOF'
+          GreekLive v0.1.10 source project
+          versionCode: 10029
+          applicationId: com.greeklive.subtitles
+          targetSdk: 35
+          minSdk: 29
+          upstream: xieyuanqing/vtuber-live-translate
+          upstream commit: 0c9ba335be827d27f87b3781180175b85cc62bd4
+          profile: working pre-TV source baseline
+          TV/Leanback modifications: intentionally NOT included
+          MediaProjection path: pre-TV baseline
+          Acoustic speaker-turn patch: included
+          sherpa-onnx AAR + speaker/VAD models: included and checksum-pinned
+          API key: not embedded
+          EOF
+
+          cat > upstream/README_GREEKLIVE_10029.md <<'EOF'
+          # GreekLive v0.1.10 — Source Project 10029
+
+          This archive is the full patched Android source project for GreekLive versionCode 10029.
+
+          It is intentionally based on the pre-TV runtime baseline used before the Google TV
+          adaptations. TV/Leanback changes are excluded so the MediaProjection flow can be
+          reviewed from the clean baseline.
+
+          ## Build
+
+          Requirements:
+          - JDK 17
+          - Android SDK 35 / Build Tools 35.0.0
+
+          From the `android` directory:
+
+              ./gradlew :app:testDebugUnitTest
+              ./gradlew :app:assembleDebug
+
+          Debug APK output:
+
+              android/app/build/outputs/apk/debug/app-debug.apk
+
+          No Gemini API key is included in this source archive.
+          EOF
+
+          rm -rf upstream/.git
+          rm -rf upstream/android/.gradle
+          rm -rf upstream/android/build
+          rm -rf upstream/android/app/build
+
+          mv upstream GreekLive-v0.1.10-project-10029
+          zip -r -9 GreekLive-v0.1.10-project-10029.zip GreekLive-v0.1.10-project-10029             -x '*/.DS_Store' '*/local.properties'
+          sha256sum GreekLive-v0.1.10-project-10029.zip | tee SOURCE_SHA256SUMS.txt
+          unzip -t GreekLive-v0.1.10-project-10029.zip
+
+      - name: Upload source project
+        uses: actions/upload-artifact@v4
+        with:
+          name: GreekLive-v0.1.10-source-project-10029
+          path: |
+            GreekLive-v0.1.10-project-10029.zip
+            SOURCE_SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 7
