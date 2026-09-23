@@ -1,0 +1,258 @@
+
+# --- P0 fix: make Android MediaProjection chooser the FIRST action after Video Start.
+# No API-key, audio-permission or overlay prerequisite may block the chooser.
+session = pkg / 'ui/SessionCoordinator.kt'
+s = session.read_text()
+
+def replace_fun(src, signature, replacement):
+    start = src.find(signature)
+    if start < 0:
+        die('function anchor missing: ' + signature)
+    brace = src.find('{', start)
+    if brace < 0:
+        die('opening brace missing: ' + signature)
+    depth = 0
+    end = None
+    for i in range(brace, len(src)):
+        if src[i] == '{':
+            depth += 1
+        elif src[i] == '}':
+            depth -= 1
+            if depth == 0:
+                end = i + 1
+                break
+    if end is None:
+        die('closing brace missing: ' + signature)
+    return src[:start] + replacement + src[end:]
+
+field_anchor = '''    private var pendingSnapshot: PendingSessionSnapshot? = null
+    private var sessionContextAccess: SessionContextAccess? = sessionContextAccess
+'''
+field_repl = '''    private var pendingSnapshot: PendingSessionSnapshot? = null
+
+    // Fresh grant from the system chooser for this explicit Video start only.
+    private var pendingProjectionResultCode: Int? = null
+    private var pendingProjectionResultData: Intent? = null
+
+    private var sessionContextAccess: SessionContextAccess? = sessionContextAccess
+'''
+if field_anchor not in s:
+    die('pendingSnapshot field anchor missing')
+s = s.replace(field_anchor, field_repl, 1)
+
+start_capture = r'''    private fun startCapture(captureMode: String) {
+        if (!isCaptureMode(captureMode)) return
+
+        if (captureMode == StatusBus.MODE_VIDEO) {
+            // P0 invariant: the platform share chooser is always first.
+            pendingSnapshot = null
+            pendingProjectionResultCode = null
+            pendingProjectionResultData = null
+            val projectionManager = context.getSystemService(MediaProjectionManager::class.java)
+            host.launchProjection(projectionManager.createScreenCaptureIntent())
+            return
+        }
+
+        val reusable = pendingSnapshot?.takeIf {
+            it.stage == PendingSessionStage.WAITING_PERMISSION &&
+                it.captureMode == captureMode &&
+                it.prompt.isNotBlank()
+        }
+        if (reusable != null) {
+            val ready = reusable.copy(stage = PendingSessionStage.READY)
+            pendingSnapshot = ready
+            continueStart(ready, returningFromPermissionRequest = true)
+            return
+        }
+
+        val prepared = prepareSessionSettings(captureMode) ?: return
+        pendingSnapshot = prepared
+        continueStart(prepared, returningFromPermissionRequest = false)
+    }'''
+s = replace_fun(s, '    private fun startCapture(captureMode: String)', start_capture)
+
+continue_start = r'''    private fun continueStart(
+        snapshot: PendingSessionSnapshot,
+        returningFromPermissionRequest: Boolean,
+    ) {
+        if (!host.checkPermission(Manifest.permission.RECORD_AUDIO)) {
+            if (returningFromPermissionRequest) {
+                pendingSnapshot = snapshot.copy(stage = PendingSessionStage.READY)
+                host.toast(context.getString(R.string.rt_toast_record_audio_permission_required))
+                return
+            }
+            val permissions = mutableListOf(Manifest.permission.RECORD_AUDIO)
+            if (
+                Build.VERSION.SDK_INT >= 33 &&
+                !host.checkPermission(Manifest.permission.POST_NOTIFICATIONS)
+            ) {
+                permissions += Manifest.permission.POST_NOTIFICATIONS
+            }
+            pendingSnapshot = snapshot.copy(stage = PendingSessionStage.WAITING_PERMISSION)
+            host.requestPermissions(permissions.toTypedArray())
+            return
+        }
+
+        val ready = snapshot.copy(stage = PendingSessionStage.READY)
+        pendingSnapshot = ready
+
+        if (ready.captureMode == StatusBus.MODE_VIDEO) {
+            if (!host.canDrawOverlays()) {
+                pendingSnapshot = ready.copy(stage = PendingSessionStage.WAITING_OVERLAY)
+                host.toast(context.getString(R.string.rt_toast_overlay_permission_required))
+                host.openOverlaySettings()
+                return
+            }
+
+            val projectionCode = pendingProjectionResultCode
+            val projectionData = pendingProjectionResultData
+            if (projectionCode == Activity.RESULT_OK && projectionData != null) {
+                val startIntent = captureStartIntent(ready)
+                    .putExtra(CaptureService.EXTRA_RESULT_CODE, projectionCode)
+                    .putExtra(CaptureService.EXTRA_RESULT_DATA, projectionData)
+                pendingProjectionResultCode = null
+                pendingProjectionResultData = null
+                host.startForegroundService(startIntent)
+                consumeStartedSession(ready)
+                return
+            }
+
+            // Used by internal prepared-session tests/restores. Normal Start already asked first.
+            launchFreshProjectionRequest(ready)
+            return
+        }
+
+        host.startForegroundService(captureStartIntent(ready))
+        consumeStartedSession(ready)
+    }'''
+s = replace_fun(s, '    private fun continueStart(', continue_start)
+
+projection_result = r'''    fun onProjectionResult(resultCode: Int, data: Intent?) {
+        // Prepared-session fallback (unit tests / restored internal flow).
+        val waitingPrepared = pendingSnapshot?.takeIf {
+            it.captureMode == StatusBus.MODE_VIDEO &&
+                it.stage == PendingSessionStage.WAITING_PROJECTION
+        }
+        if (waitingPrepared != null) {
+            if (resultCode != Activity.RESULT_OK || data == null) {
+                pendingSnapshot = null
+                pendingProjectionResultCode = null
+                pendingProjectionResultData = null
+                host.toast(context.getString(R.string.rt_toast_projection_permission_denied))
+                return
+            }
+            val startIntent = captureStartIntent(waitingPrepared)
+                .putExtra(CaptureService.EXTRA_RESULT_CODE, resultCode)
+                .putExtra(CaptureService.EXTRA_RESULT_DATA, data)
+            host.startForegroundService(startIntent)
+            consumeStartedSession(waitingPrepared)
+            return
+        }
+
+        // Normal explicit Video flow: this callback occurs before all other prerequisites.
+        if (resultCode != Activity.RESULT_OK || data == null) {
+            pendingProjectionResultCode = null
+            pendingProjectionResultData = null
+            host.toast(context.getString(R.string.rt_toast_projection_permission_denied))
+            return
+        }
+
+        pendingProjectionResultCode = resultCode
+        pendingProjectionResultData = data
+
+        val prepared = prepareSessionSettings(StatusBus.MODE_VIDEO)
+        if (prepared == null) {
+            // Do not cache a grant across another explicit Start.
+            pendingProjectionResultCode = null
+            pendingProjectionResultData = null
+            return
+        }
+        pendingSnapshot = prepared
+        continueStart(prepared, returningFromPermissionRequest = false)
+    }'''
+s = replace_fun(s, '    fun onProjectionResult(resultCode: Int, data: Intent?)', projection_result)
+
+session.write_text(s, encoding='utf-8')
+
+# Regression: explicit Video Start must launch chooser even with no API key, no mic permission,
+# and no overlay permission.
+test = app / 'src/test/java/com/xyq/livetranslate/ui/SessionCoordinatorChooserFirstTest.kt'
+test.parent.mkdir(parents=True, exist_ok=True)
+test.write_text(r'''package com.xyq.livetranslate.ui
+
+import android.content.Context
+import android.content.Intent
+import androidx.test.core.app.ApplicationProvider
+import com.xyq.livetranslate.SessionPromptContext
+import com.xyq.livetranslate.StatusBus
+import com.xyq.livetranslate.TranslationMode
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
+
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [34], application = android.app.Application::class)
+class SessionCoordinatorChooserFirstTest {
+    private val context = ApplicationProvider.getApplicationContext<Context>()
+
+    @After fun resetStatus() {
+        StatusBus.serviceRunning = false
+        StatusBus.captureMode = ""
+        StatusBus.reset()
+    }
+
+    @Test
+    fun videoStartLaunchesChooserBeforeEveryOtherPrerequisite() {
+        val host = Host()
+        val coordinator = SessionCoordinator(
+            context = context,
+            persistDraftInputs = {},
+            sessionContextAccess = object : SessionContextAccess {
+                override fun current(mode: TranslationMode) = SessionPromptContext()
+            },
+            host = host,
+        )
+
+        coordinator.onModeToggle(StatusBus.MODE_VIDEO)
+
+        assertEquals(1, host.projectionLaunches)
+        assertEquals(0, host.permissionRequests)
+        assertEquals(0, host.overlayRequests)
+        assertEquals(0, host.startedServices)
+        assertEquals(0, host.settingsRequests)
+    }
+
+    private class Host : SessionHost {
+        var projectionLaunches = 0
+        var permissionRequests = 0
+        var overlayRequests = 0
+        var startedServices = 0
+        var settingsRequests = 0
+
+        override fun checkPermission(permission: String) = false
+        override fun requestPermissions(permissions: Array<String>) { permissionRequests++ }
+        override fun canDrawOverlays() = false
+        override fun openOverlaySettings() { overlayRequests++ }
+        override fun launchProjection(intent: Intent) { projectionLaunches++ }
+        override fun startForegroundService(intent: Intent) { startedServices++ }
+        override fun startService(intent: Intent) = Unit
+        override fun openTranslationSettings() { settingsRequests++ }
+        override fun toast(message: String) = Unit
+    }
+}
+''', encoding='utf-8')
+
+final = session.read_text()
+checks = {
+    'chooser-first marker': 'P0 invariant: the platform share chooser is always first.' in final,
+    'direct system chooser': 'host.launchProjection(projectionManager.createScreenCaptureIntent())' in final,
+    'grant handoff': 'pendingProjectionResultData = data' in final,
+    'post-chooser prepare': 'val prepared = prepareSessionSettings(StatusBus.MODE_VIDEO)' in final,
+}
+for label, ok in checks.items():
+    if not ok:
+        die('chooser-first sanity failed: ' + label)
+print('GreekLive chooser-first MediaProjection flow complete')
