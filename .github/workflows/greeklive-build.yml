@@ -70,6 +70,7 @@ jobs:
           ./gradlew --no-daemon :app:testDebugUnitTest \
             --tests com.xyq.livetranslate.AcousticSpeakerTurnTest \
             --tests com.xyq.livetranslate.ui.SessionCoordinatorProjectionRepeatTest \
+            --tests com.xyq.livetranslate.ui.SessionCoordinatorChooserFirstTest \
             --tests com.xyq.livetranslate.SubtitleOverlayBottomPlacementTest \
             --tests com.xyq.livetranslate.SubtitleLayoutAndSpacingTest \
             --stacktrace
