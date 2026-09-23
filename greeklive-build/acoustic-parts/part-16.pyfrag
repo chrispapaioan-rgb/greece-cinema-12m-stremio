@@ -23,7 +23,7 @@ main_activity_end = '''        </activity>
 tv_activity = '''        </activity>
 
         <activity
-            android:name=".TvMainActivity"
+            android:name="com.xyq.livetranslate.TvMainActivity"
             android:exported="true"
             android:screenOrientation="landscape"
             android:configChanges="keyboard|keyboardHidden|navigation|orientation|screenSize|smallestScreenSize|uiMode"
@@ -502,7 +502,7 @@ mf=manifest.read_text()
 lt=layout.read_text()
 kt=tv.read_text()
 checks={
-    'TV launcher moved off heavy MainActivity': mf.count('android.intent.category.LEANBACK_LAUNCHER') == 1 and 'android:name=".TvMainActivity"' in mf,
+    'TV launcher moved off heavy MainActivity': mf.count('android.intent.category.LEANBACK_LAUNCHER') == 1 and 'android:name="com.xyq.livetranslate.TvMainActivity"' in mf,
     'round blue start': 'android:id="@+id/btnTvStart"' in lt and 'app:cornerRadius="68dp"' in lt,
     'start directly under language direction': lt.index('tvLanguagePill') < lt.index('btnTvStart') < lt.index('tvSceneButtons'),
     'minimal TV layout': 'page_history' not in lt and 'page_settings' not in lt,
