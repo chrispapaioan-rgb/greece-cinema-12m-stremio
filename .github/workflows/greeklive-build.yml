@@ -50,7 +50,7 @@ jobs:
           python3 -m py_compile greeklive-build/acoustic_patch.py
           python3 greeklive-build/acoustic_patch.py upstream
           # Upgrade cleanly over the already-tested v0.1.10 package.
-          sed -i 's/versionCode = 10011/versionCode = 10022/' upstream/android/app/build.gradle.kts
+          sed -i 's/versionCode = 10011/versionCode = 10023/' upstream/android/app/build.gradle.kts
 
       - name: Download and pin sherpa + speaker models
         run: |
@@ -86,13 +86,13 @@ jobs:
           "$ANDROID_HOME/build-tools/35.0.0/aapt2" dump badging GreekLive-v0.1.10-TV.apk | tee apk-badging.txt
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs GreekLive-v0.1.10-TV.apk | tee apk-signature.txt
           grep -q "package: name='com.greeklive.subtitles'" apk-badging.txt
-          grep -q "versionCode='10022'" apk-badging.txt
+          grep -q "versionCode='10023'" apk-badging.txt
           grep -q "versionName='0.1.10'" apk-badging.txt
           grep -q "leanback-launchable-activity:" apk-badging.txt
           grep -q "uses-feature-not-required: name='android.hardware.touchscreen'" apk-badging.txt
           grep -q "uses-feature-not-required: name='android.hardware.microphone'" apk-badging.txt
           "$ANDROID_HOME/build-tools/35.0.0/aapt2" dump xmltree GreekLive-v0.1.10-TV.apk --file AndroidManifest.xml | tee apk-manifest.txt
-          grep -q "ProjectionConsentActivity" apk-manifest.txt
+          ! grep -q "ProjectionConsentActivity" apk-manifest.txt
           unzip -l GreekLive-v0.1.10-TV.apk | tee apk-files.txt
           grep -q "assets/3dspeaker_speech_eres2net_base_sv_zh-cn_3dspeaker_16k.onnx" apk-files.txt
           grep -q "assets/silero_vad.onnx" apk-files.txt
