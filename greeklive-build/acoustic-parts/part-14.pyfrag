@@ -1,0 +1,154 @@
+
+# --- Google TV API-key acquisition fallback: browser when present, QR when absent.
+# Do not touch MainActivity/SessionCoordinator/MediaProjection.
+
+gradle = app / 'build.gradle.kts'
+g = gradle.read_text()
+dep_anchor = '    implementation("com.squareup.okhttp3:okhttp:4.12.0")\n'
+dep_line = '    implementation("com.google.zxing:core:3.5.3")\n'
+if dep_line not in g:
+    if dep_anchor not in g:
+        die('OkHttp dependency anchor missing')
+    g = g.replace(dep_anchor, dep_anchor + dep_line, 1)
+gradle.write_text(g, encoding='utf-8')
+
+settings = pkg / 'ui/SettingsController.kt'
+s = settings.read_text()
+
+# Imports for QR fallback.
+imports_anchor = 'import android.graphics.Color\n'
+imports = '''import android.graphics.Color
+import android.graphics.Bitmap
+import android.content.pm.PackageManager
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.Toast
+import com.google.zxing.BarcodeFormat
+import com.google.zxing.qrcode.QRCodeWriter
+'''
+if imports_anchor not in s:
+    die('SettingsController imports anchor missing')
+s = s.replace(imports_anchor, imports, 1)
+
+old = '''    private fun openExternalUrl(url: String) {
+        runCatching {
+            launchIntent(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+        }.onFailure {
+            toast(context.getString(R.string.rt_toast_no_browser))
+        }
+    }
+'''
+
+new = r'''    private fun openExternalUrl(url: String) {
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+            addCategory(Intent.CATEGORY_BROWSABLE)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        val hasBrowser = runCatching {
+            context.packageManager.resolveActivity(
+                intent,
+                PackageManager.MATCH_DEFAULT_ONLY,
+            ) != null
+        }.getOrDefault(false)
+
+        if (hasBrowser) {
+            runCatching { launchIntent(intent) }
+                .onSuccess { return }
+        }
+
+        // Google TV / Chromecast commonly has no browser installed.
+        // Never leave the user blocked: show a locally generated QR code instead.
+        showExternalUrlQr(url)
+    }
+
+    private fun showExternalUrlQr(url: String) {
+        val density = context.resources.displayMetrics.density
+        val size = (280f * density).toInt().coerceIn(560, 900)
+        val qrBitmap = runCatching {
+            val matrix = QRCodeWriter().encode(url, BarcodeFormat.QR_CODE, size, size)
+            val pixels = IntArray(size * size)
+            for (y in 0 until size) {
+                for (x in 0 until size) {
+                    pixels[y * size + x] = if (matrix[x, y]) Color.BLACK else Color.WHITE
+                }
+            }
+            Bitmap.createBitmap(pixels, size, size, Bitmap.Config.ARGB_8888)
+        }.getOrNull()
+
+        val pad = (20f * density).toInt()
+        val root = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(pad, pad, pad, pad)
+        }
+        root.addView(
+            TextView(context).apply {
+                text = "No browser is installed on this TV. Scan the QR code with your phone, create the Gemini API key, then enter or paste it back in GreekLive."
+                textSize = 17f
+                setTextColor(Color.WHITE)
+                setPadding(0, 0, 0, pad / 2)
+            },
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+            ),
+        )
+        if (qrBitmap != null) {
+            root.addView(
+                ImageView(context).apply {
+                    setImageBitmap(qrBitmap)
+                    contentDescription = "QR code for $url"
+                    isFocusable = false
+                },
+                LinearLayout.LayoutParams(size, size).apply {
+                    gravity = android.view.Gravity.CENTER_HORIZONTAL
+                },
+            )
+        }
+        root.addView(
+            TextView(context).apply {
+                text = url
+                textSize = 16f
+                setTextColor(Color.WHITE)
+                setTextIsSelectable(true)
+                setPadding(0, pad / 2, 0, 0)
+            },
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+            ),
+        )
+
+        MaterialAlertDialogBuilder(context)
+            .setTitle("Get Gemini API key")
+            .setView(root)
+            .setPositiveButton("Copy link") { _, _ ->
+                val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE)
+                    as? android.content.ClipboardManager
+                clipboard?.setPrimaryClip(
+                    android.content.ClipData.newPlainText("Gemini API key URL", url)
+                )
+                Toast.makeText(context, "Link copied", Toast.LENGTH_SHORT).show()
+            }
+            .setNegativeButton("Close", null)
+            .show()
+    }
+'''
+if old not in s:
+    die('openExternalUrl original block missing')
+s = s.replace(old, new, 1)
+settings.write_text(s, encoding='utf-8')
+
+# Static acceptance gates.
+fs = settings.read_text()
+fg = gradle.read_text()
+checks = {
+    'ZXing dependency': 'com.google.zxing:core:3.5.3' in fg,
+    'browser capability check': 'resolveActivity(' in fs,
+    'QR fallback': 'showExternalUrlQr(url)' in fs,
+    'AI Studio URL still wired': 'https://aistudio.google.com/apikey' in fs,
+    'MediaProjection untouched by this part': 'MediaProjection' not in fs,
+}
+for label, ok in checks.items():
+    if not ok:
+        die('TV API-key fallback sanity failed: ' + label)
+print('GreekLive TV browser/QR API-key fallback complete')
