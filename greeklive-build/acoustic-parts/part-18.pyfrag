@@ -1,0 +1,94 @@
+
+# --- Restore the EXACT MediaProjection launch path from the POCO-working v0.1.10 APK.
+# The validated binary used:
+#   MediaProjectionManager.createScreenCaptureIntent()
+#   -> SessionHost.launchProjection(intent)
+#   -> MainActivity projLauncher.launch(intent)
+# Do not wrap it in a bridge Activity and do not use MediaProjectionConfig.
+
+session = pkg / 'ui/SessionCoordinator.kt'
+s = session.read_text()
+
+# Remove the later explicit-config import.
+s = s.replace('import android.media.projection.MediaProjectionConfig\n', '')
+
+# Restore launchFreshProjectionRequest to the proven v10 implementation while preserving the
+# explicit-new-session state reset added separately.
+start = s.find('    private fun launchFreshProjectionRequest(snapshot: PendingSessionSnapshot) {')
+end = s.find('\n    /** onResume', start)
+if start < 0 or end < 0:
+    die('launchFreshProjectionRequest anchors missing')
+working = '''    private fun launchFreshProjectionRequest(snapshot: PendingSessionSnapshot) {
+        pendingSnapshot = snapshot.copy(stage = PendingSessionStage.WAITING_PROJECTION)
+        val projectionManager = context.getSystemService(MediaProjectionManager::class.java)
+
+        // Proven path from the first working v0.1.10 APK.
+        val request = projectionManager.createScreenCaptureIntent()
+        host.launchProjection(request)
+    }
+'''
+s = s[:start] + working + s[end:]
+session.write_text(s, encoding='utf-8')
+
+# MainActivity: direct ActivityResult launcher, exactly as the working APK.
+main = pkg / 'MainActivity.kt'
+s = main.read_text()
+bridge_main = '''        override fun launchProjection(intent: Intent) =
+            projLauncher.launch(ProjectionConsentActivity.createIntent(this@MainActivity))
+'''
+direct_main = '''        override fun launchProjection(intent: Intent) = projLauncher.launch(intent)
+'''
+if bridge_main not in s:
+    die('MainActivity bridge projection anchor missing')
+s = s.replace(bridge_main, direct_main, 1)
+main.write_text(s, encoding='utf-8')
+
+# Google TV: same direct platform intent through its own registered launcher.
+tv = pkg / 'TvMainActivity.kt'
+s = tv.read_text()
+bridge_tv = '''        override fun launchProjection(intent: Intent) =
+            projectionLauncher.launch(ProjectionConsentActivity.createIntent(this@TvMainActivity))
+'''
+direct_tv = '''        override fun launchProjection(intent: Intent) = projectionLauncher.launch(intent)
+'''
+if bridge_tv not in s:
+    die('TvMainActivity bridge projection anchor missing')
+s = s.replace(bridge_tv, direct_tv, 1)
+tv.write_text(s, encoding='utf-8')
+
+# Remove the experimental bridge completely from manifest and source.
+manifest = app / 'src/main/AndroidManifest.xml'
+s = manifest.read_text()
+bridge_decl = '''        <activity
+            android:name="com.xyq.livetranslate.ProjectionConsentActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.LiveTranslate" />
+
+'''
+if bridge_decl not in s:
+    die('ProjectionConsentActivity manifest declaration missing')
+s = s.replace(bridge_decl, '', 1)
+manifest.write_text(s, encoding='utf-8')
+
+bridge_file = pkg / 'ProjectionConsentActivity.kt'
+if bridge_file.exists():
+    bridge_file.unlink()
+
+# Regression gates: this build must contain only the proven direct flow.
+final_session = session.read_text()
+final_main = main.read_text()
+final_tv = tv.read_text()
+final_manifest = manifest.read_text()
+
+if 'projectionManager.createScreenCaptureIntent()' not in final_session:
+    die('working createScreenCaptureIntent path not restored')
+if 'projLauncher.launch(intent)' not in final_main:
+    die('phone direct projection launcher not restored')
+if 'projectionLauncher.launch(intent)' not in final_tv:
+    die('TV direct projection launcher not restored')
+if 'MediaProjectionConfig' in final_session:
+    die('experimental MediaProjectionConfig still present')
+if 'ProjectionConsentActivity' in final_main or 'ProjectionConsentActivity' in final_tv or 'ProjectionConsentActivity' in final_manifest:
+    die('experimental projection bridge still present')
+print('GreekLive proven v0.1.10 MediaProjection flow restored')
