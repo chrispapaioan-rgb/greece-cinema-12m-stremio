@@ -88,9 +88,9 @@ jobs:
           grep -q "package: name='com.greeklive.subtitles'" apk-badging.txt
           grep -q "versionCode='10016'" apk-badging.txt
           grep -q "versionName='0.1.10'" apk-badging.txt
-          grep -q "leanback-launcher-activity:" apk-badging.txt
-          grep -q "uses-feature-not-required:'android.hardware.touchscreen'" apk-badging.txt
-          grep -q "uses-feature-not-required:'android.hardware.microphone'" apk-badging.txt
+          grep -q "leanback-launchable-activity:" apk-badging.txt
+          grep -q "uses-feature-not-required: name='android.hardware.touchscreen'" apk-badging.txt
+          grep -q "uses-feature-not-required: name='android.hardware.microphone'" apk-badging.txt
           unzip -l GreekLive-v0.1.10-TV.apk | tee apk-files.txt
           grep -q "assets/3dspeaker_speech_eres2net_base_sv_zh-cn_3dspeaker_16k.onnx" apk-files.txt
           grep -q "assets/silero_vad.onnx" apk-files.txt
