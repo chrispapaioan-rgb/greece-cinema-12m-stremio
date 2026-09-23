@@ -10,7 +10,6 @@ bridge_decl = '''        <activity
             android:name="com.xyq.livetranslate.ProjectionConsentActivity"
             android:exported="false"
             android:excludeFromRecents="true"
-            android:noHistory="true"
             android:theme="@style/Theme.LiveTranslate" />
 
 '''
