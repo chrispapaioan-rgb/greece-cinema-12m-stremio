@@ -29,7 +29,7 @@ if app_anchor not in s:
 s = s.replace(app_anchor, app_repl, 1)
 
 service_anchor = '''        <service
-            android:name=".CaptureService"
+            android:name="com.xyq.livetranslate.CaptureService"
 '''
 alias = '''        <activity-alias
             android:name="com.greeklive.subtitles.TvLauncher"
