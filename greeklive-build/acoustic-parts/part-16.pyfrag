@@ -1,0 +1,516 @@
+
+# --- Dedicated lightweight Google TV launcher Activity.
+# Goal: first frame quickly, without inflating the full phone activity (history/settings/AI pages).
+# TV launches directly into a minimal Media UI; phone launcher remains MainActivity.
+
+manifest = app / 'src/main/AndroidManifest.xml'
+s = manifest.read_text()
+
+# MainActivity remains the phone launcher only.
+leanback_filter = '''            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+'''
+if leanback_filter not in s:
+    die('MainActivity Leanback filter missing before TV split')
+s = s.replace(leanback_filter, '', 1)
+
+main_activity_end = '''        </activity>
+
+        <service
+'''
+tv_activity = '''        </activity>
+
+        <activity
+            android:name=".TvMainActivity"
+            android:exported="true"
+            android:screenOrientation="landscape"
+            android:configChanges="keyboard|keyboardHidden|navigation|orientation|screenSize|smallestScreenSize|uiMode"
+            android:theme="@style/Theme.LiveTranslate">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <service
+'''
+if main_activity_end not in s:
+    die('manifest MainActivity/service anchor missing')
+s=s.replace(main_activity_end,tv_activity,1)
+manifest.write_text(s,encoding='utf-8')
+
+# Minimal TV layout: language direction -> circular blue Start -> scene choices -> status/running controls.
+layout = app / 'src/main/res/layout/activity_tv.xml'
+layout.write_text(r'''<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/tvRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/app_background"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:paddingHorizontal="56dp"
+    android:paddingTop="28dp"
+    android:paddingBottom="24dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/app_name"
+        android:textColor="@color/text_primary"
+        android:textSize="28sp"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:id="@+id/tvLanguagePill"
+        android:layout_width="560dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:background="@drawable/bg_language_pill"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="22dp"
+        android:paddingVertical="12dp">
+
+        <TextView
+            android:id="@+id/tvSourceLanguage"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Auto detect"
+            android:textColor="@color/text_primary"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="52dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="→"
+            android:textColor="@color/brand"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvTargetLanguage"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Greek / Ελληνικά"
+            android:textColor="@color/brand"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- Requested TV CTA: the same circular blue visual language as the original mic button,
+         directly below Auto detect → Greek. -->
+    <FrameLayout
+        android:id="@+id/tvStartHalo"
+        android:layout_width="176dp"
+        android:layout_height="176dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/bg_mic_halo"
+        android:padding="20dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnTvStart"
+            style="@style/LuminousPrimaryButton"
+            android:layout_width="136dp"
+            android:layout_height="136dp"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:text="@string/video_btn_start"
+            app:cornerRadius="68dp"
+            app:icon="@drawable/ic_nav_video_24"
+            app:iconGravity="textTop"
+            app:iconPadding="8dp"
+            app:iconSize="34dp" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/tvTvStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:text="Ready"
+        android:textColor="@color/text_secondary"
+        android:textSize="14sp" />
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:fadeScrollbars="false"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:id="@+id/tvSceneButtons"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal" />
+    </HorizontalScrollView>
+
+    <LinearLayout
+        android:id="@+id/tvOverlayGrantRow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Floating subtitle permission required"
+            android:textColor="@color/warning"
+            android:textSize="14sp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnTvGrantOverlay"
+            style="@style/LuminousSecondaryButton"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_marginStart="16dp"
+            android:text="GRANT" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/tvRunningControls"
+        android:layout_width="560dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnTvPause"
+            style="@style/LuminousSecondaryButton"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_marginEnd="12dp"
+            android:layout_weight="1"
+            android:nextFocusRight="@id/btnTvStop"
+            android:text="@string/btn_pause" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnTvStop"
+            style="@style/LuminousDangerButton"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_weight="1"
+            android:nextFocusLeft="@id/btnTvPause"
+            android:text="@string/video_btn_stop"
+            app:icon="@drawable/ic_stop_white_24"
+            app:iconGravity="textStart"
+            app:iconPadding="8dp" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/btnTvOpenFullApp"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:layout_marginTop="10dp"
+        android:focusable="true"
+        android:gravity="center"
+        android:paddingHorizontal="16dp"
+        android:text="Advanced settings"
+        android:textColor="@color/brand"
+        android:textSize="13sp"
+        android:textStyle="bold" />
+
+</LinearLayout>
+''',encoding='utf-8')
+
+tv = pkg / 'TvMainActivity.kt'
+tv.write_text(r'''package com.xyq.livetranslate
+
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.provider.Settings
+import android.view.View
+import android.widget.LinearLayout
+import android.widget.TextView
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.xyq.livetranslate.ui.SessionContextAccess
+import com.xyq.livetranslate.ui.SessionCoordinator
+import com.xyq.livetranslate.ui.SessionHost
+
+/**
+ * Lightweight TV-only launcher.
+ *
+ * It intentionally does NOT inflate activity_main.xml and therefore avoids constructing History,
+ * Settings, AI, Scene editor and all phone sub-pages during TV cold start.
+ */
+class TvMainActivity : AppCompatActivity() {
+    private lateinit var coordinator: SessionCoordinator
+
+    private lateinit var startButton: MaterialButton
+    private lateinit var pauseButton: MaterialButton
+    private lateinit var stopButton: MaterialButton
+    private lateinit var startHalo: View
+    private lateinit var runningControls: View
+    private lateinit var overlayGrantRow: View
+    private lateinit var statusText: TextView
+    private lateinit var sourceText: TextView
+    private lateinit var targetText: TextView
+    private lateinit var sceneButtons: LinearLayout
+
+    private var wasRunning = false
+    private val ui = Handler(Looper.getMainLooper())
+    private val ticker = object : Runnable {
+        override fun run() {
+            render()
+            ui.postDelayed(this, 300L)
+        }
+    }
+
+    private val permissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+            coordinator.onAudioPermissionResult()
+        }
+
+    private val projectionLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            coordinator.onProjectionResult(result.resultCode, result.data)
+        }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_tv)
+        bindViews()
+
+        coordinator = SessionCoordinator(
+            context = this,
+            persistDraftInputs = {},
+            sessionContextAccess = object : SessionContextAccess {
+                override fun current(mode: TranslationMode) = SessionPromptContext()
+            },
+            host = createSessionHost(),
+        ).also { it.restoreState(savedInstanceState) }
+
+        startButton.setOnClickListener { coordinator.onModeToggle(StatusBus.MODE_VIDEO) }
+        pauseButton.setOnClickListener {
+            startService(
+                Intent(this, CaptureService::class.java)
+                    .setAction(CaptureService.ACTION_TOGGLE_PAUSE)
+            )
+        }
+        stopButton.setOnClickListener { confirmStop() }
+        findViewById<View>(R.id.btnTvGrantOverlay).setOnClickListener { openOverlaySettingsCompat() }
+        findViewById<View>(R.id.btnTvOpenFullApp).setOnClickListener {
+            startActivity(Intent(this, MainActivity::class.java))
+        }
+
+        renderLanguageAndScenes()
+        render()
+        startButton.requestFocus()
+
+        // Non-critical legacy migration happens only after the first TV frame is already visible.
+        window.decorView.post {
+            runCatching { TranslationPlanStore.migrateLegacySavedPlans(this) }
+        }
+    }
+
+    private fun bindViews() {
+        startButton = findViewById(R.id.btnTvStart)
+        pauseButton = findViewById(R.id.btnTvPause)
+        stopButton = findViewById(R.id.btnTvStop)
+        startHalo = findViewById(R.id.tvStartHalo)
+        runningControls = findViewById(R.id.tvRunningControls)
+        overlayGrantRow = findViewById(R.id.tvOverlayGrantRow)
+        statusText = findViewById(R.id.tvTvStatus)
+        sourceText = findViewById(R.id.tvSourceLanguage)
+        targetText = findViewById(R.id.tvTargetLanguage)
+        sceneButtons = findViewById(R.id.tvSceneButtons)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        coordinator.onHostResume()
+        renderLanguageAndScenes()
+        ui.removeCallbacks(ticker)
+        ui.post(ticker)
+    }
+
+    override fun onPause() {
+        ui.removeCallbacks(ticker)
+        super.onPause()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        coordinator.saveState(outState)
+        super.onSaveInstanceState(outState)
+    }
+
+    private fun renderLanguageAndScenes() {
+        val plan = TranslationPlanStore.loadDraft(this, TranslationMode.VIDEO)
+        sourceText.text = TranslationLanguageCatalog.source(plan.sourceLanguageCode).label
+        targetText.text = TranslationLanguageCatalog.target(plan.targetLanguageCode).label
+
+        val scenes = SceneLibraryStore.list(this, TranslationMode.VIDEO)
+        val selectedId = SceneLibraryStore.resolve(
+            this,
+            TranslationMode.VIDEO,
+            plan.scenePresetId,
+        ).id
+
+        sceneButtons.removeAllViews()
+        scenes.forEach { scene ->
+            val button = MaterialButton(
+                this,
+                null,
+                com.google.android.material.R.attr.materialButtonOutlinedStyle,
+            ).apply {
+                text = scene.label
+                isFocusable = true
+                isFocusableInTouchMode = true
+                isSelected = scene.id == selectedId
+                setOnClickListener {
+                    val current = TranslationPlanStore.loadDraft(this@TvMainActivity, TranslationMode.VIDEO)
+                    TranslationPlanStore.saveDraft(
+                        this@TvMainActivity,
+                        current.copy(scenePresetId = scene.id),
+                    )
+                    renderLanguageAndScenes()
+                    startButton.requestFocus()
+                }
+            }
+            sceneButtons.addView(
+                button,
+                LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    48.dp,
+                ).apply { marginEnd = 10.dp },
+            )
+        }
+    }
+
+    private fun render() {
+        val running = StatusBus.serviceRunning && StatusBus.captureMode == StatusBus.MODE_VIDEO
+        val overlayAllowed = Settings.canDrawOverlays(this)
+
+        overlayGrantRow.visibility = if (overlayAllowed) View.GONE else View.VISIBLE
+        startHalo.visibility = if (running) View.GONE else View.VISIBLE
+        runningControls.visibility = if (running) View.VISIBLE else View.GONE
+
+        statusText.text = when {
+            running && StatusBus.paused -> "Paused"
+            running -> "Translating · ${StatusBus.audioLevelPct}% audio"
+            else -> "Ready"
+        }
+        pauseButton.text = if (StatusBus.paused) "Resume" else "Pause"
+
+        if (running && !wasRunning) {
+            stopButton.post { stopButton.requestFocus() }
+        } else if (!running && wasRunning) {
+            startButton.post { startButton.requestFocus() }
+        }
+        wasRunning = running
+    }
+
+    private fun confirmStop() {
+        val dialog = MaterialAlertDialogBuilder(this)
+            .setTitle("Stop video subtitles?")
+            .setMessage("This ends the current translation session.")
+            .setNegativeButton("Cancel", null)
+            .setPositiveButton("Stop") { _, _ ->
+                coordinator.onModeToggle(StatusBus.MODE_VIDEO)
+            }
+            .create()
+        dialog.setOnShowListener {
+            dialog.getButton(android.content.DialogInterface.BUTTON_POSITIVE)?.requestFocus()
+        }
+        dialog.show()
+    }
+
+    private fun createSessionHost(): SessionHost = object : SessionHost {
+        override fun checkPermission(permission: String): Boolean =
+            checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED
+
+        override fun requestPermissions(permissions: Array<String>) =
+            permissionLauncher.launch(permissions)
+
+        override fun canDrawOverlays(): Boolean = Settings.canDrawOverlays(this@TvMainActivity)
+
+        override fun openOverlaySettings() = openOverlaySettingsCompat()
+
+        override fun launchProjection(intent: Intent) = projectionLauncher.launch(intent)
+
+        override fun startForegroundService(intent: Intent) {
+            this@TvMainActivity.startForegroundService(intent)
+        }
+
+        override fun startService(intent: Intent) {
+            this@TvMainActivity.startService(intent)
+        }
+
+        override fun openTranslationSettings() {
+            Toast.makeText(
+                this@TvMainActivity,
+                "Open Advanced settings and add your Gemini API key.",
+                Toast.LENGTH_LONG,
+            ).show()
+            startActivity(Intent(this@TvMainActivity, MainActivity::class.java))
+        }
+
+        override fun toast(message: String) =
+            Toast.makeText(this@TvMainActivity, message, Toast.LENGTH_LONG).show()
+    }
+
+    private fun openOverlaySettingsCompat() {
+        if (Settings.canDrawOverlays(this)) return
+        val candidates = listOf(
+            Intent(
+                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                Uri.parse("package:$packageName"),
+            ),
+            Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION),
+            Intent(
+                Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                Uri.parse("package:$packageName"),
+            ),
+        )
+        val intent = candidates.firstOrNull { it.resolveActivity(packageManager) != null }
+        if (intent != null) startActivity(intent)
+    }
+
+    private val Int.dp: Int
+        get() = (this * resources.displayMetrics.density).toInt()
+}
+''',encoding='utf-8')
+
+# Static acceptance gates.
+mf=manifest.read_text()
+lt=layout.read_text()
+kt=tv.read_text()
+checks={
+    'TV launcher moved off heavy MainActivity': mf.count('android.intent.category.LEANBACK_LAUNCHER') == 1 and 'android:name=".TvMainActivity"' in mf,
+    'round blue start': 'android:id="@+id/btnTvStart"' in lt and 'app:cornerRadius="68dp"' in lt,
+    'start directly under language direction': lt.index('tvLanguagePill') < lt.index('btnTvStart') < lt.index('tvSceneButtons'),
+    'minimal TV layout': 'page_history' not in lt and 'page_settings' not in lt,
+    'legacy migration deferred': 'window.decorView.post' in kt,
+    'projection SessionCoordinator retained': 'SessionCoordinator(' in kt and 'projectionLauncher.launch(intent)' in kt,
+    'stop focus retained': 'stopButton.post { stopButton.requestFocus() }' in kt,
+}
+for label,ok in checks.items():
+    if not ok:
+        die('TV fast-start sanity check failed: '+label)
+print('GreekLive dedicated fast TV launcher complete')
