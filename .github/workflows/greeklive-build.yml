@@ -50,7 +50,7 @@ jobs:
           python3 -m py_compile greeklive-build/acoustic_patch.py
           python3 greeklive-build/acoustic_patch.py upstream
           # Upgrade cleanly over the already-tested v0.1.10 package.
-          sed -i 's/versionCode = 10011/versionCode = 10016/' upstream/android/app/build.gradle.kts
+          sed -i 's/versionCode = 10011/versionCode = 10017/' upstream/android/app/build.gradle.kts
 
       - name: Download and pin sherpa + speaker models
         run: |
@@ -86,7 +86,7 @@ jobs:
           "$ANDROID_HOME/build-tools/35.0.0/aapt2" dump badging GreekLive-v0.1.10-TV.apk | tee apk-badging.txt
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs GreekLive-v0.1.10-TV.apk | tee apk-signature.txt
           grep -q "package: name='com.greeklive.subtitles'" apk-badging.txt
-          grep -q "versionCode='10016'" apk-badging.txt
+          grep -q "versionCode='10017'" apk-badging.txt
           grep -q "versionName='0.1.10'" apk-badging.txt
           grep -q "leanback-launchable-activity:" apk-badging.txt
           grep -q "uses-feature-not-required: name='android.hardware.touchscreen'" apk-badging.txt
