@@ -1,0 +1,197 @@
+
+# --- Google TV / Chromecast target.
+# Keep the phone build installable, but expose a real Leanback launcher entry and remove
+# touchscreen/microphone hardware requirements so Chromecast with Google TV can install and launch it.
+manifest = app / 'src/main/AndroidManifest.xml'
+s = manifest.read_text()
+
+manifest_open = '<manifest xmlns:android="http://schemas.android.com/apk/res/android">\n'
+features = '''<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Google TV / Android TV compatibility. Playback capture is the primary path; microphone
+         remains an optional fallback. Touch hardware is never required. -->
+    <uses-feature android:name="android.software.leanback" android:required="false" />
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+    <uses-feature android:name="android.hardware.microphone" android:required="false" />
+'''
+if manifest_open not in s:
+    die('manifest root anchor missing')
+s = s.replace(manifest_open, features, 1)
+
+# A banner reference is required/recommended by TV launchers. Reuse the app art so this remains a
+# text-only reproducible patch; a dedicated 320x180 artwork can replace it later without code changes.
+s = one(
+    s,
+    '''        android:label="@string/app_name"
+        android:localeConfig="@xml/locales_config"
+''',
+    '''        android:label="@string/app_name"
+        android:banner="@mipmap/ic_launcher"
+        android:localeConfig="@xml/locales_config"
+''',
+    'TV banner',
+)
+
+# Preserve the standard launcher for phones, and add a separate Leanback launcher filter for Google TV.
+activity_filter = '''            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+'''
+activity_filters = activity_filter + '''            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+'''
+if activity_filter not in s:
+    die('launcher intent filter anchor missing')
+s = s.replace(activity_filter, activity_filters, 1)
+manifest.write_text(s, encoding='utf-8')
+
+# --- TV-first Activity behavior:
+# - landscape only on actual TV devices (phone behavior unchanged);
+# - open Media page by default;
+# - put remote focus on Start translation;
+# - keep focus navigation deterministic for the main CTA.
+main = pkg / 'MainActivity.kt'
+s = main.read_text()
+
+imports_anchor = 'import android.content.Intent\n'
+tv_imports = '''import android.app.UiModeManager
+import android.content.Intent
+import android.content.pm.ActivityInfo
+import android.content.res.Configuration
+'''
+if imports_anchor not in s:
+    die('MainActivity import anchor missing')
+s = s.replace(imports_anchor, tv_imports, 1)
+
+setup_anchor = '''        navigator.setup(savedInstanceState)
+        // 悬浮窗「打开主应用」的冷启动落点；重建时已有状态恢复，不重复覆盖。
+'''
+setup_repl = '''        navigator.setup(savedInstanceState)
+        if (isTelevisionDevice()) {
+            configureTelevisionUi(root, savedInstanceState)
+        }
+        // 悬浮窗「打开主应用」的冷启动落点；重建时已有状态恢复，不重复覆盖。
+'''
+if setup_anchor not in s:
+    die('navigator setup anchor missing')
+s = s.replace(setup_anchor, setup_repl, 1)
+
+# Insert TV helpers before createSessionHost().
+host_anchor = '    private fun createSessionHost(): SessionHost = object : SessionHost {\n'
+helpers = '''    private fun isTelevisionDevice(): Boolean {
+        val manager = getSystemService(UiModeManager::class.java)
+        return manager?.currentModeType == Configuration.UI_MODE_TYPE_TELEVISION
+    }
+
+    private fun configureTelevisionUi(root: View, savedInstanceState: Bundle?) {
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+
+        // GreekLive on TV is a media-subtitle appliance first. Open Media directly on cold start.
+        if (savedInstanceState == null) {
+            navigator.showMain(R.id.nav_video)
+        }
+
+        // Remote/D-pad: land on the main Start translation action, not on a text field.
+        val videoPage = root.findViewById<View?>(R.id.pageVideo)
+        videoPage?.post {
+            val start = videoPage.findViewById<View?>(R.id.btnToggle)
+            start?.apply {
+                isFocusable = true
+                isFocusableInTouchMode = true
+                nextFocusUpId = id
+                nextFocusDownId = id
+                requestFocus()
+            }
+        }
+    }
+
+'''
+if host_anchor not in s:
+    die('SessionHost anchor missing')
+s = s.replace(host_anchor, helpers + host_anchor, 1)
+
+# Robust overlay settings launch: some Google TV builds do not resolve the per-package URI form.
+# Try the precise app page first, then the generic overlay settings page, then app details.
+old_dialog_launch = '''                startActivity(
+                    Intent(
+                        Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                        Uri.parse("package:$packageName"),
+                    ),
+                )
+'''
+new_dialog_launch = '''                launchOverlaySettingsCompat()
+'''
+if old_dialog_launch not in s:
+    die('overlay dialog settings launch anchor missing')
+s = s.replace(old_dialog_launch, new_dialog_launch, 1)
+
+overlay_fun_anchor = '''    /** 主页缺配置时的直达入口；返回键回到发起的那个主页面，输入不会丢。 */
+'''
+overlay_helper = '''    private fun launchOverlaySettingsCompat() {
+        val candidates = listOf(
+            Intent(
+                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                Uri.parse("package:$packageName"),
+            ),
+            Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION),
+            Intent(
+                Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                Uri.parse("package:$packageName"),
+            ),
+        )
+
+        val intent = candidates.firstOrNull { it.resolveActivity(packageManager) != null }
+        if (intent != null) {
+            startActivity(intent)
+        } else {
+            toast(getString(R.string.rt_toast_overlay_permission_required))
+        }
+    }
+
+'''
+if overlay_fun_anchor not in s:
+    die('overlay helper insertion anchor missing')
+s = s.replace(overlay_fun_anchor, overlay_helper + overlay_fun_anchor, 1)
+main.write_text(s, encoding='utf-8')
+
+# --- Lift subtitle strip a little higher for both POCO and TV safe areas.
+overlay = pkg / 'SubtitleOverlay.kt'
+s = overlay.read_text()
+old_margin = '            bottomMargin = dp(44),\n'
+new_margin = '            bottomMargin = dp(72),\n'
+if old_margin not in s:
+    die('subtitle bottom margin anchor missing')
+s = s.replace(old_margin, new_margin, 1)
+overlay.write_text(s, encoding='utf-8')
+
+# --- TV-specific strings remain English.
+values_en = app / 'src/main/res/values-en/strings.xml'
+set_string_file(values_en, {
+    'app_name': 'GreekLive Subtitles',
+})
+(app / 'src/main/res/values/strings.xml').write_text(
+    values_en.read_text(encoding='utf-8'),
+    encoding='utf-8',
+)
+
+# Static acceptance gates for the TV target.
+final_manifest = manifest.read_text()
+final_main = main.read_text()
+final_overlay = overlay.read_text()
+checks = {
+    'leanback launcher': 'android.intent.category.LEANBACK_LAUNCHER' in final_manifest,
+    'touchscreen optional': 'android.hardware.touchscreen' in final_manifest and 'android:required="false"' in final_manifest,
+    'microphone optional': 'android.hardware.microphone' in final_manifest,
+    'TV landscape': 'SCREEN_ORIENTATION_LANDSCAPE' in final_main,
+    'TV Media-first': 'navigator.showMain(R.id.nav_video)' in final_main,
+    'TV remote focus': 'videoPage.findViewById<View?>(R.id.btnToggle)' in final_main,
+    'TV overlay settings fallback': 'launchOverlaySettingsCompat()' in final_main,
+    'subtitle raised': 'bottomMargin = dp(72)' in final_overlay,
+}
+for label, ok in checks.items():
+    if not ok:
+        die('TV sanity check failed: ' + label)
+print('GreekLive Google TV / Chromecast refinement complete')
