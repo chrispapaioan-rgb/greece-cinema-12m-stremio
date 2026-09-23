@@ -50,7 +50,7 @@ jobs:
           python3 -m py_compile greeklive-build/acoustic_patch.py
           python3 greeklive-build/acoustic_patch.py upstream
           # Upgrade cleanly over the already-tested v0.1.10 package.
-          sed -i 's/versionCode = 10011/versionCode = 10026/' upstream/android/app/build.gradle.kts
+          sed -i 's/versionCode = 10011/versionCode = 10029/' upstream/android/app/build.gradle.kts
 
       - name: Download and pin sherpa + speaker models
         run: |
@@ -86,7 +86,7 @@ jobs:
           "$ANDROID_HOME/build-tools/35.0.0/aapt2" dump badging GreekLive-v0.1.10.apk | tee apk-badging.txt
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs GreekLive-v0.1.10.apk | tee apk-signature.txt
           grep -q "package: name='com.greeklive.subtitles'" apk-badging.txt
-          grep -q "versionCode='10026'" apk-badging.txt
+          grep -q "versionCode='10029'" apk-badging.txt
           grep -q "versionName='0.1.10'" apk-badging.txt
           "$ANDROID_HOME/build-tools/35.0.0/aapt2" dump xmltree GreekLive-v0.1.10.apk --file AndroidManifest.xml | tee apk-manifest.txt
           grep -q "TvLauncher" apk-manifest.txt
@@ -100,7 +100,7 @@ jobs:
       - name: Upload TV rebase test APK
         uses: actions/upload-artifact@v4
         with:
-          name: GreekLive-v0.1.10-tv-rebase-working10015
+          name: GreekLive-v0.1.10-tv-apikey-qr
           path: |
             GreekLive-v0.1.10.apk
             SHA256SUMS.txt
