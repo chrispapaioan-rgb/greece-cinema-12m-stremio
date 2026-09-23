@@ -1,4 +1,4 @@
-name: GreekLive v0.1.10 acoustic speaker build
+name: GreekLive v0.1.10 Google TV build
 
 on:
   push:
@@ -50,7 +50,7 @@ jobs:
           python3 -m py_compile greeklive-build/acoustic_patch.py
           python3 greeklive-build/acoustic_patch.py upstream
           # Upgrade cleanly over the already-tested v0.1.10 package.
-          sed -i 's/versionCode = 10011/versionCode = 10015/' upstream/android/app/build.gradle.kts
+          sed -i 's/versionCode = 10011/versionCode = 10016/' upstream/android/app/build.gradle.kts
 
       - name: Download and pin sherpa + speaker models
         run: |
@@ -81,25 +81,28 @@ jobs:
 
       - name: APK preflight
         run: |
-          cp upstream/android/app/build/outputs/apk/debug/app-debug.apk GreekLive-v0.1.10.apk
-          unzip -t GreekLive-v0.1.10.apk
-          "$ANDROID_HOME/build-tools/35.0.0/aapt2" dump badging GreekLive-v0.1.10.apk | tee apk-badging.txt
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs GreekLive-v0.1.10.apk | tee apk-signature.txt
+          cp upstream/android/app/build/outputs/apk/debug/app-debug.apk GreekLive-v0.1.10-TV.apk
+          unzip -t GreekLive-v0.1.10-TV.apk
+          "$ANDROID_HOME/build-tools/35.0.0/aapt2" dump badging GreekLive-v0.1.10-TV.apk | tee apk-badging.txt
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs GreekLive-v0.1.10-TV.apk | tee apk-signature.txt
           grep -q "package: name='com.greeklive.subtitles'" apk-badging.txt
-          grep -q "versionCode='10015'" apk-badging.txt
+          grep -q "versionCode='10016'" apk-badging.txt
           grep -q "versionName='0.1.10'" apk-badging.txt
-          unzip -l GreekLive-v0.1.10.apk | tee apk-files.txt
+          grep -q "leanback-launcher-activity:" apk-badging.txt
+          grep -q "uses-feature-not-required:'android.hardware.touchscreen'" apk-badging.txt
+          grep -q "uses-feature-not-required:'android.hardware.microphone'" apk-badging.txt
+          unzip -l GreekLive-v0.1.10-TV.apk | tee apk-files.txt
           grep -q "assets/3dspeaker_speech_eres2net_base_sv_zh-cn_3dspeaker_16k.onnx" apk-files.txt
           grep -q "assets/silero_vad.onnx" apk-files.txt
           grep -q "lib/arm64-v8a/" apk-files.txt
-          sha256sum GreekLive-v0.1.10.apk | tee SHA256SUMS.txt
+          sha256sum GreekLive-v0.1.10-TV.apk | tee SHA256SUMS.txt
 
-      - name: Upload POCO test APK
+      - name: Upload Google TV test APK
         uses: actions/upload-artifact@v4
         with:
-          name: GreekLive-v0.1.10-acoustic-poco-test
+          name: GreekLive-v0.1.10-google-tv-test
           path: |
-            GreekLive-v0.1.10.apk
+            GreekLive-v0.1.10-TV.apk
             SHA256SUMS.txt
             apk-badging.txt
             apk-signature.txt
