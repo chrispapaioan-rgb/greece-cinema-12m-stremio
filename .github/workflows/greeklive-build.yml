@@ -50,7 +50,7 @@ jobs:
           python3 -m py_compile greeklive-build/acoustic_patch.py
           python3 greeklive-build/acoustic_patch.py upstream
           # Upgrade cleanly over the already-tested v0.1.10 package.
-          sed -i 's/versionCode = 10011/versionCode = 10025/' upstream/android/app/build.gradle.kts
+          sed -i 's/versionCode = 10011/versionCode = 10026/' upstream/android/app/build.gradle.kts
 
       - name: Download and pin sherpa + speaker models
         run: |
@@ -86,9 +86,11 @@ jobs:
           "$ANDROID_HOME/build-tools/35.0.0/aapt2" dump badging GreekLive-v0.1.10.apk | tee apk-badging.txt
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs GreekLive-v0.1.10.apk | tee apk-signature.txt
           grep -q "package: name='com.greeklive.subtitles'" apk-badging.txt
-          grep -q "versionCode='10025'" apk-badging.txt
+          grep -q "versionCode='10026'" apk-badging.txt
           grep -q "versionName='0.1.10'" apk-badging.txt
-          grep -q "leanback-launchable-activity:" apk-badging.txt
+          "$ANDROID_HOME/build-tools/35.0.0/aapt2" dump xmltree GreekLive-v0.1.10.apk --file AndroidManifest.xml | tee apk-manifest.txt
+          grep -q "TvLauncher" apk-manifest.txt
+          grep -q "android.intent.category.LEANBACK_LAUNCHER" apk-manifest.txt
           unzip -l GreekLive-v0.1.10.apk | tee apk-files.txt
           grep -q "assets/3dspeaker_speech_eres2net_base_sv_zh-cn_3dspeaker_16k.onnx" apk-files.txt
           grep -q "assets/silero_vad.onnx" apk-files.txt
@@ -105,5 +107,6 @@ jobs:
             apk-badging.txt
             apk-signature.txt
             apk-files.txt
+            apk-manifest.txt
           if-no-files-found: error
           retention-days: 7
