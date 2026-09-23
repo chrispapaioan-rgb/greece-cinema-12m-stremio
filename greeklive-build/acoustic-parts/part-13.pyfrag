@@ -101,8 +101,6 @@ helpers = '''    private fun isTelevisionDevice(): Boolean {
             start?.apply {
                 isFocusable = true
                 isFocusableInTouchMode = true
-                nextFocusUpId = id
-                nextFocusDownId = id
                 requestFocus()
             }
         }
