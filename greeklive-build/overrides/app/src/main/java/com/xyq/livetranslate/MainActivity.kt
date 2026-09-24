@@ -297,19 +297,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun openOverlaySettings() {
         if (Settings.canDrawOverlays(this)) return
-        MaterialAlertDialogBuilder(this)
-            .setTitle(R.string.permission_overlay_title)
-            .setMessage(R.string.permission_overlay_message)
-            .setNegativeButton(R.string.permission_cancel, null)
-            .setPositiveButton(R.string.permission_grant) { _, _ ->
-                startActivity(
-                    Intent(
-                        Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                        Uri.parse("package:$packageName"),
-                    ),
-                )
-            }
-            .show()
+        startActivity(
+            Intent(
+                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                Uri.parse("package:$packageName"),
+            ),
+        )
     }
 
     private fun renderStatus() {
