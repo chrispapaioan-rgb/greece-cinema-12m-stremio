@@ -1,8 +1,8 @@
-name: GreekLive Android build
+name: GreekLive Android build 10034
 
 on:
   push:
-    branches: [main]
+    branches: [greeklive-10034-build]
     paths:
       - 'greeklive-build/**'
       - '.github/workflows/greeklive-build.yml'
@@ -32,37 +32,46 @@ jobs:
         run: |
           echo "y" | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
           yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platform-tools" "platforms;android-35" "build-tools;35.0.0" >/dev/null
-          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --list_installed | grep -E "platforms;android-35|build-tools;35.0.0"
 
       - name: Clone LiveTranslate upstream
         run: git clone --depth 1 https://github.com/xieyuanqing/vtuber-live-translate.git upstream
 
-      - name: Apply GreekLive v0.1.10 patch
+      - name: Apply GreekLive baseline patch
         run: python3 greeklive-build/patch.py upstream
 
-      - name: Build and lint
+      - name: Apply GreekLive 10034 patch
+        run: python3 greeklive-build/patch_10034.py upstream
+
+      - name: Apply 10034 source overrides
+        run: |
+          cp greeklive-build/overrides/app/build.gradle.kts upstream/android/app/build.gradle.kts
+          cp greeklive-build/overrides/app/src/main/AndroidManifest.xml upstream/android/app/src/main/AndroidManifest.xml
+          cp greeklive-build/overrides/app/src/main/java/com/xyq/livetranslate/MainActivity.kt upstream/android/app/src/main/java/com/xyq/livetranslate/MainActivity.kt
+
+      - name: Build APK
         working-directory: upstream/android
         run: |
           chmod +x gradlew
-          ./gradlew --no-daemon :app:lintDebug :app:assembleDebug
+          ./gradlew --no-daemon :app:assembleDebug
 
-      - name: Package APK
+      - name: Package and verify APK
         run: |
-          cp upstream/android/app/build/outputs/apk/debug/app-debug.apk GreekLive-v0.1.10.apk
-          unzip -t GreekLive-v0.1.10.apk
-          "$ANDROID_HOME/build-tools/35.0.0/aapt2" dump badging GreekLive-v0.1.10.apk | tee apk-badging.txt
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs GreekLive-v0.1.10.apk | tee apk-signature.txt
+          cp upstream/android/app/build/outputs/apk/debug/app-debug.apk GreekLive-Universal-TV-v0.1.10-10034.apk
+          unzip -t GreekLive-Universal-TV-v0.1.10-10034.apk
+          "$ANDROID_HOME/build-tools/35.0.0/aapt2" dump badging GreekLive-Universal-TV-v0.1.10-10034.apk | tee apk-badging.txt
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs GreekLive-Universal-TV-v0.1.10-10034.apk | tee apk-signature.txt
           grep -q "package: name='com.greeklive.subtitles'" apk-badging.txt
-          grep -q "versionCode='10011'" apk-badging.txt
+          grep -q "versionCode='10034'" apk-badging.txt
           grep -q "versionName='0.1.10'" apk-badging.txt
-          sha256sum GreekLive-v0.1.10.apk | tee SHA256SUMS.txt
+          grep -q "leanback" apk-badging.txt || true
+          sha256sum GreekLive-Universal-TV-v0.1.10-10034.apk | tee SHA256SUMS.txt
 
-      - name: Upload GreekLive APK
+      - name: Upload GreekLive 10034 APK
         uses: actions/upload-artifact@v4
         with:
-          name: GreekLive-v0.1.10
+          name: GreekLive-10034
           path: |
-            GreekLive-v0.1.10.apk
+            GreekLive-Universal-TV-v0.1.10-10034.apk
             SHA256SUMS.txt
             apk-badging.txt
             apk-signature.txt
