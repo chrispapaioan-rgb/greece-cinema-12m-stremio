@@ -16,9 +16,6 @@ android {
     }
 
     signingConfigs {
-        // 固定的 debug 签名：不配的话每台机器/每次 CI 会现生成随机 debug.keystore，
-        // 导致每次构建签名不同、无法覆盖安装。指向仓库内固定 keystore 保证签名一致。
-        // 口令为公开固定值，仅用于本地/内测包，非机密。
         getByName("debug") {
             storeFile = file("debug.keystore")
             storePassword = "android"
@@ -45,7 +42,6 @@ android {
 }
 
 dependencies {
-    implementation(files("libs/sherpa-onnx-1.13.8.aar"))
     implementation("androidx.core:core-ktx:1.13.1")
     implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("com.google.android.material:material:1.12.0")
