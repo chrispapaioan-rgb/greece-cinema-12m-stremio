@@ -35,12 +35,12 @@ jobs:
           grep -q "leanback" /tmp/cine75-badging.txt
       - name: Package
         run: |
-          cp android-universal/app/build/outputs/apk/debug/app-debug.apk Cine75-universal-v1.0.1.apk
-          sha256sum Cine75-universal-v1.0.1.apk > Cine75-universal-v1.0.1.apk.sha256
+          cp android-universal/app/build/outputs/apk/debug/app-debug.apk Cine75-universal-v1.0.2.apk
+          sha256sum Cine75-universal-v1.0.2.apk > Cine75-universal-v1.0.2.apk.sha256
       - uses: actions/upload-artifact@v4
         with:
-          name: Cine75-universal-v1.0.1
+          name: Cine75-universal-v1.0.2
           path: |
-            Cine75-universal-v1.0.1.apk
-            Cine75-universal-v1.0.1.apk.sha256
+            Cine75-universal-v1.0.2.apk
+            Cine75-universal-v1.0.2.apk.sha256
           retention-days: 30
