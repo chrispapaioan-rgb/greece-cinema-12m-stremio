@@ -15,6 +15,9 @@ const currentYear = new Date().getUTCFullYear();
 const provisionalFromYear = currentYear - 2;
 const minImdbRatingForHistoricalUnrated = 6.0;
 const minImdbVotesForHistoricalUnrated = 50;
+const minClassicFilmIndexScore = 65;
+const minClassicImdbRating = 7.0;
+const minClassicImdbVotes = 250;
 
 function clean(v='') { return v === '\\N' ? '' : String(v || '').trim(); }
 function round1(n) { return Math.round(Number(n) * 10) / 10; }
@@ -80,6 +83,19 @@ async function fetchJson(url) {
   return r.json();
 }
 
+async function filmIndexOne(imdbId) {
+  try {
+    const j = await fetchJson(`https://moviesranking.com/api/film/${imdbId}/bundle`);
+    const m = j?.movie;
+    if (!m || !Number.isFinite(Number(m.overallScore))) return null;
+    return {
+      imdbId, title: clean(m.title), year: Number(m.year) || 0,
+      director: clean(m.director), score: round1(m.overallScore),
+      sourcesCount: Number(m.sourcesCount) || 0, poster: clean(m.poster)
+    };
+  } catch { return null; }
+}
+
 async function filmIndexYear(year) {
   const rows = [];
   let offset = 0, hasMore = true;
@@ -114,7 +130,8 @@ const candidates = await loadImdbAdult();
 
 for (const x of curated.entries || []) {
   const year = Number(x.year || 0);
-  if (!x.imdbId || year < startYear || year > currentYear) continue;
+  const classicException = Boolean(x.classicException && year > 0 && year < startYear);
+  if (!x.imdbId || year > currentYear || (year < startYear && !classicException)) continue;
   const old = candidates.get(x.imdbId) || {};
   candidates.set(x.imdbId, {
     ...old, ...x,
@@ -122,6 +139,9 @@ for (const x of curated.entries || []) {
     title: x.title || old.title || '', genres: old.genres || [],
     adultExplicit: Boolean(x.adultExplicit ?? old.adultExplicit ?? true),
     curatedException: Boolean(x.curatedException),
+    classicException,
+    classicOverride: Boolean(x.classicOverride),
+    classicReason: clean(x.classicReason),
     discoverySource: old.discoverySource ? old.discoverySource + ' + curated' : 'curated'
   });
 }
@@ -134,17 +154,27 @@ const yearly = await mapLimit(years, 5, async y => {
   catch(e){ console.warn('Film Index year failed',y,e.message); return []; }
 });
 const filmByImdb = new Map(yearly.flat().map(x=>[x.imdbId,x]));
+const classicCandidates = [...candidates.values()].filter(x => x.classicException && x.year < startYear);
+const classicFilmRows = await mapLimit(classicCandidates, 4, async x => await filmIndexOne(x.imdbId));
+for (const row of classicFilmRows) if (row) filmByImdb.set(row.imdbId, row);
 
 const items = [];
-let scored = 0, unrated = 0, historicalQualityUnrated = 0, provisionalNew = 0, curatedUnrated = 0;
+let scored = 0, unrated = 0, historicalQualityUnrated = 0, provisionalNew = 0, curatedUnrated = 0, classicCount = 0;
 for (const x of candidates.values()) {
   const fi = filmByImdb.get(x.imdbId);
   const hasFilmScore = Boolean(fi && Number.isFinite(fi.score));
-  if (hasFilmScore && fi.score <= 50) continue;
+  const isClassic = Boolean(x.classicException && x.year < startYear);
+  if (isClassic && hasFilmScore && fi.score < minClassicFilmIndexScore) continue;
+  if (!isClassic && hasFilmScore && fi.score <= 50) continue;
 
   let include = hasFilmScore;
-  let admission = hasFilmScore ? 'Film Index >50' : '';
-  if (!hasFilmScore) {
+  let admission = isClassic ? 'CLASSIC 18+' : (hasFilmScore ? 'Film Index >50' : '');
+  if (isClassic) {
+    const classicImdbOk = Number.isFinite(x.imdbRating) && x.imdbRating >= minClassicImdbRating
+      && Number(x.imdbVotes) >= minClassicImdbVotes;
+    include = (hasFilmScore && fi.score >= minClassicFilmIndexScore) || classicImdbOk || Boolean(x.classicOverride);
+    if (include) classicCount++;
+  } else if (!hasFilmScore) {
     const curatedKeep = Boolean(x.curatedException || String(x.discoverySource||'').includes('curated'));
     const isProvisionalNew = x.year >= provisionalFromYear;
     const hasQualitySignal = Number.isFinite(x.imdbRating) && x.imdbRating >= minImdbRatingForHistoricalUnrated
@@ -166,7 +196,7 @@ for (const x of candidates.values()) {
     imdbId: x.imdbId,
     title, greekTitle: '', year,
     score,
-    scoreBand: hasFilmScore ? scoreBand(score) : 'UNRATED 18+',
+    scoreBand: isClassic ? 'CLASSIC 18+' : (hasFilmScore ? scoreBand(score) : 'UNRATED 18+'),
     scoreSources: hasFilmScore ? `${fi.sourcesCount}/8` : 'UNRATED 18+',
     imdbRating: Number.isFinite(x.imdbRating) ? x.imdbRating : null,
     imdbVotes: Number.isFinite(x.imdbVotes) ? x.imdbVotes : 0,
@@ -178,6 +208,7 @@ for (const x of candidates.values()) {
     source: [x.discoverySource, admission].filter(Boolean).join(' + '),
     adultCategory: 'ADULT_ART', adultExplicit: Boolean(x.adultExplicit),
     adultExclusive: true, adultCuratedException: !hasFilmScore && admission==='CURATED 18+',
+    adultClassicException: isClassic, classicReason: isClassic ? clean(x.classicReason) : '',
     adultUnrated: !hasFilmScore, adultAdmission: admission,
     filmIndexUrl: hasFilmScore ? `https://moviesranking.com/top?from=${year}&to=${year}` : '',
     stremioAppUri: `stremio:///detail/movie/${x.imdbId}/${x.imdbId}?autoPlay=true`,
@@ -203,9 +234,10 @@ const out = {
     rated: 'Film Index combined score must be >50',
     newUnrated: `All IMDb adult feature films from ${provisionalFromYear} onward are admitted provisionally when Film Index has no score`,
     historicalUnrated: `IMDb >=${minImdbRatingForHistoricalUnrated} with >=${minImdbVotesForHistoricalUnrated} votes, or curated exception`,
+    classicBefore1980: `Only explicit curated CLASSIC 18+ exceptions; Film Index >=${minClassicFilmIndexScore}, or IMDb >=${minClassicImdbRating} with >=${minClassicImdbVotes} votes, or a documented manual classic override`,
     posters: 'Explicit adult items use neutral/no poster in Cine75'
   },
-  stats: { candidates:candidates.size, count:items.length, scored, unrated, historicalQualityUnrated, provisionalNew, curatedUnrated },
+  stats: { candidates:candidates.size, count:items.length, scored, unrated, historicalQualityUnrated, provisionalNew, curatedUnrated, classicCount },
   count: items.length, items
 };
 await fs.writeFile(outputPath, JSON.stringify(out,null,2)+'\n','utf8');
