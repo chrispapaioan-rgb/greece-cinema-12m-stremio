@@ -1,0 +1,54 @@
+name: Package Cine75 complete handoff
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/package-cine75-handoff.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Restore current Android source
+        run: |
+          mkdir -p handoff/Cine75_COMPLETE_v1.1.2/android-universal
+          base64 -d ci/cine75-code.tar.gz.b64 | tar -xzf - -C handoff/Cine75_COMPLETE_v1.1.2/android-universal
+          mkdir -p handoff/Cine75_COMPLETE_v1.1.2/android-universal/app/src/main/assets
+          cp data/cine75-app-catalog.b64 handoff/Cine75_COMPLETE_v1.1.2/android-universal/app/src/main/assets/movies_seed.b64
+      - name: Restore current APK
+        run: |
+          base64 -d ci/Cine75-universal.apk.b64 > handoff/Cine75_COMPLETE_v1.1.2/Cine75-universal-v1.1.2.apk
+          cp ci/Cine75-universal.apk.sha256 handoff/Cine75_COMPLETE_v1.1.2/Cine75-universal-v1.1.2.apk.sha256
+      - name: Include complete repository snapshot
+        run: |
+          mkdir -p handoff/Cine75_COMPLETE_v1.1.2/repository-main
+          rsync -a --exclude='.git' --exclude='handoff' ./ handoff/Cine75_COMPLETE_v1.1.2/repository-main/
+      - name: Add package manifest
+        run: |
+          cat > handoff/Cine75_COMPLETE_v1.1.2/PACKAGE_MANIFEST.txt <<'EOF'
+          Cine75 complete handoff package
+          Current Android version: 1.1.2
+          Package: gr.cine75.app
+          Includes:
+          - decoded installable APK v1.1.2
+          - exact current Android source restored from ci/cine75-code.tar.gz.b64
+          - offline movie catalog seed
+          - full GitHub repository snapshot
+          - all GitHub Actions workflows, updater/data files, README and CI assets
+          Security:
+          - no private signing keystore is included
+          - replace historical development signing material with a new production secret before public release
+          EOF
+      - name: Upload complete handoff
+        uses: actions/upload-artifact@v4
+        with:
+          name: Cine75-COMPLETE-HANDOFF-v1.1.2
+          path: handoff/Cine75_COMPLETE_v1.1.2
+          if-no-files-found: error
+          retention-days: 30
