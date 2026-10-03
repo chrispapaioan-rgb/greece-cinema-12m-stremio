@@ -1,36 +1,163 @@
-{
-  "schemaVersion": 2,
-  "category": "ADULT_ART",
-  "activation": "hidden",
-  "scoreRule": "Film Index score > 50 when available; otherwise UNRATED 18+",
-  "entries": [
-    {"imdbId":"tt4016934","title":"The Handmaiden","year":2016,"director":"Park Chan-wook","adultExplicit":true},
-    {"imdbId":"tt13352968","title":"Good Luck to You, Leo Grande","year":2022,"director":"Sophie Hyde","adultExplicit":false},
-    {"imdbId":"tt0074102","title":"In the Realm of the Senses","year":1976,"director":"Nagisa Oshima","adultExplicit":true},
-    {"imdbId":"tt0367027","title":"Shortbus","year":2006,"director":"John Cameron Mitchell","adultExplicit":true},
-    {"imdbId":"tt3774694","title":"Love","year":2015,"director":"Gaspar Noe","adultExplicit":true},
-    {"imdbId":"tt1937390","title":"Nymphomaniac: Vol. I","year":2013,"director":"Lars von Trier","adultExplicit":true},
-    {"imdbId":"tt2382009","title":"Nymphomaniac: Vol. II","year":2013,"director":"Lars von Trier","adultExplicit":true},
-    {"imdbId":"tt0309987","title":"The Dreamers","year":2003,"director":"Bernardo Bertolucci","adultExplicit":true},
-    {"imdbId":"tt0808357","title":"Lust, Caution","year":2007,"director":"Ang Lee","adultExplicit":true},
-    {"imdbId":"tt1723811","title":"Shame","year":2011,"director":"Steve McQueen","adultExplicit":true},
-    {"imdbId":"tt2278871","title":"Blue Is the Warmest Color","year":2013,"director":"Abdellatif Kechiche","adultExplicit":true},
-    {"imdbId":"tt0274812","title":"Secretary","year":2002,"director":"Steven Shainberg","adultExplicit":false},
-    {"imdbId":"tt0120663","title":"Eyes Wide Shut","year":1999,"director":"Stanley Kubrick","adultExplicit":false},
-    {"imdbId":"tt0115964","title":"Crash","year":1996,"director":"David Cronenberg","adultExplicit":true},
-    {"imdbId":"tt2570858","title":"The Duke of Burgundy","year":2015,"director":"Peter Strickland","adultExplicit":false},
-    {"imdbId":"tt0115736","title":"Bound","year":1996,"director":"Lilly Wachowski, Lana Wachowski","adultExplicit":false},
-    {"imdbId":"tt0245574","title":"Y Tu Mama Tambien","year":2001,"director":"Alfonso Cuaron","adultExplicit":true},
-    {"imdbId":"tt8550054","title":"Pleasure","year":2021,"director":"Ninja Thyberg","adultExplicit":true},
-    {"imdbId":"tt0254686","title":"The Piano Teacher","year":2001,"director":"Michael Haneke","adultExplicit":true},
-    {"imdbId":"tt0870984","title":"Antichrist","year":2009,"director":"Lars von Trier","adultExplicit":true},
-    {"imdbId":"tt0256103","title":"Intimacy","year":2001,"director":"Patrice Chereau","adultExplicit":true},
-    {"imdbId":"tt0103772","title":"Basic Instinct","year":1992,"director":"Paul Verhoeven","adultExplicit":false},
-
-    {"imdbId":"tt0075018","title":"The Opening of Misty Beethoven","year":1976,"director":"Radley Metzger","adultExplicit":true,"curatedException":true},
-    {"imdbId":"tt0069969","title":"The Devil in Miss Jones","year":1973,"director":"Gerard Damiano","adultExplicit":true,"curatedException":true},
-    {"imdbId":"tt0068260","title":"Behind the Green Door","year":1972,"director":"Artie Mitchell, Jim Mitchell","adultExplicit":true,"curatedException":true},
-    {"imdbId":"tt0075726","title":"Barbara Broadcast","year":1977,"director":"Radley Metzger","adultExplicit":true,"curatedException":true},
-    {"imdbId":"tt0083707","title":"Cafe Flesh","year":1982,"director":"Stephen Sayadian","adultExplicit":true,"curatedException":true}
-  ]
+﻿{
+    "schemaVersion":  2,
+    "category":  "ADULT_ART",
+    "activation":  "hidden",
+    "scoreRule":  "Film Index score \u003e 50 when available; otherwise UNRATED 18+",
+    "entries":  [
+                    {
+                        "imdbId":  "tt4016934",
+                        "title":  "The Handmaiden",
+                        "year":  2016,
+                        "director":  "Park Chan-wook",
+                        "adultExplicit":  true
+                    },
+                    {
+                        "imdbId":  "tt13352968",
+                        "title":  "Good Luck to You, Leo Grande",
+                        "year":  2022,
+                        "director":  "Sophie Hyde",
+                        "adultExplicit":  false
+                    },
+                    {
+                        "imdbId":  "tt0367027",
+                        "title":  "Shortbus",
+                        "year":  2006,
+                        "director":  "John Cameron Mitchell",
+                        "adultExplicit":  true
+                    },
+                    {
+                        "imdbId":  "tt3774694",
+                        "title":  "Love",
+                        "year":  2015,
+                        "director":  "Gaspar Noe",
+                        "adultExplicit":  true
+                    },
+                    {
+                        "imdbId":  "tt1937390",
+                        "title":  "Nymphomaniac: Vol. I",
+                        "year":  2013,
+                        "director":  "Lars von Trier",
+                        "adultExplicit":  true
+                    },
+                    {
+                        "imdbId":  "tt2382009",
+                        "title":  "Nymphomaniac: Vol. II",
+                        "year":  2013,
+                        "director":  "Lars von Trier",
+                        "adultExplicit":  true
+                    },
+                    {
+                        "imdbId":  "tt0309987",
+                        "title":  "The Dreamers",
+                        "year":  2003,
+                        "director":  "Bernardo Bertolucci",
+                        "adultExplicit":  true
+                    },
+                    {
+                        "imdbId":  "tt0808357",
+                        "title":  "Lust, Caution",
+                        "year":  2007,
+                        "director":  "Ang Lee",
+                        "adultExplicit":  true
+                    },
+                    {
+                        "imdbId":  "tt1723811",
+                        "title":  "Shame",
+                        "year":  2011,
+                        "director":  "Steve McQueen",
+                        "adultExplicit":  true
+                    },
+                    {
+                        "imdbId":  "tt2278871",
+                        "title":  "Blue Is the Warmest Color",
+                        "year":  2013,
+                        "director":  "Abdellatif Kechiche",
+                        "adultExplicit":  true
+                    },
+                    {
+                        "imdbId":  "tt0274812",
+                        "title":  "Secretary",
+                        "year":  2002,
+                        "director":  "Steven Shainberg",
+                        "adultExplicit":  false
+                    },
+                    {
+                        "imdbId":  "tt0120663",
+                        "title":  "Eyes Wide Shut",
+                        "year":  1999,
+                        "director":  "Stanley Kubrick",
+                        "adultExplicit":  false
+                    },
+                    {
+                        "imdbId":  "tt0115964",
+                        "title":  "Crash",
+                        "year":  1996,
+                        "director":  "David Cronenberg",
+                        "adultExplicit":  true
+                    },
+                    {
+                        "imdbId":  "tt2570858",
+                        "title":  "The Duke of Burgundy",
+                        "year":  2015,
+                        "director":  "Peter Strickland",
+                        "adultExplicit":  false
+                    },
+                    {
+                        "imdbId":  "tt0115736",
+                        "title":  "Bound",
+                        "year":  1996,
+                        "director":  "Lilly Wachowski, Lana Wachowski",
+                        "adultExplicit":  false
+                    },
+                    {
+                        "imdbId":  "tt0245574",
+                        "title":  "Y Tu Mama Tambien",
+                        "year":  2001,
+                        "director":  "Alfonso Cuaron",
+                        "adultExplicit":  true
+                    },
+                    {
+                        "imdbId":  "tt8550054",
+                        "title":  "Pleasure",
+                        "year":  2021,
+                        "director":  "Ninja Thyberg",
+                        "adultExplicit":  true
+                    },
+                    {
+                        "imdbId":  "tt0254686",
+                        "title":  "The Piano Teacher",
+                        "year":  2001,
+                        "director":  "Michael Haneke",
+                        "adultExplicit":  true
+                    },
+                    {
+                        "imdbId":  "tt0870984",
+                        "title":  "Antichrist",
+                        "year":  2009,
+                        "director":  "Lars von Trier",
+                        "adultExplicit":  true
+                    },
+                    {
+                        "imdbId":  "tt0256103",
+                        "title":  "Intimacy",
+                        "year":  2001,
+                        "director":  "Patrice Chereau",
+                        "adultExplicit":  true
+                    },
+                    {
+                        "imdbId":  "tt0103772",
+                        "title":  "Basic Instinct",
+                        "year":  1992,
+                        "director":  "Paul Verhoeven",
+                        "adultExplicit":  false
+                    },
+                    {
+                        "imdbId":  "tt0083707",
+                        "title":  "Cafe Flesh",
+                        "year":  1982,
+                        "director":  "Stephen Sayadian",
+                        "adultExplicit":  true,
+                        "curatedException":  true
+                    }
+                ]
 }
