@@ -1,0 +1,31 @@
+name: Publish final Cine75 APK
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/publish-final-apk.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Decode verified APK
+        run: |
+          mkdir -p downloads
+          base64 -d ci/Cine75-universal.apk.b64 > downloads/Cine75-universal-v1.0.9.apk
+          sha256sum downloads/Cine75-universal-v1.0.9.apk
+          echo "cb8a44eaed7da87c1e2b21fd34221fc9b828d4f5a25ec9d4e0cd6f790d53d2c6  downloads/Cine75-universal-v1.0.9.apk" | sha256sum -c -
+      - name: Commit binary APK
+        run: |
+          git config user.name 'cine75-publish-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add downloads/Cine75-universal-v1.0.9.apk
+          if git diff --cached --quiet; then
+            echo 'APK already published.'
+            exit 0
+          fi
+          git commit -m 'release: publish Cine75 universal v1.0.9 APK'
+          git push
