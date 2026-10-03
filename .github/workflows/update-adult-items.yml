@@ -26,6 +26,7 @@ jobs:
           if (!Array.isArray(x.items) || x.items.length===0) throw new Error('adultItems empty');
           const bad=x.items.filter(m => Number.isFinite(m.score) && m.score <= 50);
           if (bad.length) throw new Error('Found Film Index scores <=50 in adultItems');
+          if (x.startYear !== 1980 || x.items.some(m => Number(m.year) < 1980)) throw new Error('adultItems must start at 1980');
           if (x.items.some(m => m.adultCategory!=='ADULT_ART' || m.adultExclusive!==true)) throw new Error('adult flags missing');
           console.log('adultItems',x.items.length,'scored',x.items.filter(m=>m.score!=null).length,'unrated',x.items.filter(m=>m.score==null).length);
           NODE
