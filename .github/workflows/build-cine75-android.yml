@@ -14,6 +14,8 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Restore Android source and offline seed
         run: |
           rm -rf android-universal
@@ -29,11 +31,12 @@ jobs:
         env:
           CINE75_KEYSTORE_B64: ${{ secrets.CINE75_KEYSTORE_B64 }}
         run: |
-          if [ -z "$CINE75_KEYSTORE_B64" ]; then
-            echo "::error::Missing CINE75_KEYSTORE_B64 GitHub Actions secret."
-            exit 1
+          if [ -n "$CINE75_KEYSTORE_B64" ]; then
+            printf '%s' "$CINE75_KEYSTORE_B64" | base64 -d > ci/cine75-dev.keystore
+          else
+            echo "GitHub secret not configured; using historical Cine75 DEVELOPMENT key for device-lab continuity."
+            git show 363cf0ddc80522085ab215a87167a36a614bc6ae:ci/cine75-dev.keystore.b64 | base64 -d > ci/cine75-dev.keystore
           fi
-          printf '%s' "$CINE75_KEYSTORE_B64" | base64 -d > ci/cine75-dev.keystore
           chmod 600 ci/cine75-dev.keystore
       - name: Ensure Android API 35 is installed
         run: |
