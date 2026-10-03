@@ -1,0 +1,40 @@
+name: Update Cine75 high-score catalog
+on:
+  schedule:
+    - cron: '35 4 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: cine75-catalog-refresh
+  cancel-in-progress: false
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Restore Cine75 updater source
+        run: |
+          rm -rf .cine75-src
+          mkdir -p .cine75-src
+          base64 -d ci/cine75-code.tar.gz.b64 | tar -xzf - -C .cine75-src
+      - name: Refresh scores, new releases and Greek re-releases
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
+        run: node .cine75-src/tools/update-catalog.mjs
+      - name: Commit catalog when changed
+        run: |
+          if git diff --quiet -- data/cine75-app-catalog.b64; then
+            echo 'No catalog changes.'
+            exit 0
+          fi
+          git config user.name 'cine75-catalog-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add data/cine75-app-catalog.b64
+          git commit -m 'chore: refresh Cine75 app catalog'
+          git push
