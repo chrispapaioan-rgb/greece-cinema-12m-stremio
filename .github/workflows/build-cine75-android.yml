@@ -1,11 +1,5 @@
 name: Build Cine75 universal APK
 on:
-  push:
-    branches: [main, android-universal]
-    paths:
-      - 'ci/cine75-code.tar.gz.b64'
-      - '.github/workflows/build-cine75-android.yml'
-      - 'ci/cine75-dev.keystore.b64'
   workflow_dispatch:
 permissions:
   contents: write
@@ -26,14 +20,16 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - name: Prepare stable development signing key
+      - name: Restore private signing key
+        env:
+          CINE75_KEYSTORE_B64: ${{ secrets.CINE75_KEYSTORE_B64 }}
         run: |
-          if [ -f ci/cine75-dev.keystore.b64 ]; then
-            base64 -d ci/cine75-dev.keystore.b64 > ci/cine75-dev.keystore
-          else
-            keytool -genkeypair -v -keystore ci/cine75-dev.keystore -storepass cine75dev -keypass cine75dev -alias cine75 -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Cine75 Development,O=Cine75,C=GR"
-            base64 -w 0 ci/cine75-dev.keystore > ci/cine75-dev.keystore.b64
+          if [ -z "$CINE75_KEYSTORE_B64" ]; then
+            echo "::error::Missing CINE75_KEYSTORE_B64 GitHub Actions secret."
+            exit 1
           fi
+          printf '%s' "$CINE75_KEYSTORE_B64" | base64 -d > ci/cine75-dev.keystore
+          chmod 600 ci/cine75-dev.keystore
       - name: Ensure Android API 35 is installed
         run: |
           yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
@@ -63,7 +59,7 @@ jobs:
           path: dist/*
           if-no-files-found: error
           retention-days: 30
-      - name: Publish APK and signing key for device lab
+      - name: Publish APK for device lab
         if: github.ref == 'refs/heads/main'
         run: |
           git config user.name 'cine75-build-bot'
@@ -71,11 +67,10 @@ jobs:
           git pull --rebase origin main
           base64 -w 0 dist/Cine75-universal.apk > ci/Cine75-universal.apk.b64
           cp dist/Cine75-universal.apk.sha256 ci/Cine75-universal.apk.sha256
-          [ -f ci/cine75-dev.keystore.b64 ] || base64 -w 0 ci/cine75-dev.keystore > ci/cine75-dev.keystore.b64
-          git add ci/Cine75-universal.apk.b64 ci/Cine75-universal.apk.sha256 ci/cine75-dev.keystore.b64
+          git add ci/Cine75-universal.apk.b64 ci/Cine75-universal.apk.sha256
           if git diff --cached --quiet; then
-            echo 'Published artifacts unchanged.'
+            echo 'Published APK unchanged.'
             exit 0
           fi
-          git commit -m 'chore: publish Cine75 v1.0.9 stable-signed device-test APK'
+          git commit -m 'chore: publish Cine75 signed APK'
           git push
