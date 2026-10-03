@@ -1,0 +1,53 @@
+name: Build Cine75 universal APK
+on:
+  push:
+    branches: [main, android-universal]
+    paths:
+      - 'ci/cine75-code.tar.gz.b64'
+      - '.github/workflows/build-cine75-android.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore Android source and offline seed
+        run: |
+          rm -rf android-universal
+          mkdir -p android-universal
+          base64 -d ci/cine75-code.tar.gz.b64 | tar -xzf - -C android-universal
+          mkdir -p android-universal/app/src/main/assets
+          cp data/cine75-app-catalog.b64 android-universal/app/src/main/assets/movies_seed.b64
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Ensure Android API 35 is installed
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-35" "build-tools;35.0.0"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: Build installable universal APK
+        run: gradle -p android-universal :app:assembleDebug --stacktrace --no-daemon
+      - name: Verify package metadata
+        run: |
+          APK=android-universal/app/build/outputs/apk/debug/app-debug.apk
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | tee /tmp/cine75-badging.txt
+          grep -q "package: name='gr.cine75.app'" /tmp/cine75-badging.txt
+          grep -q "leanback" /tmp/cine75-badging.txt
+      - name: Prepare artifact
+        run: |
+          mkdir -p dist
+          cp android-universal/app/build/outputs/apk/debug/app-debug.apk dist/Cine75-universal.apk
+          sha256sum dist/Cine75-universal.apk | tee dist/Cine75-universal.apk.sha256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Cine75-universal-APK
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 30
