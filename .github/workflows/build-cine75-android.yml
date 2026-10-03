@@ -39,10 +39,10 @@ jobs:
           APK=android-universal/app/build/outputs/apk/debug/app-debug.apk
           "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | tee /tmp/cine75-badging.txt
           grep -q "package: name='gr.cine75.app'" /tmp/cine75-badging.txt
-          grep -q "versionName='1.0.5'" /tmp/cine75-badging.txt
+          grep -q "versionName='1.0.6'" /tmp/cine75-badging.txt
           grep -q "leanback" /tmp/cine75-badging.txt
           grep -q "com.phlox.tvwebbrowser" android-universal/app/src/main/java/gr/cine75/app/DetailActivity.java
-          grep -q "private static String str" android-universal/app/src/main/java/gr/cine75/app/Movie.java
+          grep -q "private static String str" android-universal/app/src/main/java/gr/cine75/app/Movie.java\n          grep -q "TARGET_W = 480" android-universal/app/src/main/java/gr/cine75/app/ImageLoader.java
       - name: Prepare artifact
         run: |
           mkdir -p dist
@@ -67,5 +67,5 @@ jobs:
             echo 'Published APK unchanged.'
             exit 0
           fi
-          git commit -m 'chore: publish Cine75 v1.0.5 device-test APK'
+          git commit -m 'chore: publish Cine75 v1.0.6 device-test APK'
           git push
