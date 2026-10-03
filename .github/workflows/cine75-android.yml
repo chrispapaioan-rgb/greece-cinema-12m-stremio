@@ -18,15 +18,21 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - name: Accept Android SDK licenses
-        run: yes | sdkmanager --licenses >/dev/null || true
-      - name: Install Android SDK packages
-        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+      - name: Install Android SDK 35
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-35" "build-tools;35.0.0"
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
       - name: Build installable universal debug APK
-        run: gradle -p android-universal :app:assembleDebug --stacktrace
+        run: gradle -p android-universal :app:assembleDebug --stacktrace --no-daemon
+      - name: Verify package and TV support
+        run: |
+          APK=android-universal/app/build/outputs/apk/debug/app-debug.apk
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | tee /tmp/cine75-badging.txt
+          grep -q "package: name='gr.cine75.app'" /tmp/cine75-badging.txt
+          grep -q "leanback" /tmp/cine75-badging.txt
       - name: Package
         run: |
           cp android-universal/app/build/outputs/apk/debug/app-debug.apk Cine75-universal-v1.0.1.apk
