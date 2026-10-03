@@ -91,8 +91,15 @@ public class MainActivity extends Activity {
 
     void loadCache(){
         File f=new File(getFilesDir(),"catalog_cache.json");
-        if(!f.exists())return;
-        try{JSONObject root=new JSONObject(read(new FileInputStream(f))); setMovies(parseMovies(root)); status.setText("Offline cache • συγχρονισμός…");}catch(Exception ignored){}
+        if(f.exists()){
+            try{JSONObject root=new JSONObject(read(new FileInputStream(f))); setMovies(parseMovies(root)); status.setText("Offline cache • συγχρονισμός…"); return;}catch(Exception ignored){}
+        }
+        try{
+            String packed=read(getAssets().open("movies_seed.b64"));
+            JSONObject root=new JSONObject(gunzipBase64(packed));
+            setMovies(parseMovies(root));
+            status.setText("Ενσωματωμένος κατάλογος • συγχρονισμός…");
+        }catch(Exception ignored){}
     }
 
     void syncNow(boolean manual){
@@ -120,16 +127,16 @@ public class MainActivity extends Activity {
                 JSONObject x=a.optJSONObject(i); if(x==null)continue;
                 int year=x.optInt("year"); String n=x.optString("name"),o=x.optString("originalName");
                 Movie m=findMatch(map,n,o,year); if(m==null)continue;
-                if(!n.isBlank()&&!norm(n).equals(norm(m.title)))m.greekTitle=n;
-                if(!x.optString("poster").isBlank())m.poster=x.optString("poster");
-                if(!x.optString("background").isBlank())m.background=x.optString("background");
-                String ov=x.optString("overview"); if(!ov.isBlank())m.description=ov;
+                if(!n.trim().isEmpty()&&!norm(n).equals(norm(m.title)))m.greekTitle=n;
+                if(!x.optString("poster").trim().isEmpty())m.poster=x.optString("poster");
+                if(!x.optString("background").trim().isEmpty())m.background=x.optString("background");
+                String ov=x.optString("overview"); if(!ov.trim().isEmpty())m.description=ov;
                 JSONArray gs=x.optJSONArray("genres"); if(gs!=null&&gs.length()>0)m.genres=strings(gs);
                 JSONArray cs=x.optJSONArray("cast"); if(cs!=null&&cs.length()>0)m.cast=strings(cs);
                 JSONArray ds=x.optJSONArray("director"); if(ds!=null&&ds.length()>0)m.director=String.join(", ",strings(ds));
                 int rt=x.optInt("runtime",-1); if(rt>0)m.runtime=rt;
                 m.greekDate=x.optString("greekTheatricalDate"); m.rerelease=x.optBoolean("isRerelease",false);
-                m.source=(m.source==null?"":m.source)+(m.source==null||m.source.isBlank()?"":" + ")+"Greek live catalog";
+                m.source=(m.source==null?"":m.source)+(m.source==null||m.source.trim().isEmpty()?"":" + ")+"Greek live catalog";
             }
         }catch(Exception ignored){}
         all.removeIf(m->m.score<75); all.sort(Movie.ORDER); return all;
@@ -138,7 +145,7 @@ public class MainActivity extends Activity {
     static Movie findMatch(Map<String,Movie> map,String a,String b,int year){
         Movie m=map.get(key(b,year)); if(m==null)m=map.get(key(a,year)); if(m!=null)return m;
         String na=norm(a),nb=norm(b);
-        for(Movie x:map.values()){if(Math.abs(x.year-year)>1)continue;String nt=norm(x.title),ng=norm(x.greekTitle);if((!na.isBlank()&&(na.equals(nt)||na.equals(ng)))||(!nb.isBlank()&&(nb.equals(nt)||nb.equals(ng))))return x;} return null;
+        for(Movie x:map.values()){if(Math.abs(x.year-year)>1)continue;String nt=norm(x.title),ng=norm(x.greekTitle);if((!na.trim().isEmpty()&&(na.equals(nt)||na.equals(ng)))||(!nb.trim().isEmpty()&&(nb.equals(nt)||nb.equals(ng))))return x;} return null;
     }
 
     static ArrayList<Movie> parseMovies(JSONObject root){
@@ -154,7 +161,7 @@ public class MainActivity extends Activity {
         for(Movie m:movies){
             if(pref("hidden",m.id))continue;
             String hay=norm(m.display()+" "+m.title+" "+m.director+" "+String.join(" ",m.cast)+" "+String.join(" ",m.genres)+" "+String.join(" ",m.categories));
-            if(!q.isBlank()&&!hay.contains(q))continue;
+            if(!q.trim().isEmpty()&&!hay.contains(q))continue;
             if(!matches(m,filter,cy))continue; shown.add(m);
         }
         if(adapter!=null)adapter.notifyDataSetChanged();
@@ -163,7 +170,7 @@ public class MainActivity extends Activity {
 
     boolean matches(Movie m,String f,int cy){
         if("Όλες".equals(f))return true;
-        if("Νέες προσθήκες".equals(f))return m.year>=cy-1||!m.greekDate.isBlank();
+        if("Νέες προσθήκες".equals(f))return m.year>=cy-1||!m.greekDate.trim().isEmpty();
         if("80+".equals(f))return m.score>=80;
         if("75–79.9".equals(f))return m.score>=75&&m.score<80;
         if("Επανακυκλοφορίες".equals(f))return m.rerelease;
@@ -179,19 +186,19 @@ public class MainActivity extends Activity {
     void showDetails(Movie m){
         Dialog d=new Dialog(this); d.getWindow();
         ScrollView scroll=new ScrollView(this); LinearLayout box=new LinearLayout(this); box.setOrientation(LinearLayout.VERTICAL); box.setPadding(dp(18),dp(18),dp(18),dp(24)); box.setBackgroundColor(BG); scroll.addView(box);
-        ImageView hero=new ImageView(this); hero.setScaleType(ImageView.ScaleType.CENTER_CROP); box.addView(hero,new LinearLayout.LayoutParams(-1,dp(isTv?300:220))); ImageLoader.load(!m.background.isBlank()?m.background:m.poster,hero);
-        box.addView(t(m.display(),isTv?30:25,TEXT,true)); if(!m.greekTitle.isBlank()&&!m.greekTitle.equalsIgnoreCase(m.title))box.addView(t(m.title,16,MUTED,false));
+        ImageView hero=new ImageView(this); hero.setScaleType(ImageView.ScaleType.CENTER_CROP); box.addView(hero,new LinearLayout.LayoutParams(-1,dp(isTv?300:220))); ImageLoader.load(!m.background.trim().isEmpty()?m.background:m.poster,hero);
+        box.addView(t(m.display(),isTv?30:25,TEXT,true)); if(!m.greekTitle.trim().isEmpty()&&!m.greekTitle.equalsIgnoreCase(m.title))box.addView(t(m.title,16,MUTED,false));
         String meta=String.format(Locale.US,"%.1f/100 • %d",m.score,m.year)+(m.runtime>0?" • "+m.runtime+"′":"")+(m.genres.isEmpty()?"":" • "+String.join(" / ",m.genres));
         box.addView(t(meta,16,Color.rgb(147,197,253),true));
-        if(!m.greekDate.isBlank())box.addView(t((m.rerelease?"Επανακυκλοφορία Ελλάδας: ":"Κυκλοφορία Ελλάδας: ")+prettyDate(m.greekDate),16,Color.rgb(134,239,172),true));
-        box.addView(t("Σκηνοθεσία: "+(m.director.isBlank()?"—":m.director),16,TEXT,false));
+        if(!m.greekDate.trim().isEmpty())box.addView(t((m.rerelease?"Επανακυκλοφορία Ελλάδας: ":"Κυκλοφορία Ελλάδας: ")+prettyDate(m.greekDate),16,Color.rgb(134,239,172),true));
+        box.addView(t("Σκηνοθεσία: "+(m.director.trim().isEmpty()?"—":m.director),16,TEXT,false));
         if(!m.cast.isEmpty())box.addView(t("Πρωταγωνιστούν: "+String.join(", ",m.cast),15,MUTED,false));
-        TextView desc=t(m.description.isBlank()?"Δεν υπάρχει ακόμη επιβεβαιωμένη περιγραφή. Θα προστεθεί αυτόματα όταν ενημερωθεί ο κατάλογος.":m.description,17,TEXT,false); desc.setPadding(0,dp(14),0,dp(14)); box.addView(desc);
+        TextView desc=t(m.description.trim().isEmpty()?"Δεν υπάρχει ακόμη επιβεβαιωμένη περιγραφή. Θα προστεθεί αυτόματα όταν ενημερωθεί ο κατάλογος.":m.description,17,TEXT,false); desc.setPadding(0,dp(14),0,dp(14)); box.addView(desc);
         LinearLayout actions=new LinearLayout(this); actions.setOrientation(isTv?LinearLayout.HORIZONTAL:LinearLayout.VERTICAL); box.addView(actions);
         Button st=btn("▶ Stremio"); actions.addView(st); st.setOnClickListener(v->openStremio(m));
-        Button gs=btn(m.greekSubsStatus.contains("Επιβεβαιωμένο")?"✓ GreekSubsMovies":"🔎 GreekSubsMovies"); actions.addView(gs); gs.setEnabled(!m.greekSubsUrl.isBlank()); gs.setOnClickListener(v->openWeb(m.greekSubsUrl));
-        Button fi=btn("Film Index"); actions.addView(fi); fi.setEnabled(!m.filmIndexUrl.isBlank()); fi.setOnClickListener(v->openWeb(m.filmIndexUrl));
-        Button tv=btn("🌐 TV Bro"); actions.addView(tv); tv.setOnClickListener(v->openWeb(m.greekSubsUrl.isBlank()?m.filmIndexUrl:m.greekSubsUrl));
+        Button gs=btn(m.greekSubsStatus.contains("Επιβεβαιωμένο")?"✓ GreekSubsMovies":"🔎 GreekSubsMovies"); actions.addView(gs); gs.setEnabled(!m.greekSubsUrl.trim().isEmpty()); gs.setOnClickListener(v->openWeb(m.greekSubsUrl));
+        Button fi=btn("Film Index"); actions.addView(fi); fi.setEnabled(!m.filmIndexUrl.trim().isEmpty()); fi.setOnClickListener(v->openWeb(m.filmIndexUrl));
+        Button tv=btn("🌐 TV Bro"); actions.addView(tv); tv.setOnClickListener(v->openWeb(m.greekSubsUrl.trim().isEmpty()?m.filmIndexUrl:m.greekSubsUrl));
         LinearLayout personal=new LinearLayout(this); personal.setOrientation(isTv?LinearLayout.HORIZONTAL:LinearLayout.VERTICAL); box.addView(personal);
         Button fav=btn(pref("fav",m.id)?"♥ Αγαπημένο":"♡ Αγαπημένο"),watch=btn(pref("watch",m.id)?"✓ Watchlist":"＋ Watchlist"),seen=btn(pref("watched",m.id)?"✓ Την είδα":"○ Την είδα"),hide=btn("⊘ Απόκρυψη");
         personal.addView(fav);personal.addView(watch);personal.addView(seen);personal.addView(hide);
@@ -205,13 +212,13 @@ public class MainActivity extends Activity {
     }
 
     void openStremio(Movie m){
-        String uri=m.stremioAppUri.isBlank()?"stremio:///search?search="+Uri.encode(m.title+" "+m.year):m.stremioAppUri;
+        String uri=m.stremioAppUri.trim().isEmpty()?"stremio:///search?search="+Uri.encode(m.title+" "+m.year):m.stremioAppUri;
         try{startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse(uri)));}
-        catch(Exception e){String web=m.stremioWebUrl.isBlank()?"https://web.stremio.com/#/search?search="+Uri.encode(m.title+" "+m.year):m.stremioWebUrl;openWeb(web);}
+        catch(Exception e){String web=m.stremioWebUrl.trim().isEmpty()?"https://web.stremio.com/#/search?search="+Uri.encode(m.title+" "+m.year):m.stremioWebUrl;openWeb(web);}
     }
 
     void openWeb(String url){
-        if(url==null||url.isBlank())return; Uri u=Uri.parse(url);
+        if(url==null||url.trim().isEmpty())return; Uri u=Uri.parse(url);
         Intent tv=new Intent(Intent.ACTION_VIEW,u); tv.setPackage(TV_BRO);
         try{startActivity(tv);return;}catch(Exception ignored){}
         try{startActivity(new Intent(Intent.ACTION_VIEW,u));}
@@ -243,9 +250,9 @@ public class MainActivity extends Activity {
                 LinearLayout row=new LinearLayout(MainActivity.this);row.setOrientation(LinearLayout.HORIZONTAL);row.setPadding(dp(8),dp(7),dp(8),dp(7));row.setBackgroundColor(PANEL);row.setGravity(Gravity.CENTER_VERTICAL);row.setFocusable(true);
                 ImageView poster=new ImageView(MainActivity.this);poster.setScaleType(ImageView.ScaleType.CENTER_CROP);row.addView(poster,new LinearLayout.LayoutParams(dp(isTv?80:64),dp(isTv?116:92)));ImageLoader.load(m.poster,poster);
                 LinearLayout txt=new LinearLayout(MainActivity.this);txt.setOrientation(LinearLayout.VERTICAL);txt.setPadding(dp(10),0,0,0);row.addView(txt,new LinearLayout.LayoutParams(0,-2,1));
-                txt.addView(t(m.display(),isTv?20:17,TEXT,true));if(!m.greekTitle.isBlank()&&!m.greekTitle.equalsIgnoreCase(m.title))txt.addView(t(m.title,13,MUTED,false));
+                txt.addView(t(m.display(),isTv?20:17,TEXT,true));if(!m.greekTitle.trim().isEmpty()&&!m.greekTitle.equalsIgnoreCase(m.title))txt.addView(t(m.title,13,MUTED,false));
                 txt.addView(t(String.format(Locale.US,"%.1f  |  %d  |  %s",m.score,m.year,m.genres.isEmpty()?"—":String.join(" / ",m.genres)),14,Color.rgb(147,197,253),false));
-                txt.addView(t((m.director.isBlank()?"—":m.director)+(m.rerelease?"  |  ΕΠΑΝΑΚΥΚΛΟΦΟΡΙΑ":"")+(m.greekSubsStatus.contains("Επιβεβαιωμένο")?"  |  ✓ GreekSubsMovies":""),13,MUTED,false));
+                txt.addView(t((m.director.trim().isEmpty()?"—":m.director)+(m.rerelease?"  |  ΕΠΑΝΑΚΥΚΛΟΦΟΡΙΑ":"")+(m.greekSubsStatus.contains("Επιβεβαιωμένο")?"  |  ✓ GreekSubsMovies":""),13,MUTED,false));
                 return row;
             }else{
                 LinearLayout card=new LinearLayout(MainActivity.this);card.setOrientation(LinearLayout.VERTICAL);card.setPadding(dp(5),dp(5),dp(5),dp(7));card.setBackgroundColor(PANEL);card.setFocusable(true);
@@ -261,14 +268,14 @@ public class MainActivity extends Activity {
         String id="",title="",greekTitle="",director="",description="",greekSubsStatus="",greekSubsUrl="",filmIndexUrl="",stremioWebUrl="",stremioAppUri="",poster="",background="",greekDate="",source="",scoreSources="";
         int year=0,runtime=0;double score=0;boolean rerelease=false;ArrayList<String>genres=new ArrayList<>(),categories=new ArrayList<>(),cast=new ArrayList<>();
         static final Comparator<Movie> ORDER=(a,b)->{int c=Double.compare(b.score,a.score);if(c!=0)return c;c=Integer.compare(b.year,a.year);return c!=0?c:a.title.compareToIgnoreCase(b.title);};
-        String display(){return greekTitle.isBlank()?title:greekTitle;}
+        String display(){return greekTitle.trim().isEmpty()?title:greekTitle;}
         static Movie from(JSONObject o){Movie m=new Movie();m.id=o.optString("id");m.title=o.optString("title",o.optString("originalName",o.optString("name")));m.greekTitle=o.optString("greekTitle");m.year=o.optInt("year");m.score=o.optDouble("score",o.optDouble("combinedScore",-1));m.scoreSources=o.optString("scoreSources");m.director=o.optString("director");if(o.opt("director")instanceof JSONArray)m.director=String.join(", ",strings(o.optJSONArray("director")));m.genres=strings(o.optJSONArray("genres"));m.categories=strings(o.optJSONArray("categories"));m.description=o.optString("description",o.optString("overview"));m.greekSubsStatus=o.optString("greekSubsStatus");m.greekSubsUrl=o.optString("greekSubsUrl");m.filmIndexUrl=o.optString("filmIndexUrl");m.stremioWebUrl=o.optString("stremioWebUrl");m.stremioAppUri=o.optString("stremioAppUri");m.poster=o.optString("poster");m.background=o.optString("background");m.cast=strings(o.optJSONArray("cast"));m.runtime=o.optInt("runtime",0);m.greekDate=o.optString("greekTheatricalDate");m.rerelease=o.optBoolean("isRerelease");m.source=o.optString("source");return m;}
         JSONObject json(){JSONObject o=new JSONObject();try{o.put("id",id);o.put("title",title);o.put("greekTitle",greekTitle);o.put("year",year);o.put("score",score);o.put("scoreSources",scoreSources);o.put("director",director);o.put("genres",new JSONArray(genres));o.put("categories",new JSONArray(categories));o.put("description",description);o.put("greekSubsStatus",greekSubsStatus);o.put("greekSubsUrl",greekSubsUrl);o.put("filmIndexUrl",filmIndexUrl);o.put("stremioWebUrl",stremioWebUrl);o.put("stremioAppUri",stremioAppUri);o.put("poster",poster);o.put("background",background);o.put("cast",new JSONArray(cast));o.put("runtime",runtime);o.put("greekTheatricalDate",greekDate);o.put("isRerelease",rerelease);o.put("source",source);}catch(Exception ignored){}return o;}
     }
 
     static class ImageLoader{
         static final android.util.LruCache<String,Bitmap>CACHE=new android.util.LruCache<String,Bitmap>(24*1024*1024){protected int sizeOf(String k,Bitmap b){return b.getByteCount();}};
-        static void load(String url,ImageView v){if(url==null||url.isBlank()){v.setImageDrawable(null);return;}v.setTag(url);Bitmap b=CACHE.get(url);if(b!=null){v.setImageBitmap(b);return;}v.setImageDrawable(null);IO.execute(()->{HttpURLConnection c=null;try{c=(HttpURLConnection)new URL(url).openConnection();c.setConnectTimeout(8000);c.setReadTimeout(10000);try(InputStream in=c.getInputStream()){Bitmap x=BitmapFactory.decodeStream(in);if(x!=null)CACHE.put(url,x);v.post(()->{if(url.equals(v.getTag())&&x!=null)v.setImageBitmap(x);});}}catch(Exception ignored){}finally{if(c!=null)c.disconnect();}});}
+        static void load(String url,ImageView v){if(url==null||url.trim().isEmpty()){v.setImageDrawable(null);return;}v.setTag(url);Bitmap b=CACHE.get(url);if(b!=null){v.setImageBitmap(b);return;}v.setImageDrawable(null);IO.execute(()->{HttpURLConnection c=null;try{c=(HttpURLConnection)new URL(url).openConnection();c.setConnectTimeout(8000);c.setReadTimeout(10000);try(InputStream in=c.getInputStream()){Bitmap x=BitmapFactory.decodeStream(in);if(x!=null)CACHE.put(url,x);v.post(()->{if(url.equals(v.getTag())&&x!=null)v.setImageBitmap(x);});}}catch(Exception ignored){}finally{if(c!=null)c.disconnect();}});}
     }
 
     TextView t(String s,float sp,int color,boolean bold){TextView v=new TextView(this);v.setText(s);v.setTextSize(sp);v.setTextColor(color);if(bold)v.setTypeface(null,Typeface.BOLD);v.setPadding(dp(3),dp(4),dp(3),dp(4));return v;}
@@ -277,8 +284,8 @@ public class MainActivity extends Activity {
     static String prettyDate(String d){String[]p=d.split("-");return p.length==3?p[2]+"/"+p[1]+"/"+p[0]:d;}
     static String key(String t,int y){return norm(t)+"|"+y;}
     static String norm(String s){if(s==null)return"";String n=Normalizer.normalize(s,Normalizer.Form.NFD).replaceAll("\\p{M}+","").toLowerCase(Locale.ROOT);return n.replaceAll("[^\\p{L}\\p{N}]+"," ").trim();}
-    static ArrayList<String> strings(JSONArray a){ArrayList<String>x=new ArrayList<>();if(a!=null)for(int i=0;i<a.length();i++){String s=a.optString(i);if(!s.isBlank())x.add(s);}return x;}
-    static String fetch(String url)throws Exception{HttpURLConnection c=(HttpURLConnection)new URL(url).openConnection();c.setConnectTimeout(12000);c.setReadTimeout(25000);c.setRequestProperty("User-Agent","Cine75/1.0.1");int code=c.getResponseCode();if(code<200||code>=300)throw new IOException("HTTP "+code);try{return read(c.getInputStream());}finally{c.disconnect();}}
+    static ArrayList<String> strings(JSONArray a){ArrayList<String>x=new ArrayList<>();if(a!=null)for(int i=0;i<a.length();i++){String s=a.optString(i);if(!s.trim().isEmpty())x.add(s);}return x;}
+    static String fetch(String url)throws Exception{HttpURLConnection c=(HttpURLConnection)new URL(url).openConnection();c.setConnectTimeout(12000);c.setReadTimeout(25000);c.setRequestProperty("User-Agent","Cine75/1.0.2");int code=c.getResponseCode();if(code<200||code>=300)throw new IOException("HTTP "+code);try{return read(c.getInputStream());}finally{c.disconnect();}}
     static String read(InputStream in)throws IOException{try(in){ByteArrayOutputStream b=new ByteArrayOutputStream();byte[]buf=new byte[8192];int n;while((n=in.read(buf))!=-1)b.write(buf,0,n);return b.toString(StandardCharsets.UTF_8);}}
     static String gunzipBase64(String s)throws Exception{byte[]gz=android.util.Base64.decode(s.trim(),android.util.Base64.DEFAULT);return read(new GZIPInputStream(new ByteArrayInputStream(gz)));}
 }
