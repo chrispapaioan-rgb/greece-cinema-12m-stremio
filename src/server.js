@@ -13,10 +13,16 @@ const manifest = {
   behaviorHints: { configurable: false, configurationRequired: false }
 };
 const cache = { cacheMaxAge: 60, staleRevalidate: 0, staleError: 0 };
-function createApp({ catalogFile = config.catalogFile, refreshFn = refresh, now = () => new Date(), token = config.tmdbToken, refreshHours = config.refreshHours } = {}) {
+function createApp({ catalogFile = config.catalogFile, adultItemsFile = config.adultItemsFile, refreshFn = refresh, now = () => new Date(), token = config.tmdbToken, refreshHours = config.refreshHours } = {}) {
   const app = express();
   app.disable('x-powered-by'); app.disable('etag');
   let snapshot = { items: [], generatedAt: null }, error = null, refreshing = null, lastAttempt = 0;
+  const readAdultItems = () => {
+    try {
+      const adult = readJson(adultItemsFile, { items: [] });
+      return Array.isArray(adult.items) ? adult.items : [];
+    } catch { return []; }
+  };
   try { snapshot = readJson(catalogFile, snapshot); } catch (e) { error = 'Stored catalog could not be read'; }
   const ageMs = () => now().getTime() - Date.parse(snapshot.generatedAt || '');
   const isStale = () => !Number.isFinite(ageMs()) || ageMs() > refreshHours * 3600000 || snapshot.window?.to !== windowAt(now()).to;
@@ -28,6 +34,7 @@ function createApp({ catalogFile = config.catalogFile, refreshFn = refresh, now 
       count: items.length, window: windowAt(now()), stale: isStale(), refreshing: !!refreshing,
       lastRefreshError: error, sourceConfigured: Boolean(token), audit: snapshot.audit || null,
       first10: items.slice(0, 10).map(x => ({ id: x.id, name: x.name, greekTheatricalDate: x.greekTheatricalDate })),
+      adultCount: readAdultItems().length,
       odyssey: odyssey ? { ...odyssey, position: items.indexOf(odyssey) + 1 } : null };
   }
   async function safeRefresh() {
@@ -51,7 +58,8 @@ function createApp({ catalogFile = config.catalogFile, refreshFn = refresh, now 
   app.get('/manifest.json', (req, res) => res.json(manifest));
   app.get('/health', (req, res) => { const s = status(); res.status(s.ok ? 200 : 503).json(s); });
   app.get('/ready', (req, res) => res.json({ ready: true, version: manifest.version }));
-  app.get('/catalog.json', (req, res) => res.json({ ...snapshot, items: selectItems(snapshot.items, windowAt(now())), status: status() }));
+  app.get('/catalog.json', (req, res) => res.json({ ...snapshot, items: selectItems(snapshot.items, windowAt(now())), adultItems: readAdultItems(), status: status() }));
+  app.get('/adult-catalog.json', (req, res) => res.json({ hiddenByDefault: true, adultItems: readAdultItems() }));
   function available(res) {
     res.set('X-Catalog-Generated-At', snapshot.generatedAt || 'pending');
     res.set('X-Catalog-Stale', String(isStale()));
