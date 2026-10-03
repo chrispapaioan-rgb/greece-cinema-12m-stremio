@@ -1,5 +1,10 @@
 name: Build Cine75 universal APK
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'ci/cine75-code.tar.gz.b64'
+      - '.github/workflows/build-cine75-android.yml'
   workflow_dispatch:
 permissions:
   contents: write
@@ -44,10 +49,15 @@ jobs:
           APK=android-universal/app/build/outputs/apk/debug/app-debug.apk
           "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | tee /tmp/cine75-badging.txt
           grep -q "package: name='gr.cine75.app'" /tmp/cine75-badging.txt
-          grep -q "versionName='1.0.9'" /tmp/cine75-badging.txt
+          grep -q "versionName='1.1.1'" /tmp/cine75-badging.txt
           grep -q "leanback" /tmp/cine75-badging.txt
           grep -q "com.phlox.tvwebbrowser" android-universal/app/src/main/java/gr/cine75/app/DetailActivity.java
           grep -q "private static String str" android-universal/app/src/main/java/gr/cine75/app/Movie.java
+          grep -q "qualityChips" android-universal/app/src/main/java/gr/cine75/app/MainActivity.java
+          grep -q "genreChips" android-universal/app/src/main/java/gr/cine75/app/MainActivity.java
+          grep -q "specialChips" android-universal/app/src/main/java/gr/cine75/app/MainActivity.java
+          grep -q "chatgptMoreButton" android-universal/app/src/main/java/gr/cine75/app/DetailActivity.java
+          grep -q "com.openai.chatgpt" android-universal/app/src/main/AndroidManifest.xml
       - name: Prepare artifact
         run: |
           mkdir -p dist
@@ -72,5 +82,5 @@ jobs:
             echo 'Published APK unchanged.'
             exit 0
           fi
-          git commit -m 'chore: publish Cine75 signed APK'
+          git commit -m 'chore: publish Cine75 v1.1.1 signed APK'
           git push
