@@ -39,7 +39,7 @@ jobs:
           APK=android-universal/app/build/outputs/apk/debug/app-debug.apk
           "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | tee /tmp/cine75-badging.txt
           grep -q "package: name='gr.cine75.app'" /tmp/cine75-badging.txt
-          grep -q "versionName='1.0.7'" /tmp/cine75-badging.txt
+          grep -q "versionName='1.0.8'" /tmp/cine75-badging.txt
           grep -q "leanback" /tmp/cine75-badging.txt
           grep -q "com.phlox.tvwebbrowser" android-universal/app/src/main/java/gr/cine75/app/DetailActivity.java
           grep -q "private static String str" android-universal/app/src/main/java/gr/cine75/app/Movie.java
@@ -67,5 +67,5 @@ jobs:
             echo 'Published APK unchanged.'
             exit 0
           fi
-          git commit -m 'chore: publish Cine75 v1.0.7 device-test APK'
+          git commit -m 'chore: publish Cine75 v1.0.8 device-test APK'
           git push
