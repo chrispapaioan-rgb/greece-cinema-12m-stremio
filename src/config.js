@@ -4,5 +4,6 @@ module.exports = {
   refreshHours: Math.min(6, Math.max(1, Number(process.env.REFRESH_HOURS) || 6)),
   catalogFile: process.env.CATALOG_FILE || path.join(__dirname, '..', 'data', 'catalog.json'),
   overridesFile: process.env.OVERRIDES_FILE || path.join(__dirname, '..', 'data', 'overrides.json'),
+  adultItemsFile: process.env.ADULT_ITEMS_FILE || path.join(__dirname, '..', 'data', 'adult-items.json'),
   userAgent: 'GreeceCinema12MStremio/2.2'
 };
