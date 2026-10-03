@@ -1,0 +1,50 @@
+name: Update Cine75 classics catalog
+on:
+  schedule:
+    - cron: '17 4 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Refresh classics
+        run: node tools/update-classics.mjs
+      - name: Validate classics rules
+        run: |
+          node - <<'NODE'
+          const fs=require('fs');
+          const x=JSON.parse(fs.readFileSync('data/classics-items.json','utf8'));
+          if (!Array.isArray(x.items) || x.items.length===0) throw new Error('classics empty');
+          if (x.items.some(m => Number(m.year) >= 2016 || Number(m.year) <= 0)) throw new Error('classic year out of range');
+          if (x.items.some(m => m.classicCategory !== 'CLASSICS')) throw new Error('classic category missing');
+          for (const m of x.items) {
+            const s=Number(m.score);
+            if (m.classicTier==='CLASSIC_MASTERPIECE' && !(s>=85)) throw new Error('bad masterpiece tier');
+            if (m.classicTier==='CLASSIC_EXCELLENT' && !(s>=82 && s<85)) throw new Error('bad excellent tier');
+            if (m.classicTier==='CLASSIC_EXCEPTION' && !(s>=80 && s<82)) throw new Error('bad exception tier');
+            if (m.classicTier==='CLASSIC_MASTERPIECE_EXCEPTION' && !String(m.classicReason||'').trim()) throw new Error('curated classic exception missing reason');
+            if (s<80 && m.classicTier!=='CLASSIC_MASTERPIECE_EXCEPTION') throw new Error('sub-80 classic without curated exception');
+          }
+          console.log('classics',x.items.length,'masterpiece',x.items.filter(m=>m.classicTier==='CLASSIC_MASTERPIECE').length,'excellent',x.items.filter(m=>m.classicTier==='CLASSIC_EXCELLENT').length,'exception',x.items.filter(m=>m.classicTier==='CLASSIC_EXCEPTION').length);
+          NODE
+      - name: Publish refreshed classics
+        run: |
+          git config user.name 'cine75-classics-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git pull --rebase origin main
+          git add data/classics-items.json
+          if git diff --cached --quiet; then
+            echo 'Classics catalog unchanged.'
+            exit 0
+          fi
+          git commit -m 'data: refresh Cine75 classics catalog'
+          git push
