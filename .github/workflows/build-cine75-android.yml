@@ -57,10 +57,11 @@ jobs:
       - name: Publish APK for device lab
         if: github.ref == 'refs/heads/main'
         run: |
-          base64 -w 0 dist/Cine75-universal.apk > ci/Cine75-universal.apk.b64
-          cp dist/Cine75-universal.apk.sha256 ci/Cine75-universal.apk.sha256
           git config user.name 'cine75-build-bot'
           git config user.email 'actions@users.noreply.github.com'
+          git pull --rebase origin main
+          base64 -w 0 dist/Cine75-universal.apk > ci/Cine75-universal.apk.b64
+          cp dist/Cine75-universal.apk.sha256 ci/Cine75-universal.apk.sha256
           git add ci/Cine75-universal.apk.b64 ci/Cine75-universal.apk.sha256
           if git diff --cached --quiet; then
             echo 'Published APK unchanged.'
