@@ -23,6 +23,8 @@ jobs:
           base64 -d ci/cine75-code.tar.gz.b64 | tar -xzf - -C android-universal
           mkdir -p android-universal/app/src/main/assets
           cp data/cine75-app-catalog.b64 android-universal/app/src/main/assets/movies_seed.b64
+          cp data/classics-items.json android-universal/app/src/main/assets/classics_items.json
+          cp data/adult-items.json android-universal/app/src/main/assets/adult_items.json
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -52,7 +54,7 @@ jobs:
           APK=android-universal/app/build/outputs/apk/debug/app-debug.apk
           "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | tee /tmp/cine75-badging.txt
           grep -q "package: name='gr.cine75.app'" /tmp/cine75-badging.txt
-          grep -q "versionName='1.1.2'" /tmp/cine75-badging.txt
+          grep -q "versionName='1.1.9'" /tmp/cine75-badging.txt
           grep -q "leanback" /tmp/cine75-badging.txt
           grep -q "com.phlox.tvwebbrowser" android-universal/app/src/main/java/gr/cine75/app/DetailActivity.java
           grep -q "private static String str" android-universal/app/src/main/java/gr/cine75/app/Movie.java
@@ -60,7 +62,8 @@ jobs:
           grep -q "genreChips" android-universal/app/src/main/java/gr/cine75/app/MainActivity.java
           grep -q "specialChips" android-universal/app/src/main/java/gr/cine75/app/MainActivity.java
           grep -q "moreChatGptButton" android-universal/app/src/main/java/gr/cine75/app/DetailActivity.java
-          grep -q "com.openai.chatgpt" android-universal/app/src/main/AndroidManifest.xml
+          grep -q "google.com/search" android-universal/app/src/main/java/gr/cine75/app/DetailActivity.java
+          grep -q "udm=50" android-universal/app/src/main/java/gr/cine75/app/DetailActivity.java
       - name: Prepare artifact
         run: |
           mkdir -p dist
@@ -85,5 +88,5 @@ jobs:
             echo 'Published APK unchanged.'
             exit 0
           fi
-          git commit -m 'chore: publish Cine75 v1.1.2 signed APK'
+          git commit -m 'chore: publish Cine75 v1.1.9 signed APK'
           git push
